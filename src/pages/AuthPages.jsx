@@ -2,7 +2,7 @@ import { useState } from "react";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 import AuthPagesNavBar from "@/components/AuthPagesNavBar";
 import styles from "@/styles/authpages.module.css";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,10 +10,15 @@ export default function Login() {
     email: "",
     password: "",
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { key, value } = e.target;
     setFormData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleRedirect = () => {
+    navigate("/register");
   };
 
   const handleSubmit = (e) => {
@@ -21,6 +26,7 @@ export default function Login() {
     console.log(formData);
   };
 
+  //   TODO: Connect to backend
   return (
     <>
       <div className={styles.pageContainer}>
@@ -75,7 +81,9 @@ export default function Login() {
           </div>
 
           <p className={styles.loginText}> Don't have have an account? </p>
-          <button className={styles.btnLogOutline}>Sign up</button>
+          <button className={styles.btnLogOutline} onClick={handleRedirect}>
+            Sign up
+          </button>
         </div>
       </div>
     </>
@@ -91,6 +99,7 @@ export function Register() {
     password: "",
     confirmPassword: "",
   });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { key, value } = e.target;
@@ -98,13 +107,14 @@ export function Register() {
   };
 
   const handleRedirect = () => {
-    <Link to="/login">Login</Link>;
+    navigate("/login");
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(formData);
   };
+  // TODO: validate password
 
   return (
     <>
