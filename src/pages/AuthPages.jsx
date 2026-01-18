@@ -13,8 +13,8 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { key, value } = e.target;
-    setFormData((prev) => ({ ...prev, [key]: value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleRedirect = () => {
@@ -102,8 +102,8 @@ export function Register() {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { key, value } = e.target;
-    setFormData((prev) => ({ ...prev, [key]: value }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleRedirect = () => {
