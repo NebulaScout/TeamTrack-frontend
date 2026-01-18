@@ -1,3 +1,12 @@
+import user1 from "@/assets/person1_male.jpg";
+import user2 from "@/assets/person2_female.jpg";
+import user3 from "@/assets/person3_male.jpg";
+import user4 from "@/assets/person4_female.jpg";
+import user5 from "@/assets/person5_male.jpg";
+import user6 from "@/assets/person6_female.jpg";
+import user7 from "@/assets/person7_male.jpg";
+import user8 from "@/assets/person8_female.jpg";
+
 export const statsData = [
   {
     title: "Total Tasks",
@@ -29,20 +38,20 @@ export const statsData = [
   },
 ];
 
-export const projectProgress = [
+export const projectProgressData = [
   { name: "Website Redesign", progress: 75, color: "Blue" },
   { name: "mobile App", progress: 45, color: "Green" },
   { name: "API Integration", progress: 90, color: "Red" },
 ];
 
-export const recentActivity = [
+export const recentActivityData = [
   {
     user: "Sarah Ferna",
     action: "completed task",
     task: "Update homepage design",
     time: "2 min ago",
     type: "completed",
-    avatar: "@/assets/person4_female.jpg",
+    avatar: user1,
   },
 
   {
@@ -51,7 +60,7 @@ export const recentActivity = [
     task: "API Integration task",
     time: "15 min ago",
     type: "comment",
-    avatar: "@/assets/person1_male.jpg",
+    avatar: user2,
   },
 
   {
@@ -60,7 +69,7 @@ export const recentActivity = [
     task: "Mobile App Redesign",
     time: "1 hour ago",
     type: "joined",
-    avatar: "@/assets/person2_female.jpg",
+    avatar: user3,
   },
 
   {
@@ -69,44 +78,44 @@ export const recentActivity = [
     task: "Database Migration",
     time: "2 hours ago",
     type: "updated",
-    avatar: "@/assets/person3_male.jpg",
+    avatar: user4,
   },
 ];
 
-export const upcomingDeadlines = [
+export const upcomingDeadlinesData = [
   {
-    title: "Homepage...",
+    title: "Homepage Redesign",
     fullTitle: "Homepage Redesign",
     project: "Website Refresh",
     priority: "High",
     date: "Today",
-    avatar: "@/assets/person5_male.jpg",
+    avatar: user5,
   },
 
   {
-    title: "API D...",
+    title: "API Documentation",
     fullTitle: "API Documentation",
     project: "Suppliers Portal",
     priority: "Medium",
     date: "Tomorrow",
-    avatar: "@/assets/person6_female.jpg",
+    avatar: user6,
   },
 
   {
-    title: "User Tes...",
+    title: "User Testing",
     fullTitle: "User Testing",
     project: "Mobile App",
     priority: "Low",
     date: "Jan 20",
-    avatar: "@/assets/person7_male.jpg",
+    avatar: user7,
   },
 
   {
-    title: "Security Au...",
+    title: "Security Audit",
     fullTitle: "Security Audit",
     project: "Infrastructure",
     priority: "Low",
     date: "Jan 22",
-    avatar: "@/assets/person8_female.jpg",
+    avatar: "",
   },
 ];

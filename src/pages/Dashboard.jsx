@@ -1,32 +1,57 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { VscGraph } from "react-icons/vsc";
-import { LuLayoutDashboard } from "react-icons/lu";
-import { LuFolderKanban } from "react-icons/lu";
+// import { Link, useLocation } from "react-router-dom";
 import { MdOutlineTaskAlt } from "react-icons/md";
-import { FaRegCalendar } from "react-icons/fa6";
-import { RiTeamLine } from "react-icons/ri";
-import { IoNotificationsOutline } from "react-icons/io5";
 import { IoSearch } from "react-icons/io5";
 import { FiCheckSquare } from "react-icons/fi";
-import { FaRegClock } from "react-icons/fa";
-import { MdErrorOutline } from "react-icons/md";
-import { HiOutlineArrowTrendingUp } from "react-icons/hi2";
+import SideBar from "@/components/SideBar";
+import ProjectProgress from "@/components/ProjectProgress";
+import RecentActivity from "@/components/RecentActivity";
+import StatCard from "@/components/StatCard";
+import UpcomingDeadlines from "@/components/UpcomingDeadlines";
+import { IoNotificationsOutline } from "react-icons/io5";
 
-const navItems = [
-  { path: "/", label: "Dashboard", icon: <LuLayoutDashboard /> },
-  { path: "/projects", label: "Projects", icon: <LuFolderKanban /> },
-  { path: "/tasks", label: "Tasks", icon: <FiCheckSquare /> },
-  { path: "/Calendar", label: "Calendar", icon: <FaRegCalendar /> },
-  { path: "/team", label: "Team", icon: <RiTeamLine /> },
-  {
-    path: "/notifications",
-    label: "Notifications",
-    icon: <IoNotificationsOutline />,
-  },
-  { path: "/reports", label: "reports", icon: <VscGraph /> },
-];
+import styles from "@/styles/dashboard.module.css";
+import { statsData } from "@/utils/mockData";
 
 export default function Dashboard() {
-  return <div>Dashboard</div>;
+  return (
+    <div className={styles.dashboardContainer}>
+      <SideBar />
+
+      <main className={styles.mainContent}>
+        <header className={styles.header}>
+          <div className={styles.headerTitle}>
+            <h1>Dashboard</h1>
+            <p>Welcome back, John!</p>
+          </div>
+          <div className={styles.headerActions}>
+            <div className={styles.searchBar}>
+              <span className={styles.searchIcon}>
+                <IoSearch />
+              </span>
+              <input type="text" placeholder="Search..." />
+            </div>
+            <button className={styles.btnNotifications}>
+              <IoNotificationsOutline />
+              <span className={styles.notificationsBadge}>3</span>
+            </button>
+          </div>
+        </header>
+
+        <div className={styles.statsGrid}>
+          {statsData.map((stat) => (
+            <StatCard key={stat.title} {...stat} />
+          ))}
+        </div>
+
+        <div className={styles.contentGrid}>
+          <div className={styles.leftColumn}>
+            <ProjectProgress />
+            <RecentActivity />
+          </div>
+          <UpcomingDeadlines />
+        </div>
+      </main>
+    </div>
+  );
 }

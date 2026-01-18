@@ -1,11 +1,14 @@
 :root {
   --primary-color: #2563eb;
+  --primary-hover-color: #cfd9f4;
+  --primary-text-active-color: #1e40af;
   --secondary-color: #16a34a;
   --accent-color: #f59e0b;
   --dark-color: #111827;
   --background-color: #f9fafb;
   --surface-color: #ffffff;
   --text-color: #1f2937;
+  --text-gray: #6b7280;
   --status-success: #16a34a;
   --status-warning: #f59e0b;
   --status-error: #dc2626;
