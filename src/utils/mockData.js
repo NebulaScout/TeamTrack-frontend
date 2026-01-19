@@ -119,3 +119,14 @@ export const upcomingDeadlinesData = [
     avatar: "",
   },
 ];
+
+export const mockNotificationsData = [
+  {
+    id: 1,
+    type: "task",
+    title: "New task assigned",
+    message: "Sarah assigned you to 'Update homepage design'",
+    time: "2 min ago",
+    isRead: false,
+  },
+];
