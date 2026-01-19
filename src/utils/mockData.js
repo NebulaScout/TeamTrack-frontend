@@ -165,3 +165,65 @@ export const mockProjectsData = [
     ],
   },
 ];
+
+export const mockTasksData = [
+  {
+    id: 1,
+    title: "Implement user authentication",
+    description: "Set up JWT authentication with refresh tokens",
+    project: "Mobile App",
+    status: "To Do",
+    priority: "High",
+    dueDate: "2026-01-20",
+    assignee: { name: "Sarah Ferna", avatar: user1 },
+  },
+  {
+    id: 2,
+    title: "Database schema optimization",
+    description: "Optimize database queries and indexes",
+    project: "API Integration",
+    status: "To Do",
+    priority: "Medium",
+    dueDate: "2026-01-22",
+    assignee: { name: "Mike Johnson", avatar: user2 },
+  },
+  {
+    id: 3,
+    title: "Design homepage hero section",
+    description: "Create modern hero section with animations",
+    project: "Website Redesign",
+    status: "In Progress",
+    priority: "High",
+    dueDate: "2026-01-19",
+    assignee: { name: "Ann Onywao", avatar: user3 },
+  },
+  {
+    id: 4,
+    title: "Mobile responsive fixes",
+    description: "Fix responsive issues on mobile devices",
+    project: "Website Redesign",
+    status: "In Progress",
+    priority: "Low",
+    dueDate: "2026-01-23",
+    assignee: { name: "Alex Anderson", avatar: user4 },
+  },
+];
+
+export const mockProjectsList = [
+  "Website Redesign",
+  "Mobile App",
+  "API Integration",
+  "Documentation Portal",
+  "Security Audit",
+];
+
+export const mockTeamMembers = [
+  { name: "Sarah Ferna", avatar: user1 },
+  { name: "Mike Johnson", avatar: user2 },
+  { name: "Ann Onywao", avatar: user3 },
+  { name: "Alex Anderson", avatar: user4 },
+  { name: "John Smith", avatar: user5 },
+  { name: "Emily Davis", avatar: user6 },
+  { name: "Robert Brown", avatar: user7 },
+  { name: "Lisa Wilson", avatar: user8 },
+];

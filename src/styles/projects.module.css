@@ -148,9 +148,6 @@
   color: var(--text-gray);
   margin: 0;
   line-height: 1.5;
-  /* display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical; */
   overflow: hidden;
 }
 
@@ -172,7 +169,7 @@
   color: var(--text-gray);
 }
 
-.progressPercent {
+.progressPercentage {
   font-size: 12px;
   font-weight: 500;
   color: var(--text-color);
