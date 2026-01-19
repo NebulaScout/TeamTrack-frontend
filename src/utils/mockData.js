@@ -130,3 +130,38 @@ export const mockNotificationsData = [
     isRead: false,
   },
 ];
+
+export const mockProjectsData = [
+  {
+    id: 1,
+    name: "Website Redesign",
+    description: "Complete overhaul of the company website with new branding",
+    progress: 75,
+    tasksCompleted: 24,
+    totalTasks: 35,
+    dueDate: "2025-01025",
+    status: "Active",
+    priority: "High",
+    teamMembers: [
+      { name: "Sarah Ferna", avatar: user1 },
+      { name: "Mike Johnson", avatar: user2 },
+      { name: "Ann Onywao", avatar: user3 },
+      //   { name: "Alex Anderson", avatar: user4 },
+    ],
+  },
+  {
+    id: 2,
+    name: "Mobile App Development",
+    description: "Native iOS and Android app for customer engagement",
+    progress: 45,
+    tasksCompleted: 16,
+    totalTasks: 36,
+    dueDate: "2025-02-15",
+    status: "Active",
+    priority: "High",
+    teamMembers: [
+      { name: "Alex Anderson", avatar: user4 },
+      { name: "John Smith", avatar: user5 },
+    ],
+  },
+];

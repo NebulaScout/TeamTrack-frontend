@@ -1,5 +1,314 @@
-import React from "react";
+import React, { useState } from "react";
+import { FiSearch, FiPlus, FiMoreHorizontal, FiX } from "react-icons/fi";
+import { FaRegClock } from "react-icons/fa";
+import { FaRegCalendar } from "react-icons/fa6";
+import SideBar from "@/components/SideBar";
+import Header from "@/components/Header";
+import styles from "@/styles/dashboard.module.css";
+import projectStyles from "@/styles/projects.module.css";
+import { mockProjectsData } from "@/utils/mockData";
+import { formatDate } from "@/utils/formatDate";
 
 export default function Projects() {
-  return <div>Projects</div>;
+  const [activeTab, setActiveTab] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [projects, setProjects] = useState(mockProjectsData);
+  const [showModal, setShowModal] = useState(false);
+  const [newProject, setNewProject] = useState({
+    name: "",
+    description: "",
+    status: "Active",
+    priority: "High",
+    dueDate: "",
+  });
+
+  // Filter projects based on the active tab or the searched item
+  const filteredProjects = projects.filter((project) => {
+    const selectedTab =
+      activeTab === "all" ||
+      (activeTab === "active" && project.status === "Active") ||
+      (activeTab === "completed" && project.status === "Completed");
+
+    const searchedProject = project.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase);
+
+    return selectedTab || searchedProject;
+  });
+
+  const handleCreateProject = (e) => {
+    e.preventDefaule();
+
+    const project = {
+      id: projects.length + 1,
+      name: newProject.name,
+      description: newProject.description,
+      progress: 0,
+      tasksCompleted: 0,
+      totalTasks: 0,
+      dueDate: newProject.dueDate,
+      status: newProject.status,
+      priority: newProject.priority,
+      teamMembers: [],
+    };
+
+    setProjects([...projects, project]);
+    setNewProject({
+      name: "",
+      description: "",
+      status: "Active",
+      priority: "High",
+      dueDate: "",
+    });
+    setShowModal(false);
+  };
+
+  console.log(filteredProjects);
+  return (
+    <div className={styles.dashboardContainer}>
+      <SideBar />
+      <main className={styles.mainContent}>
+        <Header
+          title="Projects"
+          pageIntro="Manage and track all your team projects"
+        />
+
+        {/* Projects Content */}
+        <div className={projectStyles.projectsContainer}>
+          {/* Search, Tabs & Actions */}
+          <div className={projectStyles.projectsHeader}>
+            <div className={projectStyles.searchBox}>
+              <FiSearch className={projectStyles.searchIcon} />
+              <input
+                type="text"
+                placeholder="Search project..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+
+            <div className={projectStyles.headerActions}>
+              <div className={projectStyles.tabs}>
+                <button
+                  className={`${projectStyles.tab} ${activeTab === "all" && projectStyles.tabActive}`}
+                  onClick={() => setActiveTab("all")}
+                >
+                  {" "}
+                  All
+                </button>
+                <button
+                  className={`${projectStyles.tab} ${activeTab === "active" && projectStyles.tabActive}`}
+                  onClick={() => setActiveTab("active")}
+                >
+                  {" "}
+                  Active
+                </button>
+                <button
+                  className={`${projectStyles.tab} ${activeTab === "completed" && projectStyles.tabActive}`}
+                  onClick={() => setActiveTab("completed")}
+                >
+                  {" "}
+                  Completed
+                </button>
+              </div>
+              <button
+                className={projectStyles.btnNewProject}
+                onClick={() => setShowModal(true)}
+              >
+                <FiPlus />
+                New Project
+              </button>
+            </div>
+          </div>
+
+          {/* Projects Grid */}
+          <div className={projectStyles.projectsGrid}>
+            {filteredProjects.map((project) => (
+              <div key={project.id} className={projectStyles.projectCard}>
+                <div className={projectStyles.projectCardHeader}>
+                  <h3 className={projectStyles.projectName}>{project.name}</h3>
+                  <button className={projectStyles.btnMore}>
+                    <FiMoreHorizontal />
+                  </button>
+                </div>
+
+                <p className={projectStyles.projectDescription}>
+                  {project.description}
+                </p>
+
+                <div className={projectStyles.progressSection}>
+                  <div className={projectStyles.progressHeader}>
+                    <span className={projectStyles.progressLabel}>
+                      Progress
+                    </span>
+                    <span className={projectStyles.progressPercentage}>
+                      {project.progress}%
+                    </span>
+                  </div>
+
+                  <div className={projectStyles.progressBar}>
+                    <div
+                      className={`{projectStyles.progressFill} ${
+                        project.status === "Completed"
+                          ? projectStyles.progressGreen
+                          : projectStyles.progressBlue
+                      }`}
+                      style={{ width: `${project.progress}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className={projectStyles.projectMeta}>
+                  <div className={projectStyles.metaItem}>
+                    <FaRegClock />
+                    <span>
+                      {project.tasksCompleted}/{project.totalTasks}
+                    </span>
+                  </div>
+
+                  <div className={projectStyles.metaItem}>
+                    <FaRegCalendar />
+                    <span>{formatDate(project.dueDate)}</span>
+                  </div>
+                </div>
+
+                <div className={projectStyles.projectFooter}>
+                  <div className={projectStyles.teamAvatars}>
+                    {project.teamMembers.slice(0, 3).map((member, index) => (
+                      <div
+                        key={index}
+                        className={projectStyles.avatar}
+                        style={{ zIndex: 3 - index }}
+                      >
+                        <img src={member.avatar} alt={member.name} />
+                      </div>
+                    ))}
+
+                    {project.teamMembers.length > 3 && (
+                      <div className={projectStyles.moreAvatars}>
+                        +{project.teamMembers.length - 3}
+                      </div>
+                    )}
+                  </div>
+
+                  <span
+                    className={`${projectStyles.statusBadge} ${project.status === "Completed" ? projectStyles.statusCompleted : projectStyles.statusActive}`}
+                  >
+                    {project.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Create project modal */}
+        {showModal && (
+          <div className={projectStyles.modalOverlay}>
+            <div className={projectStyles.modal}>
+              <div className={projectStyles.modalHeader}>
+                <h2>Create New Project</h2>
+                <button
+                  className={projectStyles.btnClose}
+                  onClick={() => setShowModal(false)}
+                >
+                  <FiX />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateProject}>
+                <div className={projectStyles.formGroup}>
+                  <label>Project Name</label>
+                  <input
+                    type="text"
+                    placeholder="Enter project name"
+                    value={newProject.name}
+                    onChange={(e) =>
+                      setNewProject({ ...newProject, name: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+
+                <div className={projectStyles.formGroup}>
+                  <label>Description</label>
+                  <textarea
+                    placeholder="Describe the project goals and scope"
+                    value={newProject.description}
+                    onChange={(e) =>
+                      setNewProject({
+                        ...newProject,
+                        description: e.target.value,
+                      })
+                    }
+                    rows={4}
+                  />
+                  <span className={projectStyles.helpText}>
+                    Optional brief description of the project
+                  </span>
+                </div>
+
+                <div className={projectStyles.formRow}>
+                  <div className={projectStyles.formGroup}>
+                    <label>Status</label>
+                    <select
+                      value={newProject.status}
+                      onChange={(e) =>
+                        setNewProject({ ...newProject, status: e.target.value })
+                      }
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                  </div>
+
+                  <div className={projectStyles.formGroup}>
+                    <label>Priority</label>
+                    <select
+                      value={newProject.priority}
+                      onChange={(e) =>
+                        setNewProject({
+                          ...newProject,
+                          priority: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className={projectStyles.formGroup}>
+                  <label>Due Date</label>
+                  <input
+                    type="date"
+                    value={newProject.dueDate}
+                    onChange={(e) =>
+                      setNewProject({ ...newProject, dueDate: e.target.value })
+                    }
+                  />
+                </div>
+
+                <div className={projectStyles.modalActions}>
+                  <button
+                    type="button"
+                    className={projectStyles.btnCancel}
+                    onClick={() => setShowModal(false)}
+                  >
+                    Cancel
+                  </button>
+
+                  <button type="submit" className={projectStyles.btnCreate}>
+                    Create Project
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
 }
