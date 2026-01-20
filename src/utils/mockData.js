@@ -227,3 +227,36 @@ export const mockTeamMembers = [
   { name: "Robert Brown", avatar: user7 },
   { name: "Lisa Wilson", avatar: user8 },
 ];
+
+export const initialEvents = [
+  {
+    id: 1,
+    title: "Homepage Redesign",
+    date: "2025-01-17",
+    type: "task",
+    priority: "High",
+    startTime: "09:00 AM",
+    endTime: "10:00 AM",
+    description: "",
+  },
+  {
+    id: 2,
+    title: "API Documentation",
+    date: "2025-01-18",
+    type: "task",
+    priority: "Medium",
+    startTime: "02:00 PM",
+    endTime: "03:00 PM",
+    description: "",
+  },
+  {
+    id: 3,
+    title: "Team Meeting",
+    date: "2025-01-18",
+    type: "meeting",
+    priority: "Medium",
+    startTime: "10:00 AM",
+    endTime: "11:00 AM",
+    description: "",
+  },
+];

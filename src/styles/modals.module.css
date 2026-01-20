@@ -150,3 +150,30 @@
 .btnCreate:hover {
   background-color: #1d4ed8;
 }
+
+/* Time Picker Input */
+.timePickerWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: var(--surface-color);
+}
+
+.timePickerWrapper svg {
+  color: var(--text-gray);
+  font-size: 16px;
+}
+
+.timePickerWrapper select {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--text-color);
+  cursor: pointer;
+  flex: 1;
+  appearance: none;
+}
