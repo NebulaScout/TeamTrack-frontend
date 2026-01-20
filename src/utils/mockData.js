@@ -293,3 +293,40 @@ export const mockTeamData = [
     isOnline: false,
   },
 ];
+
+// Weekly Task Completion
+export const weeklyTaskData = [
+  { day: "Mon", completed: 12, remaining: 3 },
+  { day: "Tue", completed: 18, remaining: 4 },
+  { day: "Wed", completed: 15, remaining: 6 },
+  { day: "Thu", completed: 21, remaining: 3 },
+  { day: "Fri", completed: 16, remaining: 5 },
+  { day: "Sat", completed: 8, remaining: 2 },
+  { day: "Sun", completed: 5, remaining: 2 },
+];
+
+// Task Status Distribution
+export const taskStatusData = [
+  { name: "Completed", value: 58, color: "#22c55e" },
+  { name: "In Progress", value: 28, color: "#3b82f6" },
+  { name: "To Do", value: 9, color: "#6b7280" },
+  { name: "Overdue", value: 5, color: "#ef4444" },
+];
+
+// Productivity Trend
+export const productivityData = [
+  { week: "Week 1", tasks: 45, efficiency: 78 },
+  { week: "Week 2", tasks: 52, efficiency: 82 },
+  { week: "Week 3", tasks: 48, efficiency: 75 },
+  { week: "Week 4", tasks: 58, efficiency: 85 },
+];
+
+// Team Workload Distribution
+export const teamWorkloadData = [
+  { name: "Sarah", tasks: 12 },
+  { name: "Mike", tasks: 9 },
+  { name: "Emily", tasks: 15 },
+  { name: "Alex", tasks: 8 },
+  { name: "Jessica", tasks: 11 },
+  { name: "David", tasks: 6 },
+];
