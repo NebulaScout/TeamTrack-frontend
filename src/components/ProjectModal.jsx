@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { FiX } from "react-icons/fi";
-import projectStyles from "@/styles/projects.module.css";
+import modalStyles from "@/styles/modals.module.css";
 
 export default function ProjectModal({ setShowModal, projects, setProjects }) {
   const [newProject, setNewProject] = useState({
@@ -39,12 +39,12 @@ export default function ProjectModal({ setShowModal, projects, setProjects }) {
   };
 
   return (
-    <div className={projectStyles.modalOverlay}>
-      <div className={projectStyles.modal}>
-        <div className={projectStyles.modalHeader}>
+    <div className={modalStyles.modalOverlay}>
+      <div className={modalStyles.modal}>
+        <div className={modalStyles.modalHeader}>
           <h2>Create New Project</h2>
           <button
-            className={projectStyles.btnClose}
+            className={modalStyles.btnClose}
             onClick={() => setShowModal(false)}
           >
             <FiX />
@@ -52,7 +52,7 @@ export default function ProjectModal({ setShowModal, projects, setProjects }) {
         </div>
 
         <form onSubmit={handleCreateProject}>
-          <div className={projectStyles.formGroup}>
+          <div className={modalStyles.formGroup}>
             <label>Project Name</label>
             <input
               type="text"
@@ -65,7 +65,7 @@ export default function ProjectModal({ setShowModal, projects, setProjects }) {
             />
           </div>
 
-          <div className={projectStyles.formGroup}>
+          <div className={modalStyles.formGroup}>
             <label>Description</label>
             <textarea
               placeholder="Describe the project goals and scope"
@@ -78,13 +78,13 @@ export default function ProjectModal({ setShowModal, projects, setProjects }) {
               }
               rows={4}
             />
-            <span className={projectStyles.helpText}>
+            <span className={modalStyles.helpText}>
               Optional brief description of the project
             </span>
           </div>
 
-          <div className={projectStyles.formRow}>
-            <div className={projectStyles.formGroup}>
+          <div className={modalStyles.formRow}>
+            <div className={modalStyles.formGroup}>
               <label>Status</label>
               <select
                 value={newProject.status}
@@ -97,7 +97,7 @@ export default function ProjectModal({ setShowModal, projects, setProjects }) {
               </select>
             </div>
 
-            <div className={projectStyles.formGroup}>
+            <div className={modalStyles.formGroup}>
               <label>Priority</label>
               <select
                 value={newProject.priority}
@@ -115,7 +115,7 @@ export default function ProjectModal({ setShowModal, projects, setProjects }) {
             </div>
           </div>
 
-          <div className={projectStyles.formGroup}>
+          <div className={modalStyles.formGroup}>
             <label>Due Date</label>
             <input
               type="date"
@@ -126,16 +126,16 @@ export default function ProjectModal({ setShowModal, projects, setProjects }) {
             />
           </div>
 
-          <div className={projectStyles.modalActions}>
+          <div className={modalStyles.modalActions}>
             <button
               type="button"
-              className={projectStyles.btnCancel}
+              className={modalStyles.btnCancel}
               onClick={() => setShowModal(false)}
             >
               Cancel
             </button>
 
-            <button type="submit" className={projectStyles.btnCreate}>
+            <button type="submit" className={modalStyles.btnCreate}>
               Create Project
             </button>
           </div>
