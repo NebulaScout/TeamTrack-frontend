@@ -11,10 +11,10 @@ export const authAPI = {
   register: async (userData) => {
     const response = await api.post("/api/v1/accounts/register/", {
       user: {
-        username: userData.userName || userData.email,
+        email: userData.email,
         first_name: userData.firstName,
         last_name: userData.lastName,
-        email: userData.email,
+        username: userData.userName || userData.email,
         password: userData.password,
         confirm_password: userData.confirmPassword,
       },
@@ -23,7 +23,10 @@ export const authAPI = {
   },
 
   login: async (credentials) => {
-    const response = await api.post("/api/token/", credentials);
+    const response = await api.post("/api/token/", {
+      username: credentials.username,
+      password: credentials.password,
+    });
     return response.data;
   },
 };

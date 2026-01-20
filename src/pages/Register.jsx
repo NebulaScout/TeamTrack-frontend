@@ -58,13 +58,14 @@ export default function Register() {
     } catch (err) {
       console.log("Registration failed", err);
       setError(
-        err.response?.data?.message || "Registration failed! Please try again.",
+        err.response?.data?.message ||
+          err.response?.data?.detail ||
+          "Registration failed! Please try again.",
       );
     } finally {
       setIsLoading(false);
     }
   };
-  // TODO: validate password
 
   return (
     <>
@@ -145,7 +146,7 @@ export default function Register() {
             </div>
 
             <div className={styles.inputGroup}>
-              <label>Confirm Password</label>
+              <label>Confirm Password:</label>
 
               <input
                 type={showPassword ? "text" : "password"}

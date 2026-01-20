@@ -3,11 +3,14 @@ import { FaEyeSlash, FaEye } from "react-icons/fa";
 import AuthPagesNavBar from "@/components/AuthPagesNavBar";
 import styles from "@/styles/authpages.module.css";
 import { useNavigate } from "react-router-dom";
+import { authAPI } from "@/services/apiService";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
-    email: "",
+    username: "",
     password: "",
   });
   const navigate = useNavigate();
@@ -21,9 +24,28 @@ export default function Login() {
     navigate("/register");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
     console.log(formData);
+
+    setIsLoading(true);
+
+    try {
+      const response = await authAPI.login(formData);
+      console.log("Login Successful: ", response);
+      navigate("/dashboard");
+    } catch (err) {
+      console.log("Log in failed. ", err);
+      setError(
+        err.response?.data?.messages ||
+          err.response?.data?.detail ||
+          "Login Failed! Please try again.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -34,14 +56,16 @@ export default function Login() {
         <div className={styles.container}>
           <h2 className={styles.title}>Log in to your account</h2>
 
+          {error && <p className={styles.error}>{error}</p>}
+
           <form onSubmit={handleSubmit}>
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Email:</label>
+              <label className={styles.label}>Username:</label>
 
               <input
-                type="email"
-                name="email"
-                value={formData.email}
+                type="text"
+                name="username"
+                value={formData.username}
                 onChange={handleChange}
                 className={styles.input}
                 required
@@ -71,8 +95,12 @@ export default function Login() {
             <a href="#" className={styles.forgotPassword}>
               Forgot Password?
             </a>
-            <button className={styles.btnSubmit} type="submit">
-              Log in
+            <button
+              className={styles.btnSubmit}
+              type="submit"
+              disabled={isLoading}
+            >
+              {isLoading ? "Logging in" : "Log in"}
             </button>
           </form>
           <div className={styles.divider}>
