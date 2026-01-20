@@ -177,3 +177,97 @@
   flex: 1;
   appearance: none;
 }
+
+/* Team Invite modal  */
+.modalTitleWrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.modalTitleIcon {
+  font-size: 24px;
+  color: var(--primary-color);
+  margin-top: 2px;
+}
+
+.modalSubtitle {
+  font-size: 14px;
+  color: var(--text-gray);
+  margin: 4px 0 0 0;
+  font-weight: 400;
+}
+
+.emailInputWrapper input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.emailInputWrapper input::placeholder {
+  color: var(--text-gray);
+}
+
+.inputIcon {
+  position: absolute;
+  left: 16px;
+  color: var(--text-gray);
+  font-size: 16px;
+}
+
+.inviteLinkSection {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.inviteLinkSection label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+  margin-bottom: 8px;
+}
+
+.inviteLinkWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.inviteLinkWrapper input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-gray);
+  background-color: #f9fafb;
+}
+
+.btnCopy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background-color: var(--surface-color);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-gray);
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.btnCopy:hover {
+  color: var(--text-color);
+  border-color: var(--text-gray);
+}
+
+.inviteLinkHelp {
+  display: block;
+  font-size: 12px;
+  color: var(--text-gray);
+  margin-top: 8px;
+}

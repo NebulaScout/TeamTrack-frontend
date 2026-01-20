@@ -260,3 +260,36 @@ export const initialEvents = [
     description: "",
   },
 ];
+
+export const mockTeamData = [
+  {
+    id: 1,
+    name: "Sarah Chen",
+    email: "sarah.chen@company.com",
+    department: "Design",
+    role: "Admin",
+    tasks: 12,
+    avatar: user1,
+    isOnline: true,
+  },
+  {
+    id: 2,
+    name: "Mike Johnson",
+    email: "mike.johnson@company.com",
+    department: "Engineering",
+    role: "Member",
+    tasks: 8,
+    avatar: user2,
+    isOnline: true,
+  },
+  {
+    id: 3,
+    name: "Emily Davis",
+    email: "emily.davis@company.com",
+    department: "Product",
+    role: "Member",
+    tasks: 15,
+    avatar: user3,
+    isOnline: false,
+  },
+];
