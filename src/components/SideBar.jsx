@@ -10,12 +10,13 @@ import { VscGraph } from "react-icons/vsc";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { IoSettingsOutline } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
+import { useAuth } from "@/contexts/AuthProvider";
 
 import styles from "@/styles/dashboard.module.css";
 import user9 from "@/assets/person9_current_user.jpg";
 
 const navItems = [
-  { path: "/", label: "Dashboard", icon: <LuLayoutDashboard /> },
+  { path: "/dashboard", label: "Dashboard", icon: <LuLayoutDashboard /> },
   { path: "/projects", label: "Projects", icon: <LuFolderKanban /> },
   { path: "/tasks", label: "Tasks", icon: <FiCheckSquare /> },
   { path: "/Calendar", label: "Calendar", icon: <FaRegCalendar /> },
@@ -30,6 +31,7 @@ const navItems = [
 
 export default function SideBar() {
   const location = useLocation();
+  const { logout } = useAuth();
 
   return (
     <aside className={styles.sidebar}>
@@ -81,7 +83,10 @@ export default function SideBar() {
             <p className={styles.userName}> John Doe</p>
             <p className={styles.userEmail}>doe@microsoft.com</p>
           </div>
-          <button className={styles.btnLogout}>
+          <button
+            className={styles.btnLogout}
+            onClick={async () => await logout()}
+          >
             <FiLogOut />
           </button>
         </div>

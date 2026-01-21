@@ -3,7 +3,7 @@ import { FaEyeSlash, FaEye } from "react-icons/fa";
 import AuthPagesNavBar from "@/components/AuthPagesNavBar";
 import styles from "@/styles/authpages.module.css";
 import { useNavigate } from "react-router-dom";
-import { authAPI } from "@/services/apiService";
+import { useAuth } from "@/contexts/AuthProvider";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,6 +14,7 @@ export default function Login() {
     password: "",
   });
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,8 +34,8 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      const response = await authAPI.login(formData);
-      console.log("Login Successful: ", response);
+      await login(formData);
+      console.log("Login Successful:");
       navigate("/dashboard");
     } catch (err) {
       console.log("Log in failed. ", err);
