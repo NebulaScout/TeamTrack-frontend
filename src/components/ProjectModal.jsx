@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FiX } from "react-icons/fi";
 import { projectsAPI } from "@/services/projectsAPI";
-import { transformProject } from "@/utils/projectMapper";
+import { mapProjectsFromAPI } from "@/utils/projectMapper";
 import modalStyles from "@/styles/modals.module.css";
 // import { formatDate } from "@/utils/formatDate";
 
@@ -25,7 +25,7 @@ export default function ProjectModal({ setShowModal, onProjectCreated }) {
 
       const createdProject = await projectsAPI.create(newProject);
 
-      const transformedProject = transformProject(createdProject);
+      const transformedProject = mapProjectsFromAPI(createdProject);
       onProjectCreated(transformedProject);
       setShowModal(false);
     } catch (err) {

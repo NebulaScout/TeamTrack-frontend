@@ -9,7 +9,7 @@ import projectStyles from "@/styles/projects.module.css";
 // import { mockProjectsData } from "@/utils/mockData";
 import { formatDate } from "@/utils/formatDate";
 import ProjectModal from "@/components/ProjectModal";
-import { transformProjects } from "@/utils/projectMapper";
+import { mapProjectsFromAPIs } from "@/utils/projectMapper";
 import { projectsAPI } from "@/services/projectsAPI";
 
 export default function Projects() {
@@ -31,7 +31,7 @@ export default function Projects() {
       setError(null);
 
       const data = await projectsAPI.getAll();
-      setProjects(transformProjects(data));
+      setProjects(mapProjectsFromAPIs(data));
     } catch (err) {
       console.log("Failed to fetch projects: ", err);
       setError("Failed to load projects. Please try again.");

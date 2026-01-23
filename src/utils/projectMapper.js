@@ -1,6 +1,6 @@
 // Transform backend project data to frontend format
 
-export function transformProject(apiProject) {
+export function mapProjectsFromAPI(apiProject) {
   const tasks = apiProject.project_tasks || [];
   const completedTasks = tasks.filter(
     (task) => task.status === "DONE" || task.status === "Completed",
@@ -12,6 +12,7 @@ export function transformProject(apiProject) {
 
   // Determine project status based on dates or progress
   const isCompleted = progress === 100;
+  // eslint-disable-next-line no-unused-vars
   const isPastDue = new Date(apiProject.end_date) < new Date();
 
   return {
@@ -32,7 +33,9 @@ export function transformProject(apiProject) {
       memberId: member.project_member,
 
       // TODO: fetch user details and add image  to backend
-      name: member.name || "Team member",
+      name:
+        member.name ||
+        `${apiProject.created_by.first_name} ${apiProject.created_by.last_name}`,
       avatar: member.avatar || null,
     })),
     tasks: tasks,
@@ -40,6 +43,6 @@ export function transformProject(apiProject) {
 }
 
 // Transform multiple projects
-export function transformProjects(apiProjects) {
-  return apiProjects.map(transformProject);
+export function mapProjectsFromAPIs(apiProjects) {
+  return apiProjects.map(mapProjectsFromAPI);
 }

@@ -1,19 +1,22 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FiSearch, FiPlus, FiMoreHorizontal, FiFilter } from "react-icons/fi";
 import { FaRegCalendar } from "react-icons/fa6";
 import SideBar from "@/components/SideBar";
 import Header from "@/components/Header";
 import styles from "@/styles/dashboard.module.css";
 import taskStyles from "@/styles/tasks.module.css";
-import { mockTasksData } from "@/utils/mockData";
 import { formatDate } from "@/utils/formatDate";
 import TaskModal from "@/components/TaskModal";
+import { tasksAPI } from "@/services/tasksAPI";
+import { mapTaskFromAPI, mapTasksFromAPI } from "@/utils/taskMapper";
 
 export default function Tasks() {
   const [activeView, setActiveView] = useState("kanban");
   const [searchQuery, setSearchQuery] = useState("");
-  const [tasks, setTasks] = useState(mockTasksData);
+  const [tasks, setTasks] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   // Filter tasks based on search query
   const filteredTasks = tasks.filter(
@@ -21,6 +24,41 @@ export default function Tasks() {
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.project.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+
+  // fetch tasks from API
+  const fetchTasks = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const apiTasks = await tasksAPI.getAll();
+      const mappedTasks = mapTasksFromAPI(apiTasks);
+      setTasks(mappedTasks);
+    } catch (err) {
+      console.log("Failed to fetch tasks: ", err);
+      setError("Failed to load tasks. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
+
+  // Handle adding a new task
+  const handleTaskCreated = (newTask) => {
+    const mappedTask = mapTaskFromAPI(newTask);
+    setTasks((prevTasks) => [...prevTasks, mappedTask]);
+  };
+
+  // Filter tasks based on search query
+  // const filteredTasks = tasks.filter(
+  //   (task) =>
+  //     task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     (task.project &&
+  //       task.project.toLowerCase().includes(searchQuery.toLowerCase())),
+  // );
 
   // Group tasks by status for Kanban view
   const tasksByStatus = {
@@ -75,6 +113,13 @@ export default function Tasks() {
     }
   };
 
+  // Loading state
+  // if(isLoading) {
+  //   return (
+
+  //   )
+  // }
+
   return (
     <div className={styles.dashboardContainer}>
       <SideBar />
@@ -124,6 +169,28 @@ export default function Tasks() {
               </button>
             </div>
           </div>
+
+          {/* Loading state */}
+          {isLoading && (
+            <div className="loadingState">
+              <p>Loading tasks...</p>
+            </div>
+          )}
+
+          {/* Error state */}
+          {error && (
+            <div className="errorState">
+              <p>{error}</p>
+              <button onClick={fetchTasks}>Retry</button>
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!isLoading && !error && filteredTasks.length === 0 && (
+            <div className="emptyState">
+              <p>No tasks found.</p>
+            </div>
+          )}
 
           {/* Kanban View */}
           {activeView === "kanban" && (
@@ -247,8 +314,7 @@ export default function Tasks() {
         {/* Create Task Modal */}
         {showModal && (
           <TaskModal
-            tasks={tasks}
-            setTasks={setTasks}
+            onTaskCreated={handleTaskCreated}
             setShowModal={setShowModal}
           />
         )}

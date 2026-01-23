@@ -1,9 +1,18 @@
-import React, { useState } from "react";
-import { mockTeamMembers, mockProjectsList } from "@/utils/mockData";
+import React, { useCallback, useEffect, useState } from "react";
 import { FiX } from "react-icons/fi";
+import { tasksAPI } from "@/services/tasksAPI";
+import { mapTaskToAPI } from "@/utils/taskMapper";
+import { projectsAPI } from "@/services/projectsAPI";
+import { mapProjectsFromAPIs } from "@/utils/projectMapper";
+
 import modalStyles from "@/styles/modals.module.css";
 
-export default function TaskModal({ tasks, setTasks, setShowModal }) {
+export default function TaskModal({ onTaskCreated, setShowModal }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [projects, setProjects] = useState([]);
+  // const [projectError, setProjectError] = useState(null)
   const [newTask, setNewTask] = useState({
     title: "",
     description: "",
@@ -14,35 +23,58 @@ export default function TaskModal({ tasks, setTasks, setShowModal }) {
     dueDate: "",
   });
 
-  const handleCreateTask = (e) => {
+  const fetchProjects = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const availableProjects = await projectsAPI.getAll();
+      setProjects(mapProjectsFromAPIs(availableProjects));
+    } catch (err) {
+      console.error("Failed to load projects: ", err);
+      setError(err.response?.data?.message || "Failed to load projects");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProjects();
+  }, [fetchProjects]);
+
+  const handleCreateTask = async (e) => {
     e.preventDefault();
 
-    const selectedAssignee = mockTeamMembers.find(
-      (member) => member.name === newTask.assignee,
-    );
+    try {
+      setIsSubmitting(true);
+      setError(null);
 
-    const task = {
-      id: tasks.length + 1,
-      title: newTask.title,
-      description: newTask.description,
-      project: newTask.project,
-      status: newTask.status,
-      priority: newTask.priority,
-      dueDate: newTask.dueDate,
-      assignee: selectedAssignee || { name: "", avatar: "" },
-    };
+      const apiPayload = mapTaskToAPI(newTask);
+      const createdTask = await tasksAPI.create(apiPayload);
 
-    setTasks([...tasks, task]);
-    setNewTask({
-      title: "",
-      description: "",
-      project: "",
-      assignee: "",
-      status: "To Do",
-      priority: "Medium",
-      dueDate: "",
-    });
-    setShowModal(false);
+      // Notify parent component of the new task
+      onTaskCreated(createdTask);
+
+      // Reset form & close modal
+      setNewTask({
+        title: "",
+        description: "",
+        project: "",
+        assignee: "",
+        status: "To Do",
+        priority: "Medium",
+        dueDate: "",
+      });
+      setShowModal(false);
+    } catch (err) {
+      console.error("Failed to create task: ", err);
+      setError(
+        err.response?.data?.message ||
+          "Failed to create task. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -58,6 +90,8 @@ export default function TaskModal({ tasks, setTasks, setShowModal }) {
           </button>
         </div>
 
+        {error && <div className={modalStyles.errorMessage}>{error}</div>}
+
         <form onSubmit={handleCreateTask}>
           <div className={modalStyles.formGroup}>
             <label>Task Title</label>
@@ -69,6 +103,7 @@ export default function TaskModal({ tasks, setTasks, setShowModal }) {
                 setNewTask({ ...newTask, title: e.target.value })
               }
               required
+              disabled={isSubmitting}
             />
           </div>
 
@@ -81,9 +116,11 @@ export default function TaskModal({ tasks, setTasks, setShowModal }) {
                 setNewTask({ ...newTask, description: e.target.value })
               }
               rows={3}
+              disabled={isSubmitting}
             />
           </div>
 
+          {/* TODO: Add API endpoints for this */}
           <div className={modalStyles.formRow}>
             <div className={modalStyles.formGroup}>
               <label>Project</label>
@@ -92,11 +129,12 @@ export default function TaskModal({ tasks, setTasks, setShowModal }) {
                 onChange={(e) =>
                   setNewTask({ ...newTask, project: e.target.value })
                 }
+                disabled={isSubmitting || isLoading}
               >
                 <option value="">Select project</option>
-                {mockProjectsList.map((project) => (
-                  <option key={project} value={project}>
-                    {project}
+                {projects.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
                   </option>
                 ))}
               </select>
@@ -111,9 +149,12 @@ export default function TaskModal({ tasks, setTasks, setShowModal }) {
                 }
               >
                 <option value="">Select assignee</option>
-                {mockTeamMembers.map((member) => (
-                  <option key={member.name} value={member.name}>
-                    {member.name}
+                {projects.map((project) => (
+                  <option
+                    key={project.teamMembers.id}
+                    value={project.teamMembers.id}
+                  >
+                    {project.teamMembers.name}
                   </option>
                 ))}
               </select>
@@ -128,6 +169,7 @@ export default function TaskModal({ tasks, setTasks, setShowModal }) {
                 onChange={(e) =>
                   setNewTask({ ...newTask, status: e.target.value })
                 }
+                disabled={isSubmitting}
               >
                 <option value="To Do">To Do</option>
                 <option value="In Progress">In Progress</option>
@@ -143,6 +185,7 @@ export default function TaskModal({ tasks, setTasks, setShowModal }) {
                 onChange={(e) =>
                   setNewTask({ ...newTask, priority: e.target.value })
                 }
+                disabled={isSubmitting}
               >
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
@@ -167,12 +210,17 @@ export default function TaskModal({ tasks, setTasks, setShowModal }) {
               type="button"
               className={modalStyles.btnCancel}
               onClick={() => setShowModal(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </button>
 
-            <button type="submit" className={modalStyles.btnCreate}>
-              Create Task
+            <button
+              type="submit"
+              className={modalStyles.btnCreate}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Creating Task" : "Create Task"}
             </button>
           </div>
         </form>
