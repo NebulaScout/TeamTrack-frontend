@@ -61,7 +61,7 @@ export default function Login() {
 
           <form onSubmit={handleSubmit}>
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Username:</label>
+              <label className={styles.label}>Username/ Email:</label>
 
               <input
                 type="text"

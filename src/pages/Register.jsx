@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
-import { authAPI } from "@/services/apiService";
+import { authAPI } from "@/services/authAPI";
 import AuthPagesNavBar from "@/components/AuthPagesNavBar";
 import styles from "@/styles/authpages.module.css";
 
