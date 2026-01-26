@@ -16,6 +16,7 @@ export const authAPI = {
   },
 
   login: async (credentials) => {
+    // TODO: Create a better endpoint for this
     const response = await api.post("/api/token/", {
       username: credentials.username,
       password: credentials.password,
@@ -34,5 +35,11 @@ export const authAPI = {
 
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+  },
+
+  // Get authenticated user's profile
+  getCurrentUser: async () => {
+    const response = await api.get("/api/v1/auth/me/");
+    return response.data;
   },
 };

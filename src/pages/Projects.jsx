@@ -6,7 +6,6 @@ import SideBar from "@/components/SideBar";
 import Header from "@/components/Header";
 import styles from "@/styles/dashboard.module.css";
 import projectStyles from "@/styles/projects.module.css";
-// import { mockProjectsData } from "@/utils/mockData";
 import { formatDate } from "@/utils/formatDate";
 import ProjectModal from "@/components/ProjectModal";
 import { mapProjectsFromAPIs } from "@/utils/projectMapper";
