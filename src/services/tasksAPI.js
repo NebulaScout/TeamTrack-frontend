@@ -14,9 +14,11 @@ export const tasksAPI = {
   },
 
   // Create a task
-  create: async (taskData) => {
-    const response = await api.post("/api/v1/tasks/", taskData);
-
+  create: async (projectId, taskData) => {
+    const response = await api.post(
+      `/api/v1/projects/${projectId}/tasks/`,
+      taskData,
+    );
     return response.data;
   },
 

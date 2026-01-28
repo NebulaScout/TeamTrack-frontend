@@ -4,6 +4,8 @@ import { tasksAPI } from "@/services/tasksAPI";
 import { mapTaskToAPI } from "@/utils/taskMapper";
 import { projectsAPI } from "@/services/projectsAPI";
 import { mapProjectsFromAPIs } from "@/utils/projectMapper";
+import { authAPI } from "@/services/authAPI";
+import { mapUsersFromAPI } from "@/utils/userMapper";
 
 import modalStyles from "@/styles/modals.module.css";
 
@@ -12,6 +14,7 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [projects, setProjects] = useState([]);
+  const [users, setUsers] = useState([]);
   // const [projectError, setProjectError] = useState(null)
   const [newTask, setNewTask] = useState({
     title: "",
@@ -38,9 +41,24 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
     }
   }, []);
 
+  const fetchUsers = useCallback(async () => {
+    setIsLoading(true);
+
+    try {
+      const data = await authAPI.getAllUsers();
+      setUsers(mapUsersFromAPI(data));
+    } catch (err) {
+      console.error("Unable to fetch available users: ", err);
+      setError(err.response?.data?.message || "Failed to fetch users");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchProjects();
-  }, [fetchProjects]);
+    fetchUsers();
+  }, [fetchProjects, fetchUsers]);
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
@@ -50,7 +68,7 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
       setError(null);
 
       const apiPayload = mapTaskToAPI(newTask);
-      const createdTask = await tasksAPI.create(apiPayload);
+      const createdTask = await tasksAPI.create(apiPayload.project, apiPayload);
 
       // Notify parent component of the new task
       onTaskCreated(createdTask);
@@ -149,14 +167,14 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
                 }
               >
                 <option value="">Select assignee</option>
-                {projects.map((project) => (
-                  <option
-                    key={project.teamMembers.id}
-                    value={project.teamMembers.id}
-                  >
-                    {project.teamMembers.name}
-                  </option>
-                ))}
+                {users.map(
+                  (user) =>
+                    user.role === "Developer" && (
+                      <option key={user.id} value={user.id}>
+                        {user.firstName} {user.lastName}
+                      </option>
+                    ),
+                )}
               </select>
             </div>
           </div>

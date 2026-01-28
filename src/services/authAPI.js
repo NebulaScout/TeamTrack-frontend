@@ -42,4 +42,16 @@ export const authAPI = {
     const response = await api.get("/api/v1/auth/me/");
     return response.data;
   },
+
+  // Get all users
+  getAllUsers: async () => {
+    const response = await api.get("/api/v1/accounts/users/");
+    return response.data;
+  },
+
+  // Get a specific user
+  getUserById: async (id) => {
+    const response = await api.get(`/api/v1/accounts/users/${id}/`);
+    return response.data;
+  },
 };

@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
 import { authAPI } from "@/services/authAPI";
 
 const AuthContext = createContext(null);
@@ -7,6 +8,7 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -32,6 +34,8 @@ export function AuthProvider({ children }) {
         // Clear tokens
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
+
+        // navigate("/login");
       } finally {
         setIsLoading(false);
       }
