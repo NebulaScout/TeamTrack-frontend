@@ -1,35 +1,12 @@
 import { projectsAPI } from "@/services/projectsAPI";
 import { authAPI } from "@/services/authAPI";
 import { mapUserFromAPI } from "./userMapper";
-
-// Map API status codes to frontend status strings
-const STATUS_MAP = {
-  TO_DO: "To Do",
-  IN_PROGRESS: "In Progress",
-  IN_REVIEW: "In Review",
-  DONE: "Done",
-};
-
-// Reverse mapping for sending to API
-const STATUS_TO_API = {
-  "To Do": "TO_DO",
-  "In Progress": "IN_PROGRESS",
-  "In Review": "IN_REVIEW",
-  Done: "DONE",
-};
-
-const PRIORITY_MAP = {
-  LOW: "Low",
-  MEDIUM: "Medium",
-  HIGH: "High",
-};
-
-// Reverse mapping for sending to API
-const PRIORITY_TO_API = {
-  Low: "LOW",
-  Medium: "MEDIUM",
-  High: "HIGH",
-};
+import {
+  STATUS_MAP,
+  STATUS_TO_API,
+  PRIORITY_MAP,
+  PRIORITY_TO_API,
+} from "./enumMappings";
 
 const getProjectName = async (projectId) => {
   try {
@@ -81,5 +58,3 @@ export const mapTaskToAPI = (frontendTask) => ({
 
 // Transfrom an array of API tasks
 export const mapTasksFromAPI = (apiTasks) => apiTasks.map(mapTaskFromAPI);
-
-export { STATUS_MAP, STATUS_TO_API, PRIORITY_MAP, PRIORITY_TO_API };

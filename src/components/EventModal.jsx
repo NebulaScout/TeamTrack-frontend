@@ -1,15 +1,41 @@
-import React from "react";
+import React, { useState } from "react";
 import { FiX, FiClock } from "react-icons/fi";
 import modalStyles from "@/styles/modals.module.css";
 
+// Convert time string to 24hr format for datetime
+// const convertTo24Hour = (timeStr) => {
+//   const [time, period] = timeStr.split(" ");
+//   let [hours, minutes] = timeStr.split(":").map(Number);
+
+//   if (period === "PM" && hours !== 12) {
+//     hours += 12;
+//   } else if (period === "AM" && hours === 12) {
+//     hours = 0;
+//   }
+
+//   return `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}`;
+// };
+
+// Combine date and time into ISO datetime string
+// const combineDateAndTime = (date, timeStr) => {
+//   const time24 = convertTo24Hour(timeStr)
+//   const year = date.getFullYear()
+//   const month = (date.getMonth() + 1).toString().padStart(2, "0")
+//   const day = date.getDate().toString().padStart(2, "0")
+
+//   return `${year}-${month}-${day}T${time24}`
+// }
+
 export default function EventModal({
-  events,
-  setEvents,
   eventForm,
   setEventForm,
   setIsModalOpen,
   formatDateForInput,
+  onCreateEvent,
 }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
   const generateTimeSlots = () => {
     const slots = [];
     for (let hour = 0; hour < 24; hour++) {
@@ -29,31 +55,54 @@ export default function EventModal({
     setEventForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleCreateEvent = (e) => {
-    e.preventDefault();
+  // console.log("eventForm.eventDate:", eventForm.eventDate);
+  // console.log("getDate()", eventForm.eventDate.getDate());
 
-    const newEvent = {
-      id: events.length + 1,
+  const handleCreateEvent = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    // Format date in local timezone
+    const formatLocalDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+
+      return `${year}-${month}-${day}`;
+    };
+
+    const eventData = {
       title: eventForm.title,
       description: eventForm.description,
-      date: eventForm.date.toISOString().split("T")[0],
-      type: eventForm.type,
+      eventType: eventForm.eventType,
       priority: eventForm.priority,
+      eventDate: formatLocalDate(eventForm.eventDate),
       startTime: eventForm.startTime,
       endTime: eventForm.endTime,
     };
 
-    setEvents([...events, newEvent]);
-    setEventForm({
-      title: "",
-      description: "",
-      type: "meeting",
-      priority: "Medium",
-      date: new Date(),
-      startTime: "9:00 AM",
-      endTime: "10:00 AM",
-    });
-    setIsModalOpen(false);
+    console.log("Event data: ", eventData);
+
+    const result = await onCreateEvent(eventData);
+
+    if (result.success) {
+      setEventForm({
+        title: "",
+        description: "",
+        eventType: "Meeting",
+        priority: "Medium",
+        eventDate: new Date(),
+        startTime: "9:00 AM",
+        endTime: "10:00 AM",
+      });
+
+      setIsModalOpen(false);
+    } else {
+      setError(result.error);
+    }
+
+    setIsSubmitting(false);
   };
   return (
     <div className={modalStyles.modalOverlay}>
@@ -69,6 +118,8 @@ export default function EventModal({
         </div>
 
         <form onSubmit={handleCreateEvent}>
+          {error && <div className={modalStyles.errorMessage}>{error}</div>}
+
           <div className={modalStyles.formGroup}>
             <label>Event Title</label>
             <input
@@ -77,6 +128,7 @@ export default function EventModal({
               value={eventForm.title}
               onChange={(e) => handleFormChange("title", e.target.value)}
               required
+              disabled={isSubmitting}
             />
           </div>
 
@@ -87,6 +139,7 @@ export default function EventModal({
               value={eventForm.description}
               onChange={(e) => handleFormChange("description", e.target.value)}
               rows={3}
+              disabled={isSubmitting}
             />
           </div>
 
@@ -96,6 +149,7 @@ export default function EventModal({
               <select
                 value={eventForm.type}
                 onChange={(e) => handleFormChange("type", e.target.value)}
+                disabled={isSubmitting}
               >
                 <option value="meeting">Meeting</option>
                 <option value="task">Task</option>
@@ -109,6 +163,7 @@ export default function EventModal({
               <select
                 value={eventForm.priority}
                 onChange={(e) => handleFormChange("priority", e.target.value)}
+                disabled={isSubmitting}
               >
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
@@ -121,10 +176,10 @@ export default function EventModal({
             <label>Date</label>
             <input
               type="text"
-              value={formatDateForInput(eventForm.date)}
+              value={formatDateForInput(eventForm.eventDate)}
               readOnly
               onClick={() => {
-                /* Could integrate a date picker here */
+                /* Integrate a date picker here */
               }}
             />
           </div>
@@ -132,13 +187,14 @@ export default function EventModal({
           <div className={modalStyles.formRow}>
             <div className={modalStyles.formGroup}>
               <label>Start Time</label>
-              <div className={modalStyles.timePickerWrapper}>
+              {/* <div className={modalStyles.timePickerWrapper}>
                 <FiClock />
                 <select
                   value={eventForm.startTime}
                   onChange={(e) =>
                     handleFormChange("startTime", e.target.value)
                   }
+                  disabled={isSubmitting}
                 >
                   {TIME_SLOT_OPTIONS.map((time) => (
                     <option key={time} value={time}>
@@ -146,16 +202,22 @@ export default function EventModal({
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> */}
+              <input
+                type="time"
+                value={eventForm.startTime}
+                onChange={(e) => handleFormChange("startTime", e.target.value)}
+              />
             </div>
 
             <div className={modalStyles.formGroup}>
               <label>End Time</label>
-              <div className={modalStyles.timePickerWrapper}>
+              {/* <div className={modalStyles.timePickerWrapper}>
                 <FiClock />
                 <select
                   value={eventForm.endTime}
                   onChange={(e) => handleFormChange("endTime", e.target.value)}
+                  disabled={isSubmitting}
                 >
                   {TIME_SLOT_OPTIONS.map((time) => (
                     <option key={time} value={time}>
@@ -163,7 +225,12 @@ export default function EventModal({
                     </option>
                   ))}
                 </select>
-              </div>
+              </div> */}
+              <input
+                type="time"
+                value={eventForm.endTime}
+                onChange={(e) => handleFormChange("endTime", e.target.value)}
+              />
             </div>
           </div>
 
@@ -172,11 +239,16 @@ export default function EventModal({
               type="button"
               className={modalStyles.btnCancel}
               onClick={() => setIsModalOpen(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </button>
-            <button type="submit" className={modalStyles.btnCreate}>
-              Create Event
+            <button
+              type="submit"
+              className={modalStyles.btnCreate}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Creating..." : "Create Event"}
             </button>
           </div>
         </form>

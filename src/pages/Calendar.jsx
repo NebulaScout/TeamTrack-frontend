@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { FiChevronLeft, FiChevronRight, FiPlus } from "react-icons/fi";
 import SideBar from "@/components/SideBar";
 import Header from "@/components/Header";
 import styles from "@/styles/dashboard.module.css";
 import calendarStyles from "@/styles/calendar.module.css";
-import { initialEvents } from "@/utils/mockData";
 import EventModal from "@/components/EventModal";
+import { CalendarEventAPI } from "@/services/calendarAPI";
+import {
+  mapCalendarEventToAPI,
+  mapEventsFromAPI,
+  mapEventFromAPI,
+} from "@/utils/calendarEventMapper";
 
 const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_NAMES = [
@@ -44,21 +49,78 @@ const formatDateForInput = (date) => {
   const suffix = getDaySuffix(day);
   return `${month} ${day}${suffix}, ${year}`;
 };
+// TODO: Add Calendar implementation in add event button to prevent errors
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedView, setSelectedView] = useState("month");
-  const [events, setEvents] = useState(initialEvents);
+  const [events, setEvents] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [eventForm, setEventForm] = useState({
     title: "",
     description: "",
-    type: "meeting",
+    eventType: "Meeting",
     priority: "Medium",
-    date: new Date(),
-    startTime: "9:00 AM",
-    endTime: "10:00 AM",
+    eventDate: "",
+    startTime: "",
+    endTime: "",
   });
+
+  // Fetch events from API
+  const fetchEvents = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const apiEvents = await CalendarEventAPI.getAll();
+      const mappedEvents = mapEventsFromAPI(apiEvents);
+      console.log("Mapped Events: ", mappedEvents);
+      setEvents(mappedEvents);
+    } catch (err) {
+      console.error("Failed to fetch events:", err);
+      setError("Failed to load events. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchEvents();
+  }, [fetchEvents]);
+
+  // Create event handler
+  const handleCreateEvent = async (eventData) => {
+    try {
+      const apiData = mapCalendarEventToAPI(eventData);
+      const newEvent = await CalendarEventAPI.create(apiData);
+      const mappedEvent = mapEventFromAPI(newEvent);
+      setEvents((prev) => [...prev, mappedEvent]);
+      return { success: true };
+    } catch (err) {
+      console.error("Failed to create a calendar event: ", err);
+      return {
+        success: false,
+        error: "Failed to create event. Please try again.",
+      };
+    }
+  };
+
+  // // Delete event handler
+  // const handleDeleteEvent = async (eventId) => {
+  //   try {
+  //     await CalendarEventAPI.delete(eventId);
+  //     setEvents((prev) => prev.filter((event) => event.id !== eventId));
+  //     return { success: true };
+  //   } catch (err) {
+  //     console.error("Failed to delete event: ", err);
+  //     return {
+  //       success: false,
+  //       error: "Failed to delete event. Please try again.",
+  //     };
+  //   }
+  // };
 
   const navigateToPrevMonth = () => {
     setCurrentDate(
@@ -72,7 +134,8 @@ export default function Calendar() {
     );
   };
 
-  const buildMonthGrid = () => {
+  const calendarGrid = useMemo(() => {
+    console.log("Building Calendar...");
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     const firstDayOfMonth = new Date(year, month, 1);
@@ -109,11 +172,11 @@ export default function Calendar() {
     }
 
     return gridDays;
-  };
+  }, [currentDate]);
 
   const findEventsForDate = (date) => {
     const dateKey = date.toISOString().split("T")[0];
-    return events.filter((event) => event.date === dateKey);
+    return events.filter((event) => event.eventDate === dateKey);
   };
 
   const checkIfToday = (date) => {
@@ -127,20 +190,30 @@ export default function Calendar() {
 
   const getEventStyleClass = (eventType) => {
     const styleMap = {
-      meeting: calendarStyles.meetingEvent,
-      task: calendarStyles.taskEvent,
-      deadline: calendarStyles.deadlineEvent,
-      reminder: calendarStyles.reminderEvent,
+      Meeting: calendarStyles.meetingEvent,
+      Task: calendarStyles.taskEvent,
+      Deadline: calendarStyles.deadlineEvent,
+      Reminder: calendarStyles.reminderEvent,
     };
-    return styleMap[eventType] || calendarStyles.taskEvent;
+    return styleMap[eventType] || calendarStyles.meetingEvent;
   };
 
-  const handleDayClick = (date) => {
-    setEventForm((prev) => ({ ...prev, date }));
+  const handleDayClick = useCallback((date) => {
+    console.log("Clicked date object: ", date);
+    console.log(
+      "Day:",
+      date.getDate(),
+      "Month:",
+      date.getMonth() + 1,
+      "Year:",
+      date.getFullYear(),
+    );
+
+    setEventForm((prev) => ({ ...prev, eventDate: date }));
     setIsModalOpen(true);
-  };
+  }, []);
 
-  const calendarGrid = buildMonthGrid();
+  // const calendarGrid = buildMonthGrid();
 
   return (
     <div className={styles.dashboardContainer}>
@@ -194,8 +267,16 @@ export default function Calendar() {
             </div>
           </div>
 
+          {/* Loading state */}
+          {isLoading && (
+            <div className={calendarStyles.loadingState}>Loading events...</div>
+          )}
+
+          {/* Error state */}
+          {error && <div className={calendarStyles.errorState}>{error}</div>}
+
           {/* Monthly View */}
-          {selectedView === "month" && (
+          {!isLoading && selectedView === "month" && (
             <div className={calendarStyles.monthlyCalendar}>
               <div className={calendarStyles.dayLabels}>
                 {WEEKDAY_NAMES.map((day) => (
@@ -241,7 +322,7 @@ export default function Calendar() {
           )}
 
           {/* Weekly View */}
-          {selectedView === "week" && (
+          {!isLoading && selectedView === "week" && (
             <div className={calendarStyles.weeklyCalendar}>
               <div className={calendarStyles.weekHeader}>
                 <div className={calendarStyles.hourColumn}></div>
@@ -287,12 +368,11 @@ export default function Calendar() {
         {/* Add Event Modal */}
         {isModalOpen && (
           <EventModal
-            events={events}
-            setEvents={setEvents}
             eventForm={eventForm}
             setEventForm={setEventForm}
             setIsModalOpen={setIsModalOpen}
             formatDateForInput={formatDateForInput}
+            onCreateEvent={handleCreateEvent}
           />
         )}
       </main>

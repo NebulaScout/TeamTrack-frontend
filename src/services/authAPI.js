@@ -17,13 +17,13 @@ export const authAPI = {
 
   login: async (credentials) => {
     // TODO: Create a better endpoint for this
-    const response = await api.post("/api/token/", {
+    const response = await api.post("/api/v1/auth/login/", {
       username: credentials.username,
       password: credentials.password,
     });
 
     // Store auth tokens
-    const { access, refresh } = response.data;
+    const { refresh, access } = response.data.data;
     localStorage.setItem("accessToken", access);
     localStorage.setItem("refreshToken", refresh);
 
