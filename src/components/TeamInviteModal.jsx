@@ -1,13 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { FiMail, FiCopy, FiUsers, FiX } from "react-icons/fi";
 import modalStyles from "@/styles/modals.module.css";
 
 export default function TeamInviteModal({ setShowInviteModal }) {
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [users, setUsers] = useState([]);
+  // const [projects, setProjects] = useState([]);
+  // const [error, setError] = useState(null);
   const [inviteForm, setInviteForm] = useState({
     email: "",
     role: "Member",
     department: "",
   });
+
+  // const fetchProjects = useCallback(async () => {
+  //   try {
+  //     setIsLoading(true);
+  //     setError(null);
+
+  //     const availableProjects = await projectsAPI.getAll();
+  //     setProjects(mapProjectsFromAPIs(availableProjects));
+  //   } catch (err) {
+  //     console.error("Failed to load projects: ", err);
+  //     setError(err.response?.data?.message || "Failed to load projects");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }, []);
+
+  // const fetchUsers = useCallback(async () => {
+  //   setIsLoading(true);
+
+  //   try {
+  //     const data = await authAPI.getAllUsers();
+  //     setUsers(mapUsersFromAPI(data));
+  //   } catch (err) {
+  //     console.error("Unable to fetch available users: ", err);
+  //     setError(err.response?.data?.message || "Failed to fetch users");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   fetchProjects();
+  //   fetchUsers();
+  // }, [fetchProjects, fetchUsers]);
 
   const handleInviteSubmit = (e) => {
     e.preventDefault();
@@ -80,7 +118,8 @@ export default function TeamInviteModal({ setShowInviteModal }) {
               </select>
             </div>
             <div className={modalStyles.formGroup}>
-              <label>Department (Optional)</label>
+              {/* // TODO: Change this to project name */}
+              <label>Project</label>
               <input
                 type="text"
                 placeholder="e.g., Engineering"
@@ -93,6 +132,25 @@ export default function TeamInviteModal({ setShowInviteModal }) {
                 }
               />
             </div>
+
+            {/* <div className={modalStyles.formRow}> */}
+            {/* <div className={modalStyles.formGroup}>
+              <label>Project</label>
+              <select
+                value={newTask.project}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, project: e.target.value })
+                }
+                disabled={isSubmitting || isLoading}
+              >
+                <option value="">Select project</option>
+                {projects.map((project) => (
+                  <option key={project.id} value={project.id}>
+                    {project.name}
+                  </option>
+                ))}
+              </select>
+            </div> */}
           </div>
 
           <div className={modalStyles.inviteLinkSection}>
