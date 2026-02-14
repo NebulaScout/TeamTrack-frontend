@@ -330,3 +330,69 @@ export const teamWorkloadData = [
   { name: "Jessica", tasks: 11 },
   { name: "David", tasks: 6 },
 ];
+
+export const mockOverdueTasks = [
+  {
+    id: 1,
+    title: "Design homepage wireframe",
+    project: "Website Manager",
+    dueDate: "1/15/2024",
+    assigee: {
+      name: "John Doe",
+      avatar: user2,
+    },
+  },
+  {
+    id: 2,
+    title: "Database optimization",
+    project: "API Integration",
+    dueDate: "1/18/2024",
+    assigee: null,
+  },
+  {
+    id: 3,
+    title: "Fix login bug",
+    project: "Mobile App Development",
+    dueDate: "1/19/2024",
+    assigee: {
+      name: "Sarah Chen",
+      avatar: user1,
+    },
+  },
+];
+
+export const mockUnassignedTasks = [
+  {
+    id: 1,
+    title: "Create marketing materials",
+    project: "Marketing Campaign",
+    priority: "Medium",
+  },
+  {
+    id: 2,
+    title: "Database optimization",
+    project: "API Integration",
+    priority: "High",
+  },
+  {
+    id: 3,
+    title: "Write user documentation",
+    project: "Website Redesign",
+    priority: "Low",
+  },
+];
+
+export const mockRecentActivity = [
+  {
+    id: 1,
+    action: "New user registered by",
+    user: "Alex Chen",
+    time: "2 hours ago",
+  },
+  {
+    id: 2,
+    action: "New user registered by",
+    user: "Emily Davis",
+    time: "4 hours ago",
+  },
+];

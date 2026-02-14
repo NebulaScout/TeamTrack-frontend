@@ -1,6 +1,6 @@
 import React from "react";
 import { useLocation, Link } from "react-router-dom";
-import { FiCheckSquare } from "react-icons/fi";
+import { FiCheckSquare, FiShield } from "react-icons/fi";
 import { FaChevronLeft } from "react-icons/fa6";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { LuFolderKanban } from "react-icons/lu";
@@ -26,7 +26,8 @@ const navItems = [
     label: "Notifications",
     icon: <IoNotificationsOutline />,
   },
-  { path: "/reports", label: "reports", icon: <VscGraph /> },
+  { path: "/reports", label: "Reports", icon: <VscGraph /> },
+  { path: "/admin/dashboard", label: "Admin", icon: <FiShield /> },
 ];
 
 export default function SideBar() {

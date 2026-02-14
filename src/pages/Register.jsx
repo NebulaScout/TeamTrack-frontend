@@ -5,6 +5,8 @@ import { authAPI } from "@/services/authAPI";
 import AuthPagesNavBar from "@/components/AuthPagesNavBar";
 import styles from "@/styles/authpages.module.css";
 
+// TODO: Implement iseForm, zod & TanStack query
+
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");

@@ -12,6 +12,7 @@ import Team from "./pages/Team";
 import Reports from "./pages/Reports";
 import Notifications from "./pages/Notifications";
 import PageNotFound from "./pages/PageNotFound";
+import Admin from "./pages/Admin";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<ProtectedRoute> <Dashboard /> </ProtectedRoute>} />
+        <Route path="/admin/dashboard" element={<ProtectedRoute> <Admin /> </ProtectedRoute>} />
         <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
         <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
