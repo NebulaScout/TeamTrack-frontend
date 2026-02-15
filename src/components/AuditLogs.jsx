@@ -1,19 +1,11 @@
 import React, { useState } from "react";
 import {
-  FiPlus,
-  FiAlertCircle,
   FiUsers,
-  FiFolder,
   FiCheckSquare,
-  FiBarChart2,
   FiClock,
-  FiMessageSquare,
-  FiShield,
-  FiUserPlus,
   FiSearch,
   FiFilter,
   FiChevronDown,
-  FiMoreHorizontal,
 } from "react-icons/fi";
 import adminStyles from "@/styles/admin.module.css";
 import { mockAuditLogs } from "@/utils/mockData";

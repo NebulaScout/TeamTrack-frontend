@@ -12,6 +12,7 @@ import {
   mockUnassignedTasks,
   mockRecentActivity,
 } from "@/utils/mockData";
+import { getPriorityClass } from "@/utils/priorityClass";
 
 export default function QuickActionsTab() {
   const [overdueTasks, setOverdueTasks] = useState(mockOverdueTasks);
@@ -34,19 +35,6 @@ export default function QuickActionsTab() {
       badge: unassignedTasks.length,
     },
   ];
-
-  const getPriorityClass = (priority) => {
-    switch (priority) {
-      case "High":
-        return adminStyles.priorityHigh;
-      case "Medium":
-        return adminStyles.priorityMedium;
-      case "Low":
-        return adminStyles.priorityLow;
-      default:
-        return adminStyles.priorityMedium;
-    }
-  };
 
   const getActionCard = (card) => {
     switch (card) {

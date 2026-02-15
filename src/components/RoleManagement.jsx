@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { FiPlus, FiEdit2, FiChevronDown } from "react-icons/fi";
+import { FiPlus, FiEdit2, FiChevronDown, FiUsers } from "react-icons/fi";
 import adminStyles from "@/styles/admin.module.css";
 import { mockRoles, mockUsersForRoles } from "@/utils/mockData";
+import { getRoleClass } from "@/utils/roleClass";
 
 export default function RoleManagement() {
   const [usersRoles, setUsersRoles] = useState(
@@ -10,19 +11,6 @@ export default function RoleManagement() {
       return acc;
     }, {}),
   );
-
-  const getRoleBadgeClass = (role) => {
-    switch (role.toLowerCase()) {
-      case "admin":
-        return adminStyles.roleAdmin;
-      case "moderator":
-        return adminStyles.roleModerator;
-      case "user":
-        return adminStyles.roleUser;
-      default:
-        return adminStyles.roleUser;
-    }
-  };
 
   const handleRoleChange = (userId, newRole) => {
     setUsersRoles((prev) => ({
@@ -52,7 +40,7 @@ export default function RoleManagement() {
             <div key={role.id} className={adminStyles.roleCard}>
               <div className={adminStyles.roleCardHeader}>
                 <span
-                  className={`${adminStyles.roleBadgeLarge} ${getRoleBadgeClass(role.name)}`}
+                  className={`${adminStyles.roleBadgeLarge} ${getRoleClass(role.name)}`}
                 >
                   {role.name}
                 </span>
@@ -63,7 +51,9 @@ export default function RoleManagement() {
               <p className={adminStyles.roleDescription}>{role.description}</p>
               <div className={adminStyles.roleStats}>
                 <span className={adminStyles.roleStat}>
-                  <span className={adminStyles.roleStatIcon}>👥</span>
+                  <span className={adminStyles.roleStatIcon}>
+                    <FiUsers />
+                  </span>
                   {role.userCount} users
                 </span>
                 <span className={adminStyles.roleStat}>
@@ -112,7 +102,7 @@ export default function RoleManagement() {
                   <td>{user.email}</td>
                   <td>
                     <span
-                      className={`${adminStyles.roleBadge} ${getRoleBadgeClass(usersRoles[user.id])}`}
+                      className={`${adminStyles.roleBadge} ${getRoleClass(usersRoles[user.id])}`}
                     >
                       {usersRoles[user.id]}
                     </span>

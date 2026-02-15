@@ -7,45 +7,13 @@ import {
 } from "react-icons/fi";
 import adminStyles from "@/styles/admin.module.css";
 import { mockUsers } from "@/utils/mockData";
+import { getStatusClass } from "@/utils/statusClass";
+import { getRoleClass } from "@/utils/roleClass";
 
 export default function UserManagement() {
   const [usersSearch, setUsersSearch] = useState("");
   const [usersRoleFilter, setUsersRoleFilter] = useState("all");
   const [usersStatusFilter, setUsersStatusFilter] = useState("all");
-
-  const getStatusClass = (status) => {
-    switch (status?.toLowerCase().replace("_", "")) {
-      case "active":
-      case "completed":
-      case "done":
-        return adminStyles.statusActive;
-      case "inactive":
-      case "onhold":
-      case "on hold":
-        return adminStyles.statusInactive;
-      case "inprogress":
-      case "in progress":
-        return adminStyles.statusInProgress;
-      case "planning":
-      case "open":
-        return adminStyles.statusPlanning;
-      default:
-        return adminStyles.statusPlanning;
-    }
-  };
-
-  const getRoleClass = (role) => {
-    switch (role?.toLowerCase()) {
-      case "admin":
-        return adminStyles.roleAdmin;
-      case "moderator":
-        return adminStyles.roleModerator;
-      case "user":
-        return adminStyles.roleUser;
-      default:
-        return adminStyles.roleUser;
-    }
-  };
 
   const getFilteredUsers = () => {
     return mockUsers.filter((user) => {

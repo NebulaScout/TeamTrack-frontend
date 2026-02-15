@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 import {
-  FiPlus,
-  FiAlertCircle,
   FiUsers,
   FiFolder,
   FiCheckSquare,
@@ -9,18 +7,13 @@ import {
   FiClock,
   FiMessageSquare,
   FiShield,
-  FiUserPlus,
 } from "react-icons/fi";
 import { HiOutlineLightningBolt } from "react-icons/hi";
 import SideBar from "@/components/SideBar";
 import Header from "@/components/Header";
 import styles from "@/styles/dashboard.module.css";
 import adminStyles from "@/styles/admin.module.css";
-import {
-  mockOverdueTasks,
-  mockRecentActivity,
-  mockUnassignedTasks,
-} from "@/utils/mockData";
+
 import QuickActionsTab from "@/components/QuickActions";
 import UserManagement from "@/components/UserManagement";
 import ProjectsManagement from "@/components/ProjectsManagement";
@@ -32,9 +25,6 @@ import RoleManagement from "@/components/RoleManagement";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("quickActions");
-  //   const [overdueTasks, setOverdueTasks] = useState(mockOverdueTasks);
-  //   const [unassignedTasks, setUnassignedTasks] = useState(mockUnassignedTasks);
-  //   const [recentActivity, setRecentActivity] = useState(mockRecentActivity);
 
   const tabs = [
     {
@@ -50,13 +40,6 @@ export default function Admin() {
     { id: "comments", label: "Comments", icon: FiMessageSquare },
     { id: "roles", label: "Roles", icon: FiShield },
   ];
-
-  const renderPlaceholderTab = (tabName) => (
-    <div className={adminStyles.placeholderTab}>
-      <h3> {tabName} </h3>
-      <p>This sections is under development...</p>
-    </div>
-  );
 
   const renderActiveTab = () => {
     switch (activeTab) {
