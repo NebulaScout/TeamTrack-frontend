@@ -1089,6 +1089,268 @@
   transition: width 0.3s ease;
 }
 
+/* Comments Moderation Styles */
+.commentsStatsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.commentStatCard {
+  background-color: var(--surface-color);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.commentStatHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.commentStatTitle {
+  font-size: 14px;
+  color: var(--text-gray);
+  font-weight: 500;
+}
+
+.commentStatIcon {
+  color: var(--text-gray);
+  font-size: 18px;
+}
+
+.commentStatIconWarning {
+  color: #f59e0b;
+  font-size: 18px;
+}
+
+.commentStatValue {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.commentStatValueWarning {
+  font-size: 32px;
+  font-weight: 700;
+  color: #22c55e;
+}
+
+.commentCell {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: 350px;
+}
+
+.commentText {
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.flaggedIcon {
+  color: #f59e0b;
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.taskLink {
+  color: var(--text-color);
+}
+
+.projectBadge {
+  display: inline-block;
+  padding: 4px 10px;
+  background-color: #dbeafe;
+  color: #2563eb;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Role Management Styles */
+.rolesSection {
+  background-color: var(--surface-color);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.rolesSectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.rolesSectionTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0 0 4px 0;
+}
+
+.rolesSectionSubtitle {
+  font-size: 13px;
+  color: var(--text-gray);
+  margin: 0;
+}
+
+.createRoleBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.createRoleBtn:hover {
+  background-color: #2563eb;
+}
+
+.rolesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.roleCard {
+  background-color: var(--surface-color);
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s ease;
+}
+
+.roleCard:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.roleCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.roleBadgeLarge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.roleBadgeLarge::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.editRoleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  color: var(--text-gray);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.editRoleBtn:hover {
+  background-color: #f3f4f6;
+  color: var(--text-color);
+}
+
+.roleDescription {
+  font-size: 13px;
+  color: var(--text-gray);
+  margin: 0 0 16px 0;
+  line-height: 1.4;
+}
+
+.roleStats {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.roleStat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-gray);
+}
+
+.roleStatIcon {
+  font-size: 14px;
+}
+
+.assignRolesSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.assignRolesHeader {
+  margin-bottom: 4px;
+}
+
+.roleSelectWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.roleSelect {
+  appearance: none;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  color: var(--text-color);
+  background-color: var(--surface-color);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+  min-width: 120px;
+}
+
+.roleSelect:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+
+.roleSelectIcon {
+  position: absolute;
+  right: 10px;
+  color: var(--text-gray);
+  font-size: 14px;
+  pointer-events: none;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .actionCardsGrid {
@@ -1123,6 +1385,14 @@
   .analyticsChartsRow {
     grid-template-columns: 1fr;
   }
+
+  .commentsStatsRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rolesGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 768px) {
@@ -1156,5 +1426,18 @@
 
   .analyticsStatsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .commentsStatsRow {
+    grid-template-columns: 1fr;
+  }
+
+  .rolesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .rolesSectionHeader {
+    flex-direction: column;
+    gap: 12px;
   }
 }
