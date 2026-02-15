@@ -619,3 +619,71 @@ export const mockAuditLogs = [
     type: "created",
   },
 ];
+
+// Mock data for analytics
+export const analyticsStats = [
+  {
+    title: "Total Tasks",
+    value: "87",
+    change: "+12% from last month",
+    positive: true,
+  },
+  {
+    title: "Active Projects",
+    value: "12",
+    change: "3 completed this month",
+    positive: true,
+  },
+  {
+    title: "Completion Rate",
+    value: "52%",
+    change: "+8% from last week",
+    positive: true,
+  },
+  {
+    title: "Active Users",
+    value: "24",
+    change: "5 new this month",
+    positive: true,
+  },
+];
+
+export const tasksByStatus = [
+  { name: "Open", value: 25, color: "#6b7280" },
+  { name: "In Progress", value: 40, color: "#3b82f6" },
+  { name: "Done", value: 35, color: "#22c55e" },
+];
+
+export const tasksByPriority = [
+  { name: "Low", value: 30, color: "#6b7280" },
+  { name: "Medium", value: 45, color: "#f59e0b" },
+  { name: "High", value: 25, color: "#ef4444" },
+];
+
+export const weeklyTaskProgress = [
+  { week: "Week 1", completed: 12, pending: 8 },
+  { week: "Week 2", completed: 15, pending: 10 },
+  { week: "Week 3", completed: 13, pending: 14 },
+  { week: "Week 4", completed: 20, pending: 5 },
+];
+
+export const mostActiveUsers = [
+  { id: 1, name: "Sarah Wilson", created: 25, completed: 32, avatar: user2 },
+  { id: 2, name: "John Doe", created: 18, completed: 28, avatar: user1 },
+  { id: 3, name: "Emily Davis", created: 15, completed: 22, avatar: user4 },
+  { id: 4, name: "Mike Johnson", created: 12, completed: 18, avatar: user3 },
+];
+
+export const usersWithMostAssignments = [
+  { id: 1, name: "Emily Davis", tasks: 15, avatar: user4 },
+  { id: 2, name: "Sarah Wilson", tasks: 12, avatar: user2 },
+  { id: 3, name: "John Doe", tasks: 10, avatar: user1 },
+  { id: 4, name: "Alex Chen", tasks: 8, avatar: user5 },
+];
+
+export const projectsByTeamSize = [
+  { name: "Website", members: 7 },
+  { name: "Mobile App", members: 5 },
+  { name: "Marketing", members: 6 },
+  { name: "API", members: 4 },
+];
