@@ -687,3 +687,122 @@ export const projectsByTeamSize = [
   { name: "Marketing", members: 6 },
   { name: "API", members: 4 },
 ];
+
+// Mock data for Comments Moderation tab
+export const mockComments = [
+  {
+    id: 1,
+    author: { name: "Sarah Wilson", avatar: user2 },
+    content:
+      "Great progress on the homepage design! The new color scheme looks fantastic.",
+    task: "Design homepage wireframe",
+    project: "Website Redesign",
+    date: "1/20/2024",
+    isFlagged: false,
+  },
+  {
+    id: 2,
+    author: { name: "Mike Johnson", avatar: user3 },
+    content:
+      "@johndoe Can you review the authentication flow when you get a chance?",
+    task: "Implement authentication",
+    project: "Mobile App Development",
+    date: "1/20/2024",
+    isFlagged: false,
+  },
+  {
+    id: 3,
+    author: { name: "Emily Davis", avatar: user4 },
+    content: "I've uploaded the new marketing assets to the shared drive.",
+    task: "Create marketing materials",
+    project: "Marketing Campaign",
+    date: "1/20/2024",
+    isFlagged: false,
+  },
+  {
+    id: 4,
+    author: { name: "John Doe", avatar: user1 },
+    content:
+      "This task needs more clarity. The requirements are too vague and keep changing.",
+    task: "API documentation",
+    project: "API Integration",
+    date: "1/20/2024",
+    isFlagged: true,
+  },
+  {
+    id: 5,
+    author: { name: "Alex Chen", avatar: user5 },
+    content:
+      "Completed the initial testing. Found 3 bugs that need to be fixed before launch.",
+    task: "User testing feedback",
+    project: "Website Redesign",
+    date: "1/19/2024",
+    isFlagged: false,
+  },
+  {
+    id: 6,
+    author: { name: "Sarah Wilson", avatar: user2 },
+    content:
+      "The database is running slow. We need to optimize the queries urgently.",
+    task: "Database optimization",
+    project: "API Integration",
+    date: "1/19/2024",
+    isFlagged: true,
+  },
+];
+
+// Mock data for Role Management tab
+export const mockRoles = [
+  {
+    id: 1,
+    name: "Admin",
+    description: "Full system access with all permissions",
+    userCount: 2,
+    permissions: 6,
+  },
+  {
+    id: 2,
+    name: "Moderator",
+    description: "Can moderate content and manage tasks",
+    userCount: 3,
+    permissions: 3,
+  },
+  {
+    id: 3,
+    name: "User",
+    description: "Standard user with basic permissions",
+    userCount: 15,
+    permissions: 3,
+  },
+];
+
+export const mockUsersForRoles = [
+  {
+    id: 1,
+    name: "John Doe",
+    email: "john@company.com",
+    role: "Admin",
+    avatar: user1,
+  },
+  {
+    id: 2,
+    name: "Sarah Wilson",
+    email: "sarah@company.com",
+    role: "User",
+    avatar: user2,
+  },
+  {
+    id: 3,
+    name: "Mike Johnson",
+    email: "mike@company.com",
+    role: "Moderator",
+    avatar: user3,
+  },
+  {
+    id: 4,
+    name: "Emily Davis",
+    email: "emily@company.com",
+    role: "User",
+    avatar: user4,
+  },
+];

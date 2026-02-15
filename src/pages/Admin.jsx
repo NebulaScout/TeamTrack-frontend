@@ -27,6 +27,7 @@ import ProjectsManagement from "@/components/ProjectsManagement";
 import TaskManagement from "@/components/TaskManagement";
 import AuditLogs from "@/components/AuditLogs";
 import Analytics from "@/components/Analytcis";
+import CommentsModeration from "@/components/CommentsModeration";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("quickActions");
@@ -71,7 +72,7 @@ export default function Admin() {
       case "auditLogs":
         return <AuditLogs />;
       case "comments":
-        return renderPlaceholderTab("Comments Moderation");
+        return <CommentsModeration />;
       case "roles":
         return renderPlaceholderTab("Role Management");
       default:
