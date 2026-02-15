@@ -1,15 +1,6 @@
 import React, { useState } from "react";
 import {
   FiPlus,
-  FiAlertCircle,
-  FiUsers,
-  FiFolder,
-  FiCheckSquare,
-  FiBarChart2,
-  FiClock,
-  FiMessageSquare,
-  FiShield,
-  FiUserPlus,
   FiSearch,
   FiFilter,
   FiChevronDown,
