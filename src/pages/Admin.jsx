@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   FiPlus,
   FiAlertCircle,
@@ -22,6 +22,7 @@ import {
   mockUnassignedTasks,
 } from "@/utils/mockData";
 import QuickActionsTab from "@/components/QuickActions";
+import UserManagement from "@/components/UserManagement";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("quickActions");
@@ -56,7 +57,7 @@ export default function Admin() {
       case "quickActions":
         return <QuickActionsTab />;
       case "users":
-        return renderPlaceholderTab("User Management");
+        return <UserManagement />;
       case "projects":
         return renderPlaceholderTab("Projects Management");
       case "tasks":
