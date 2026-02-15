@@ -23,6 +23,7 @@ import {
 } from "@/utils/mockData";
 import QuickActionsTab from "@/components/QuickActions";
 import UserManagement from "@/components/UserManagement";
+import ProjectsManagement from "@/components/ProjectsManagement";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("quickActions");
@@ -59,7 +60,7 @@ export default function Admin() {
       case "users":
         return <UserManagement />;
       case "projects":
-        return renderPlaceholderTab("Projects Management");
+        return <ProjectsManagement />;
       case "tasks":
         return renderPlaceholderTab("Tasks Management");
       case "analytics":
