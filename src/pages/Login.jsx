@@ -1,52 +1,59 @@
 import { useState } from "react";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
+import { useForm } from "react-hook-form";
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import AuthPagesNavBar from "@/components/AuthPagesNavBar";
 import styles from "@/styles/authpages.module.css";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthProvider";
+import { FiLoader } from "react-icons/fi";
+
+const loginSchema = z.object({
+  username: z.string().trim().min(1, "Username or email is required"),
+  password: z.string().min(1, "Password is required"),
+});
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
+
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { username: "", password: "" },
+  });
+
+  const loginMutation = useMutation({
+    mutationFn: login,
+    onSuccess: () => {
+      navigate("/dashboard");
+    },
+    onError: (err) => {
+      const message =
+        err?.response?.data?.messages ||
+        err?.response?.data?.detail ||
+        err?.response?.data?.message ||
+        "Login failed! Please try again.";
+      setError("root", { message });
+    },
+  });
 
   const handleRedirect = () => {
     navigate("/register");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    console.log(formData);
-
-    setIsLoading(true);
-
-    try {
-      await login(formData);
-      console.log("Login Successful:");
-      navigate("/dashboard");
-    } catch (err) {
-      console.log("Log in failed. ", err);
-      setError(
-        err.response?.data?.messages ||
-          err.response?.data?.detail ||
-          "Login Failed! Please try again.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = (data) => {
+    clearErrors("root");
+    loginMutation.mutate(data);
   };
 
   return (
@@ -57,20 +64,23 @@ export default function Login() {
         <div className={styles.container}>
           <h2 className={styles.title}>Log in to your account</h2>
 
-          {error && <p className={styles.error}>{error}</p>}
+          {errors.root?.message && (
+            <p className={styles.error}>{errors.root.message}</p>
+          )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className={styles.inputGroup}>
               <label className={styles.label}>Username/ Email:</label>
 
               <input
                 type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
+                aria-invalid={!!errors.username}
+                {...register("username", { required: true })}
                 className={styles.input}
-                required
               />
+              {errors.username?.message && (
+                <p className={styles.fieldError}>{errors.username.message}</p>
+              )}
             </div>
 
             <div className={styles.inputGroup}>
@@ -86,11 +96,13 @@ export default function Login() {
               </div>
               <input
                 type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
+                className={styles.input}
+                aria-invalid={!!errors.password}
+                {...register("password", { required: true })}
               />
+              {errors.password?.message && (
+                <p className={styles.fieldError}>{errors.password.message}</p>
+              )}
             </div>
 
             <a href="#" className={styles.forgotPassword}>
@@ -99,9 +111,17 @@ export default function Login() {
             <button
               className={styles.btnSubmit}
               type="submit"
-              disabled={isLoading}
+              disabled={loginMutation.isPending}
             >
-              {isLoading ? "Logging in" : "Log in"}
+              {loginMutation.isPending ? (
+                <>
+                  {/* TODO: Add animate spin style */}
+                  <FiLoader className="" />
+                  Logging in...
+                </>
+              ) : (
+                "Log in"
+              )}
             </button>
           </form>
           <div className={styles.divider}>
@@ -109,7 +129,11 @@ export default function Login() {
           </div>
 
           <p className={styles.loginText}> Don't have have an account? </p>
-          <button className={styles.btnLogOutline} onClick={handleRedirect}>
+          <button
+            className={styles.btnLogOutline}
+            onClick={handleRedirect}
+            disabled={loginMutation.isPending}
+          >
             Sign up
           </button>
         </div>
