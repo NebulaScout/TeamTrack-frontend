@@ -116,7 +116,7 @@ export const upcomingDeadlinesData = [
     project: "Infrastructure",
     priority: "Low",
     date: "Jan 22",
-    avatar: "",
+    avatar: user8,
   },
 ];
 
