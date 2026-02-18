@@ -11,8 +11,18 @@ import { useAuth } from "@/contexts/AuthProvider";
 import { FiLoader } from "react-icons/fi";
 
 const loginSchema = z.object({
-  username: z.string().trim().min(1, "Username or email is required"),
-  password: z.string().min(1, "Password is required"),
+  username: z
+    .string("Username can only include letters, numbers, and underscores.")
+    .trim()
+    .min(3, "Username must be atleast 3 characters long")
+    .max(20, "Username is too long")
+    .refine((val) => !/^\d+$/.test(val), {
+      message: "Username cannot consist of only numbers",
+    }),
+  password: z
+    .string()
+    .min(6, "Password should contain atleast 6 characters short")
+    .max(30, "Password is too long"),
 });
 
 export default function Login() {
@@ -41,6 +51,7 @@ export default function Login() {
       const message =
         err?.response?.data?.messages ||
         err?.response?.data?.detail ||
+        err?.response?.data?.error?.message ||
         err?.response?.data?.message ||
         "Login failed! Please try again.";
       setError("root", { message });

@@ -158,3 +158,9 @@ hr {
   margin-bottom: 15px;
   text-align: center;
 }
+
+.fieldError {
+  color: #dc3545;
+  font-size: 12px;
+  margin-top: 6px;
+}

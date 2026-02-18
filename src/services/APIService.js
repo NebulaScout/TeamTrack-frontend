@@ -10,6 +10,8 @@ const api = axios.create({
 // Add access token to every request
 api.interceptors.request.use(
   (config) => {
+    if (config?.skipAuth) return config; // skip auth header for this request
+
     const accessToken = localStorage.getItem("accessToken");
     if (accessToken) config.headers.Authorization = `Bearer ${accessToken}`;
 
@@ -24,13 +26,20 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    if (
+      originalRequest?.skipRefresh || // opt out per request
+      originalRequest?.url?.includes("/api/token/refresh/")
+    ) {
+      return Promise.reject(error);
+    }
+
     // If it a 401 error and there has been no refresh
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
         const refreshToken = localStorage.getItem("refreshToken");
-        if (!refreshToken) throw new Error("No refresh token");
+        if (!refreshToken) return Promise.reject(error);
 
         const response = await api.post("/api/token/refresh/", {
           refresh: refreshToken,
