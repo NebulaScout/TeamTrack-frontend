@@ -12,7 +12,7 @@ import { FiLoader } from "react-icons/fi";
 
 const loginSchema = z.object({
   username: z
-    .string("Username can only include letters, numbers, and underscores.")
+    .string()
     .trim()
     .min(3, "Username must be atleast 3 characters long")
     .max(20, "Username is too long")

@@ -1,22 +1,25 @@
 import api from "./APIService";
 
 export const authAPI = {
-  register: async (userData) => {
-    const response = await api.post("/api/v1/accounts/register/", {
-      user: {
-        email: userData.email,
-        first_name: userData.firstName,
-        last_name: userData.lastName,
-        username: userData.username || userData.email,
-        password: userData.password,
-        confirm_password: userData.confirmPassword,
+  signup: async (userData) => {
+    const response = await api.post(
+      "/api/v1/accounts/register/",
+      {
+        user: {
+          email: userData.email,
+          first_name: userData.firstName,
+          last_name: userData.lastName,
+          username: userData.username || userData.email,
+          password: userData.password,
+          confirm_password: userData.confirmPassword,
+        },
       },
-    });
+      { skipAuth: true, skipRefresh: true },
+    );
     return response.data;
   },
 
   login: async (credentials) => {
-    // TODO: Create a better endpoint for this
     const response = await api.post(
       "/api/v1/auth/login/",
       {

@@ -1,72 +1,94 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
 import { authAPI } from "@/services/authAPI";
 import AuthPagesNavBar from "@/components/AuthPagesNavBar";
 import styles from "@/styles/authpages.module.css";
+import { FiLoader } from "react-icons/fi";
 
-// TODO: Implement iseForm, zod & TanStack query
+const nameSchema = z
+  .string()
+  .trim()
+  .min(3, "Name is required")
+  .refine((val) => !/^\d+$/.test(val), {
+    message: "Name cannot consist of only numbers",
+  });
+
+const registerSchema = z
+  .object({
+    email: z.email("Enter a valid email"),
+    firstName: nameSchema,
+    lastName: nameSchema.optional(),
+    username: z
+      .string()
+      .trim()
+      .min(3, "Username must be atleast 3 characters long")
+      .max(20, "Username is too long")
+      .refine((val) => !/^\d+$/.test(val), {
+        message: "Username cannot consist of only numbers",
+      }),
+    password: z
+      .string()
+      .min(6, "Password must be at least 6 characters long")
+      .max(30, "Password is too long"),
+    confirmPassword: z.string().min(1, "Confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    path: ["confirmPassword"],
+    message: "Passwords do not match!",
+  });
 
 export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    username: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
 
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      username: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
+
+  const registerMutation = useMutation({
+    mutationFn: authAPI.signup,
+    onSuccess: () => {
+      navigate("/login");
+    },
+    onError: (err) => {
+      const message =
+        err?.response?.data?.messages ||
+        err?.response?.data?.detail ||
+        err?.response?.data?.error?.message ||
+        err?.response?.data?.message ||
+        "Registration failed! Please try again.";
+      setError("root", { message });
+    },
+  });
+  console.log("Register Mutation: ", registerMutation);
 
   const handleRedirect = () => {
     navigate("/login");
   };
 
-  const validatePassword = () => {
-    if (formData.password != formData.confirmPassword) {
-      setError("Passwords do not match");
-      return false;
-    }
-    if (formData.password.length < 8) {
-      setError("Password must be atleast 8 characters long");
-      return false;
-    }
-    return true;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-
-    if (!validatePassword()) return;
-
-    setIsLoading(true);
-
-    console.log(formData);
-
-    try {
-      const response = await authAPI.register(formData);
-      console.log("Registration successful: ", response);
-      navigate("/login"); // Redirect to login after a successful registration
-    } catch (err) {
-      console.log("Registration failed", err);
-      setError(
-        err.response?.data?.message ||
-          err.response?.data?.detail ||
-          "Registration failed! Please try again.",
-      );
-    } finally {
-      setIsLoading(false);
-    }
+  const onSubmit = (data) => {
+    clearErrors("root");
+    registerMutation.mutate(data);
   };
 
   return (
@@ -77,20 +99,23 @@ export default function Register() {
         <div className={styles.container}>
           <h2 className={styles.title}>Sign up for an account</h2>
 
-          {error && <p className={styles.error}>{error}</p>}
+          {errors.root?.message && (
+            <p className={styles.error}>{errors.root.message}</p>
+          )}
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className={styles.inputGroup}>
               <label className={styles.label}>Email:</label>
 
               <input
                 type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
                 className={styles.input}
-                required
+                aria-invalid={!!errors.email}
+                {...register("email")}
               />
+              {errors.email?.message && (
+                <p className={styles.fieldError}>{errors.email.message}</p>
+              )}
             </div>
 
             <div className={styles.inputGroup}>
@@ -98,11 +123,13 @@ export default function Register() {
 
               <input
                 type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
+                className={styles.input}
+                aria-invalid={!!errors.firstName}
+                {...register("firstName")}
               />
+              {errors.firstName?.message && (
+                <p className={styles.fieldError}>{errors.firstName.message}</p>
+              )}
             </div>
 
             <div className={styles.inputGroup}>
@@ -110,10 +137,13 @@ export default function Register() {
 
               <input
                 type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
+                className={styles.input}
+                aria-invalid={!!errors.lastName}
+                {...register("lastName")}
               />
+              {errors.lastName?.message && (
+                <p className={styles.fieldError}>{errors.lastName.message}</p>
+              )}
             </div>
 
             <div className={styles.inputGroup}>
@@ -121,10 +151,13 @@ export default function Register() {
 
               <input
                 type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleChange}
+                className={styles.input}
+                aria-invalid={!!errors.username}
+                {...register("username")}
               />
+              {errors.username?.message && (
+                <p className={styles.fieldError}>{errors.username.message}</p>
+              )}
             </div>
 
             <div className={styles.inputGroup}>
@@ -140,11 +173,13 @@ export default function Register() {
               </div>
               <input
                 type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
+                className={styles.input}
+                aria-invalid={!!errors.password}
+                {...register("password")}
               />
+              {errors.password?.message && (
+                <p className={styles.fieldError}>{errors.password.message}</p>
+              )}
             </div>
 
             <div className={styles.inputGroup}>
@@ -152,11 +187,15 @@ export default function Register() {
 
               <input
                 type={showPassword ? "text" : "password"}
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
+                className={styles.input}
+                aria-invalid={!!errors.confirmPassword}
+                {...register("confirmPassword")}
               />
+              {errors.confirmPassword?.message && (
+                <p className={styles.fieldError}>
+                  {errors.confirmPassword.message}
+                </p>
+              )}
             </div>
 
             <a href="#" className={styles.forgotPassword}>
@@ -165,9 +204,17 @@ export default function Register() {
             <button
               className={styles.btnSubmit}
               type="submit"
-              disabled={isLoading}
+              disabled={registerMutation.isPending}
             >
-              {isLoading ? "Signing up..." : "Sign Up"}
+              {registerMutation.isPending ? (
+                <>
+                  {/* TODO: Add animate spin style */}
+                  <FiLoader className="" />
+                  Creating user...
+                </>
+              ) : (
+                "Sign Up"
+              )}
             </button>
           </form>
           <div className={styles.divider}>
@@ -175,7 +222,11 @@ export default function Register() {
           </div>
 
           <p className={styles.loginText}> Already have an account? </p>
-          <button className={styles.btnLogOutline} onClick={handleRedirect}>
+          <button
+            className={styles.btnLogOutline}
+            onClick={handleRedirect}
+            disabled={registerMutation.isPending}
+          >
             Log in
           </button>
         </div>
