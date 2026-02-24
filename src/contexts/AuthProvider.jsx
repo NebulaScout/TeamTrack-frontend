@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 import { authAPI } from "@/services/authAPI";
+import { mapUserFromAPI } from "@/utils/userMapper";
+import { Navigate } from "react-router-dom";
 
 const AuthContext = createContext(null);
 
@@ -23,7 +25,8 @@ export function AuthProvider({ children }) {
       try {
         // Validate token by fetching user data
         const userData = await authAPI.getCurrentUser();
-        setUser(userData);
+        const mappedData = mapUserFromAPI(userData);
+        setUser(mappedData);
         setIsAuthenticated(true);
       } catch (err) {
         // Token is expired/ invalid and refresh failed
@@ -48,7 +51,8 @@ export function AuthProvider({ children }) {
     const response = await authAPI.login(credentials);
     // fetch user data after login
     const userData = await authAPI.getCurrentUser();
-    setUser(userData);
+    const mappedData = mapUserFromAPI(userData);
+    setUser(mappedData);
     setIsAuthenticated(true);
     return response;
   };
@@ -56,6 +60,7 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await authAPI.logout();
+      <Navigate to="/login" />;
     } catch (err) {
       console.error("Logout API error:", err);
     }

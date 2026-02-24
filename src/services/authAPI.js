@@ -47,7 +47,7 @@ export const authAPI = {
   // Get authenticated user's profile
   getCurrentUser: async () => {
     const response = await api.get("/api/v1/auth/me/");
-    return response.data;
+    return response.data.data;
   },
 
   // Get all users
@@ -59,6 +59,6 @@ export const authAPI = {
   // Get a specific user
   getUserById: async (id) => {
     const response = await api.get(`/api/v1/accounts/users/${id}/`);
-    return response.data;
+    return response.data.data;
   },
 };

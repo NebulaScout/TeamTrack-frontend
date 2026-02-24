@@ -13,7 +13,6 @@ import { FiLogOut } from "react-icons/fi";
 import { useAuth } from "@/contexts/AuthProvider";
 
 import styles from "@/styles/dashboard.module.css";
-import user9 from "@/assets/person9_current_user.jpg";
 
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: <LuLayoutDashboard /> },
@@ -32,8 +31,8 @@ const navItems = [
 
 export default function SideBar() {
   const location = useLocation();
-  const { logout } = useAuth();
-
+  const { user, logout } = useAuth();
+  // TODO: Add role in sidebar
   return (
     <aside className={styles.sidebar}>
       <div className={styles.sidebarHeader}>
@@ -77,12 +76,12 @@ export default function SideBar() {
 
         <div className={styles.userProfile}>
           <div className={styles.userAvatar}>
-            <img src={user9} alt="John Doe" />
+            <img src={user.avatar} alt={`${user.username}'s avatar`} />
           </div>
 
           <div className={styles.userInfo}>
-            <p className={styles.userName}> John Doe</p>
-            <p className={styles.userEmail}>doe@microsoft.com</p>
+            <p className={styles.userName}> {user.username} </p>
+            <p className={styles.userEmail}> {user.email} </p>
           </div>
           <button
             className={styles.btnLogout}

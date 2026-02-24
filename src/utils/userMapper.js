@@ -3,8 +3,8 @@ export const mapUserFromAPI = (apiUser) => ({
   username: apiUser.username,
   firstName: apiUser.first_name,
   lastName: apiUser.last_name,
-  fullName: `${apiUser.first_name} ${apiUser.last_name}`,
   email: apiUser.email,
+  avatar: apiUser.avatar,
   role: apiUser.role,
 });
 

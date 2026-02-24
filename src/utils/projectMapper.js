@@ -29,13 +29,8 @@ export function mapProjectsFromAPI(apiProject) {
     createdAt: apiProject.created_at,
     teamMembers: (apiProject.members || []).map((member) => ({
       id: member.id,
-      role: member.role_in_project,
-      memberId: member.project_member,
-
-      // TODO: fetch user details and add image  to backend
-      name:
-        member.name ||
-        `${apiProject.created_by.first_name} ${apiProject.created_by.last_name}`,
+      role: member.role,
+      username: member.username,
       avatar: member.avatar || null,
     })),
     tasks: tasks,

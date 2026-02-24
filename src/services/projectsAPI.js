@@ -4,7 +4,8 @@ export const projectsAPI = {
   // get all projects
   getAll: async () => {
     const response = await api.get("/api/v1/projects/");
-    return response.data;
+    console.log("Project data: ", response);
+    return response.data.data;
   },
 
   // Get a single project
