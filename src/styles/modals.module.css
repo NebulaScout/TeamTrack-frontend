@@ -271,3 +271,194 @@
   color: var(--text-gray);
   margin-top: 8px;
 }
+
+/* Project Details Modal Styles */
+.projectDetailsHeader {
+  flex: 1;
+}
+
+.projectDetailsHeader h2 {
+  margin: 0 0 8px 0;
+}
+
+.titleAndBtnClose {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* margin-bottom: 10px; */
+}
+
+.titleAndBtnClose .btnClose {
+  margin-bottom: 12px;
+}
+
+.projectDescription {
+  font-size: 14px;
+  color: var(--text-gray);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.badgesRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.priorityBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Progress Section */
+.progressSection {
+  margin-bottom: 24px;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.progressLabel {
+  font-size: 14px;
+  color: var(--text-gray);
+}
+
+.progressPercentage {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.progressBar {
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progressBlue {
+  background-color: var(--primary-color);
+}
+
+.progressGreen {
+  background-color: var(--status-success);
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.statItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.statIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.statIconGreen {
+  background-color: #dcfce7;
+  color: var(--status-success);
+}
+
+.statIconYellow {
+  background-color: #fef3c7;
+  color: var(--status-warning);
+}
+
+.statIconBlue {
+  background-color: #dbeafe;
+  color: var(--primary-color);
+}
+
+.statIconPurple {
+  background-color: #ede9fe;
+  color: #7c3aed;
+}
+
+.statContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--text-gray);
+}
+
+/* Team Section */
+.teamSection {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 20px;
+}
+
+.teamSectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0 0 16px 0;
+}
+
+.teamAvatars {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.avatarCircle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+  overflow: hidden;
+  border: 2px solid var(--surface-color);
+}
+
+.avatarCircle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

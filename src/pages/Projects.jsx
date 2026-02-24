@@ -10,6 +10,7 @@ import { formatDate } from "@/utils/formatDate";
 import ProjectModal from "@/components/ProjectModal";
 import { mapProjectsFromAPIs } from "@/utils/projectMapper";
 import { projectsAPI } from "@/services/projectsAPI";
+import ProjectDetailsModal from "@/components/ProjectDetailsModal";
 
 export default function Projects() {
   const [activeTab, setActiveTab] = useState("all");
@@ -18,6 +19,8 @@ export default function Projects() {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
 
   // fetch projects from API
   useEffect(() => {
@@ -37,6 +40,11 @@ export default function Projects() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleProjectClick = (project) => {
+    setSelectedProject(project);
+    setShowDetailsModal(true);
   };
 
   const handleProjectCreated = (newProject) => {
@@ -141,7 +149,11 @@ export default function Projects() {
           {!isLoading && !error && filteredProjects.length > 0 && (
             <div className={projectStyles.projectsGrid}>
               {filteredProjects.map((project) => (
-                <div key={project.id} className={projectStyles.projectCard}>
+                <div
+                  key={project.id}
+                  className={projectStyles.projectCard}
+                  onClick={() => handleProjectClick(project)}
+                >
                   <div className={projectStyles.projectCardHeader}>
                     <h3 className={projectStyles.projectName}>
                       {project.name}
@@ -191,6 +203,8 @@ export default function Projects() {
                     </div>
                   </div>
 
+                  <hr />
+
                   <div className={projectStyles.projectFooter}>
                     <div className={projectStyles.teamAvatars}>
                       {project.teamMembers.slice(0, 3).map((member, index) => (
@@ -227,6 +241,14 @@ export default function Projects() {
           <ProjectModal
             setShowModal={setShowModal}
             onProjectCreated={handleProjectCreated}
+          />
+        )}
+
+        {/* Project details modal */}
+        {showDetailsModal && selectedProject && (
+          <ProjectDetailsModal
+            project={selectedProject}
+            setShowModal={setShowDetailsModal}
           />
         )}
       </main>
