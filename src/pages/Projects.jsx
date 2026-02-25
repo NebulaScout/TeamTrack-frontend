@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { FiSearch, FiPlus, FiMoreHorizontal } from "react-icons/fi";
+import {
+  FiSearch,
+  FiPlus,
+  FiMoreHorizontal,
+  FiEdit,
+  FiTrash2,
+} from "react-icons/fi";
 import { FaRegClock } from "react-icons/fa";
 import { FaRegCalendar } from "react-icons/fa6";
 import SideBar from "@/components/SideBar";
@@ -11,6 +17,7 @@ import ProjectModal from "@/components/ProjectModal";
 import { mapProjectsFromAPIs } from "@/utils/projectMapper";
 import { projectsAPI } from "@/services/projectsAPI";
 import ProjectDetailsModal from "@/components/ProjectDetailsModal";
+import "@/App.css";
 
 export default function Projects() {
   const [activeTab, setActiveTab] = useState("all");
@@ -21,6 +28,7 @@ export default function Projects() {
   const [error, setError] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
 
   // fetch projects from API
   useEffect(() => {
@@ -50,6 +58,29 @@ export default function Projects() {
   const handleProjectCreated = (newProject) => {
     setProjects((prev) => [...prev, newProject]);
   };
+
+  const toggleDropdown = (e, projectId) => {
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === projectId ? null : projectId);
+  };
+
+  const handleEdit = (e, project) => {
+    e.stopPropagation();
+    setActiveDropdown(null);
+    console.log("Edit Project: ", project);
+  };
+
+  const handleDelete = (e, projectId) => {
+    e.stopPropagation();
+    setActiveDropdown(null);
+    console.log("Delete project: ", projectId);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = () => setActiveDropdown(null);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
 
   // Filter projects based on the active tab or the searched item
   const filteredProjects = projects.filter((project) => {
@@ -158,9 +189,34 @@ export default function Projects() {
                     <h3 className={projectStyles.projectName}>
                       {project.name}
                     </h3>
-                    <button className={projectStyles.btnMore}>
-                      <FiMoreHorizontal />
-                    </button>
+                    <div className="dropdownContainer">
+                      <button
+                        className={projectStyles.btnMore}
+                        onClick={(e) => toggleDropdown(e, project.id)}
+                      >
+                        <FiMoreHorizontal />
+                      </button>
+
+                      {activeDropdown === project.id && (
+                        <div className="dropdownMenu">
+                          <button
+                            className="dropdownItem"
+                            onClick={(e) => handleEdit(e, project)}
+                          >
+                            <FiEdit />
+                            Edit
+                          </button>
+
+                          <button
+                            className="dropdownItem dropdownItemDanger"
+                            onClick={(e) => handleDelete(e, project.id)}
+                          >
+                            <FiTrash2 />
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <p className={projectStyles.projectDescription}>

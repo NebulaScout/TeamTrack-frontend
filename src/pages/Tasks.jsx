@@ -9,6 +9,7 @@ import { formatDate } from "@/utils/formatDate";
 import TaskModal from "@/components/TaskModal";
 import { tasksAPI } from "@/services/tasksAPI";
 import { mapTaskFromAPI, mapTasksFromAPI } from "@/utils/taskMapper";
+import Loader from "@/components/ui/Loader";
 
 export default function Tasks() {
   const [activeView, setActiveView] = useState("kanban");
@@ -113,13 +114,6 @@ export default function Tasks() {
     }
   };
 
-  // Loading state
-  // if(isLoading) {
-  //   return (
-
-  //   )
-  // }
-
   return (
     <div className={styles.dashboardContainer}>
       <SideBar />
@@ -172,7 +166,8 @@ export default function Tasks() {
 
           {/* Loading state */}
           {isLoading && (
-            <div className="loadingState">
+            <div>
+              {/* <Loader /> */}
               <p>Loading tasks...</p>
             </div>
           )}
