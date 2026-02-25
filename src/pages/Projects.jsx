@@ -14,49 +14,35 @@ import styles from "@/styles/dashboard.module.css";
 import projectStyles from "@/styles/projects.module.css";
 import { formatDate } from "@/utils/formatDate";
 import ProjectModal from "@/components/ProjectModal";
-import { mapProjectsFromAPIs } from "@/utils/projectMapper";
-import { projectsAPI } from "@/services/projectsAPI";
+import { useProjects, useDeleteProject } from "@/hooks/useProjects";
 import ProjectDetailsModal from "@/components/ProjectDetailsModal";
 import "@/App.css";
 
 export default function Projects() {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [projects, setProjects] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
 
-  // fetch projects from API
-  useEffect(() => {
-    fetchProjects();
-  }, []);
+  const {
+    data: projects = [],
+    isLoading,
+    error,
+    refetch: refetchProjects,
+  } = useProjects();
 
-  const fetchProjects = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const data = await projectsAPI.getAll();
-      setProjects(mapProjectsFromAPIs(data));
-    } catch (err) {
-      console.log("Failed to fetch projects: ", err);
-      setError("Failed to load projects. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const deleteProjectMutation = useDeleteProject();
 
   const handleProjectClick = (project) => {
     setSelectedProject(project);
     setShowDetailsModal(true);
   };
 
-  const handleProjectCreated = (newProject) => {
-    setProjects((prev) => [...prev, newProject]);
+  const handleProjectCreated = () => {
+    // setProjects((prev) => [...prev, newProject]);
+    setShowModal(false);
   };
 
   const toggleDropdown = (e, projectId) => {
@@ -70,10 +56,18 @@ export default function Projects() {
     console.log("Edit Project: ", project);
   };
 
-  const handleDelete = (e, projectId) => {
+  const handleDelete = async (e, projectId) => {
     e.stopPropagation();
     setActiveDropdown(null);
-    console.log("Delete project: ", projectId);
+    // console.log("Delete project: ", projectId);
+
+    if (window.confirm("Are you sure you want to delete this project?")) {
+      try {
+        await deleteProjectMutation.mutateAsync(projectId);
+      } catch (error) {
+        console.error("Failed to delete project: ", error);
+      }
+    }
   };
 
   useEffect(() => {

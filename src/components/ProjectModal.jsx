@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { FiX } from "react-icons/fi";
-import { projectsAPI } from "@/services/projectsAPI";
-import { mapProjectsFromAPI } from "@/utils/projectMapper";
 import modalStyles from "@/styles/modals.module.css";
-// import { formatDate } from "@/utils/formatDate";
+import { useCreateProject } from "@/hooks/useProjects";
 
 export default function ProjectModal({ setShowModal, onProjectCreated }) {
   const [newProject, setNewProject] = useState({
@@ -13,29 +11,20 @@ export default function ProjectModal({ setShowModal, onProjectCreated }) {
     dueDate: "",
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+  const {
+    mutateAsync: createProjectMutation,
+    isPending,
+    isError,
+    error,
+  } = useCreateProject();
 
-  const handleCreateProject = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async (projectData) => {
     try {
-      setIsSubmitting(true);
-      setError(null);
-
-      const createdProject = await projectsAPI.create(newProject);
-
-      const transformedProject = mapProjectsFromAPI(createdProject);
-      onProjectCreated(transformedProject);
+      await createProjectMutation.mutateAsync(projectData);
+      onProjectCreated();
       setShowModal(false);
-    } catch (err) {
-      console.log("Failed to create project: ", err);
-      setError(
-        err.response?.data?.message ||
-          "Failed to create project please try again.",
-      );
-    } finally {
-      setIsSubmitting(false);
+    } catch (error) {
+      console.error("Failed to create project: ", error);
     }
   };
 
@@ -52,9 +41,9 @@ export default function ProjectModal({ setShowModal, onProjectCreated }) {
           </button>
         </div>
 
-        {error && <div className={modalStyles.errorMessage}>{error}</div>}
+        {isError && <div className={modalStyles.errorMessage}>{error}</div>}
 
-        <form onSubmit={handleCreateProject}>
+        <form onSubmit={handleSubmit(newProject)}>
           <div className={modalStyles.formGroup}>
             <label>Project Name</label>
             <input
@@ -145,7 +134,7 @@ export default function ProjectModal({ setShowModal, onProjectCreated }) {
               type="button"
               className={modalStyles.btnCancel}
               onClick={() => setShowModal(false)}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               Cancel
             </button>
@@ -153,9 +142,9 @@ export default function ProjectModal({ setShowModal, onProjectCreated }) {
             <button
               type="submit"
               className={modalStyles.btnCreate}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
-              {isSubmitting ? "Creating project..." : "Create Project"}
+              {isPending ? "Creating project..." : "Create Project"}
             </button>
           </div>
         </form>
