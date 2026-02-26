@@ -2,11 +2,14 @@ import React, { useState } from "react";
 import { FiX } from "react-icons/fi";
 import modalStyles from "@/styles/modals.module.css";
 import { useCreateProject } from "@/hooks/useProjects";
+import { mapProjectToAPI } from "@/utils/projectMapper";
 
 export default function ProjectModal({ setShowModal, onProjectCreated }) {
   const [newProject, setNewProject] = useState({
     name: "",
     description: "",
+    status: "",
+    priority: "",
     startDate: "",
     dueDate: "",
   });
@@ -14,13 +17,12 @@ export default function ProjectModal({ setShowModal, onProjectCreated }) {
   const {
     mutateAsync: createProjectMutation,
     isPending,
-    isError,
     error,
   } = useCreateProject();
 
   const handleSubmit = async (projectData) => {
     try {
-      await createProjectMutation.mutateAsync(projectData);
+      await createProjectMutation(mapProjectToAPI(projectData));
       onProjectCreated();
       setShowModal(false);
     } catch (error) {
@@ -41,9 +43,14 @@ export default function ProjectModal({ setShowModal, onProjectCreated }) {
           </button>
         </div>
 
-        {isError && <div className={modalStyles.errorMessage}>{error}</div>}
+        {error && <div className={modalStyles.errorMessage}>{error}</div>}
 
-        <form onSubmit={handleSubmit(newProject)}>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(newProject);
+          }}
+        >
           <div className={modalStyles.formGroup}>
             <label>Project Name</label>
             <input
@@ -84,7 +91,9 @@ export default function ProjectModal({ setShowModal, onProjectCreated }) {
                   setNewProject({ ...newProject, status: e.target.value })
                 }
               >
+                <option value="">Select</option>
                 <option value="Active">Active</option>
+                <option value="On hold">on Hold</option>
                 <option value="Completed">Completed</option>
               </select>
             </div>
@@ -100,6 +109,7 @@ export default function ProjectModal({ setShowModal, onProjectCreated }) {
                   })
                 }
               >
+                <option value="">Select</option>
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>

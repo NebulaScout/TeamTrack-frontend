@@ -16,12 +16,7 @@ export const projectsAPI = {
 
   // create a new project
   create: async (projectData) => {
-    const response = await api.post("/api/v1/projects/", {
-      project_name: projectData.name,
-      description: projectData.description,
-      start_date: projectData.startDate,
-      end_date: projectData.dueDate,
-    });
+    const response = await api.post("/api/v1/projects/", projectData);
     return response.data;
   },
 

@@ -14,6 +14,19 @@ const STATUS_TO_API = {
   Done: "DONE",
 };
 
+// Map API project status codes to frontend status strings
+const PROJECT_STATUS_MAP = {
+  ACTIVE: "Active",
+  COMPLETED: "Completed",
+  ON_HOLD: "On hold",
+};
+
+const PROJECT_STATUS_TO_API = {
+  Active: "ACTIVE",
+  Completed: "COMPLETED",
+  "On hold": "ON_HOLD",
+};
+
 const PRIORITY_MAP = {
   LOW: "Low",
   MEDIUM: "Medium",
@@ -48,4 +61,6 @@ export {
   PRIORITY_TO_API,
   EVENT_TYPE_MAP,
   EVENT_TYPE_TO_API,
+  PROJECT_STATUS_MAP,
+  PROJECT_STATUS_TO_API,
 };

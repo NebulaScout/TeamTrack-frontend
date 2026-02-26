@@ -1,5 +1,11 @@
-// Transform backend project data to frontend format
+import {
+  PRIORITY_TO_API,
+  PRIORITY_MAP,
+  PROJECT_STATUS_MAP,
+  PROJECT_STATUS_TO_API,
+} from "./enumMappings";
 
+// Transform backend project data to frontend format
 export function mapProjectsFromAPI(apiProject) {
   const tasks = apiProject.project_tasks || [];
   const completedTasks = tasks.filter(
@@ -41,3 +47,13 @@ export function mapProjectsFromAPI(apiProject) {
 export function mapProjectsFromAPIs(apiProjects) {
   return apiProjects.map(mapProjectsFromAPI);
 }
+
+// Transform frontend project data to API request format
+export const mapProjectToAPI = (frontendProjectData) => ({
+  project_name: frontendProjectData.name,
+  description: frontendProjectData.description || "",
+  status: PROJECT_STATUS_TO_API[frontendProjectData.status] ?? "ACTIVE",
+  priority: PRIORITY_TO_API[frontendProjectData.priority] || "LOW",
+  start_date: frontendProjectData.startDate || null,
+  end_date: frontendProjectData.dueDate || null,
+});

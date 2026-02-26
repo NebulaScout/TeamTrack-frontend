@@ -158,8 +158,8 @@ export default function Projects() {
           {/* Error state */}
           {error && (
             <div className={projectStyles.errorState}>
-              <p>{error}</p>
-              <button onClick={fetchProjects}>Retry</button>
+              <p>Failed to load projects. Please try again.</p>
+              <button onClick={() => refetchProjects()}>Retry</button>
             </div>
           )}
 

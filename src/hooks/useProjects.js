@@ -42,7 +42,7 @@ export const useCreateProject = () => {
 
   return useMutation({
     mutationFn: projectsAPI.create,
-    onSuccess: (newProject) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectsKeys.lists() });
     },
   });
