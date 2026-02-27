@@ -1,17 +1,21 @@
 import React, { useState } from "react";
 import { FiX } from "react-icons/fi";
 import modalStyles from "@/styles/modals.module.css";
-import { useCreateProject } from "@/hooks/useProjects";
+import { useCreateProject, useUpdateProject } from "@/hooks/useProjects";
 import { mapProjectToAPI } from "@/utils/projectMapper";
 
-export default function ProjectModal({ setShowModal, onProjectCreated }) {
+export default function ProjectModal({
+  setShowModal,
+  onProjectSaved,
+  projectToEdit = null,
+}) {
   const [newProject, setNewProject] = useState({
-    name: "",
-    description: "",
-    status: "",
-    priority: "",
-    startDate: "",
-    dueDate: "",
+    name: projectToEdit?.name || "",
+    description: projectToEdit?.description || "",
+    status: projectToEdit?.status || "",
+    priority: projectToEdit?.priority || "",
+    startDate: projectToEdit?.startDate || "",
+    dueDate: projectToEdit?.dueDate || "",
   });
 
   const {
@@ -23,18 +27,37 @@ export default function ProjectModal({ setShowModal, onProjectCreated }) {
   const handleSubmit = async (projectData) => {
     try {
       await createProjectMutation(mapProjectToAPI(projectData));
-      onProjectCreated();
+      onProjectSaved();
       setShowModal(false);
     } catch (error) {
       console.error("Failed to create project: ", error);
     }
   };
 
+  const {
+    mutateAsync: updateProjectMutation,
+    isPending: isUpdating,
+    error: updateError,
+  } = useUpdateProject();
+
+  const handleUpdate = async (id, projectData) => {
+    try {
+      await updateProjectMutation({ id, data: mapProjectToAPI(projectData) });
+      onProjectSaved();
+      setShowModal(false);
+    } catch (error) {
+      console.error("Failed to update project: ", error);
+    }
+  };
+
+  // Determine whtther we're in edit mode
+  const isEditMode = !!projectToEdit;
+
   return (
     <div className={modalStyles.modalOverlay}>
       <div className={modalStyles.modal}>
         <div className={modalStyles.modalHeader}>
-          <h2>Create New Project</h2>
+          <h2>{isEditMode ? "Edit Project" : "Create New Project"}</h2>
           <button
             className={modalStyles.btnClose}
             onClick={() => setShowModal(false)}
@@ -43,12 +66,18 @@ export default function ProjectModal({ setShowModal, onProjectCreated }) {
           </button>
         </div>
 
-        {error && <div className={modalStyles.errorMessage}>{error}</div>}
+        {(error || updateError) && (
+          <div className={modalStyles.errorMessage}>{error || updateError}</div>
+        )}
 
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handleSubmit(newProject);
+            if (isEditMode) {
+              handleUpdate(projectToEdit.id, newProject);
+            } else {
+              handleSubmit(newProject);
+            }
           }}
         >
           <div className={modalStyles.formGroup}>
@@ -152,9 +181,15 @@ export default function ProjectModal({ setShowModal, onProjectCreated }) {
             <button
               type="submit"
               className={modalStyles.btnCreate}
-              disabled={isPending}
+              disabled={isPending || isUpdating}
             >
-              {isPending ? "Creating project..." : "Create Project"}
+              {isPending || isUpdating
+                ? isEditMode
+                  ? "Updating..."
+                  : "Creating..."
+                : isEditMode
+                  ? "Update Project"
+                  : "Create Project"}{" "}
             </button>
           </div>
         </form>

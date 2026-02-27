@@ -40,7 +40,7 @@ export default function Projects() {
     setShowDetailsModal(true);
   };
 
-  const handleProjectCreated = () => {
+  const handleProjectSaved = () => {
     // setProjects((prev) => [...prev, newProject]);
     setShowModal(false);
   };
@@ -53,7 +53,8 @@ export default function Projects() {
   const handleEdit = (e, project) => {
     e.stopPropagation();
     setActiveDropdown(null);
-    console.log("Edit Project: ", project);
+    setSelectedProject(project);
+    setShowModal(true);
   };
 
   const handleDelete = async (e, projectId) => {
@@ -290,7 +291,8 @@ export default function Projects() {
         {showModal && (
           <ProjectModal
             setShowModal={setShowModal}
-            onProjectCreated={handleProjectCreated}
+            onProjectSaved={handleProjectSaved}
+            projectToEdit={selectedProject}
           />
         )}
 

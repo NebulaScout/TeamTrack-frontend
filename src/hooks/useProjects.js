@@ -54,7 +54,7 @@ export const useUpdateProject = () => {
 
   return useMutation({
     mutationFn: ({ id, data }) => projectsAPI.update(id, data),
-    onSuccess: (updateProject, { id }) => {
+    onSuccess: ({ id }) => {
       // invalidate specific project and projects list
       queryClient.invalidateQueries({ queryKey: projectsKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: projectsKeys.lists() });
