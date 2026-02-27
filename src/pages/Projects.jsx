@@ -16,6 +16,7 @@ import { formatDate } from "@/utils/formatDate";
 import ProjectModal from "@/components/ProjectModal";
 import { useProjects, useDeleteProject } from "@/hooks/useProjects";
 import ProjectDetailsModal from "@/components/ProjectDetailsModal";
+import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import "@/App.css";
 
 export default function Projects() {
@@ -24,6 +25,7 @@ export default function Projects() {
   const [showModal, setShowModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
 
   const {
@@ -32,8 +34,6 @@ export default function Projects() {
     error,
     refetch: refetchProjects,
   } = useProjects();
-
-  const deleteProjectMutation = useDeleteProject();
 
   const handleProjectClick = (project) => {
     setSelectedProject(project);
@@ -57,17 +57,20 @@ export default function Projects() {
     setShowModal(true);
   };
 
-  const handleDelete = async (e, projectId) => {
-    e.stopPropagation();
-    setActiveDropdown(null);
-    // console.log("Delete project: ", projectId);
+  const {
+    mutateAsync: DeleteProject,
+    isPending: isDeleting,
+    // error: deleteError,
+  } = useDeleteProject();
 
-    if (window.confirm("Are you sure you want to delete this project?")) {
-      try {
-        await deleteProjectMutation.mutateAsync(projectId);
-      } catch (error) {
-        console.error("Failed to delete project: ", error);
-      }
+  const handleDelete = async () => {
+    setActiveDropdown(null);
+
+    try {
+      await DeleteProject({ id: selectedProject?.id });
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error("Failed to delete project: ", error);
     }
   };
 
@@ -204,7 +207,11 @@ export default function Projects() {
 
                           <button
                             className="dropdownItem dropdownItemDanger"
-                            onClick={(e) => handleDelete(e, project.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedProject(project);
+                              setShowDeleteModal(true);
+                            }}
                           >
                             <FiTrash2 />
                             Delete
@@ -301,6 +308,17 @@ export default function Projects() {
           <ProjectDetailsModal
             project={selectedProject}
             setShowModal={setShowDetailsModal}
+          />
+        )}
+
+        {/* Delete project modal */}
+        {showDeleteModal && (
+          <ConfirmDeleteModal
+            isOpen={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={handleDelete}
+            projectName={selectedProject?.name}
+            isDeleting={isDeleting}
           />
         )}
       </main>

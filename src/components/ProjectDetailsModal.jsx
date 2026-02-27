@@ -8,6 +8,8 @@ import modalStyles from "@/styles/modals.module.css";
 import projectStyles from "@/styles/projects.module.css";
 
 export default function ProjectDetailsModal({ project, setShowModal }) {
+  // TODO: use useGetProject to retrieve individual projects
+
   if (!project) return null;
 
   const pendingTasks = project.totalTasks - project.tasksCompleted;
