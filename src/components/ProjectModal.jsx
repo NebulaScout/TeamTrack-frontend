@@ -1,57 +1,100 @@
-import React, { useState } from "react";
 import { FiX } from "react-icons/fi";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import modalStyles from "@/styles/modals.module.css";
 import { useCreateProject, useUpdateProject } from "@/hooks/useProjects";
 import { mapProjectToAPI } from "@/utils/projectMapper";
+
+const projectSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(3, "Project name must be at least 3 characters long")
+      .max(100, "Project name is too long")
+      .refine((val) => !/^\d+$/.test(val), {
+        message: "Project name cannot consist of only numbers",
+      }),
+    description: z
+      .string()
+      .trim()
+      .max(500, "Description is too long")
+      .optional(),
+    status: z.string().min(1, "Please select a status"),
+    priority: z.string().min(1, "Please select a priority"),
+    startDate: z.string(),
+    dueDate: z.string(),
+  })
+  .refine(
+    (data) => {
+      if (data.startDate && data.dueDate) {
+        return new Date(data.dueDate) >= new Date(data.startDate);
+      }
+      return true;
+    },
+    {
+      path: ["dueDate"],
+      message: "Due date must be after the start date",
+    },
+  );
 
 export default function ProjectModal({
   setShowModal,
   onProjectSaved,
   projectToEdit = null,
 }) {
-  const [newProject, setNewProject] = useState({
-    name: projectToEdit?.name || "",
-    description: projectToEdit?.description || "",
-    status: projectToEdit?.status || "",
-    priority: projectToEdit?.priority || "",
-    startDate: projectToEdit?.startDate || "",
-    dueDate: projectToEdit?.dueDate || "",
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(projectSchema),
+    defaultValues: {
+      name: projectToEdit?.name || "",
+      description: projectToEdit?.description || "",
+      status: projectToEdit?.status || "",
+      priority: projectToEdit?.priority || "",
+      startDate: projectToEdit?.startDate || "",
+      dueDate: projectToEdit?.dueDate || "",
+    },
   });
 
-  const {
-    mutateAsync: createProjectMutation,
-    isPending,
-    error,
-  } = useCreateProject();
+  const { mutateAsync: createProjectMutation, isPending } = useCreateProject();
 
-  const handleSubmit = async (projectData) => {
-    try {
-      await createProjectMutation(mapProjectToAPI(projectData));
-      onProjectSaved();
-      setShowModal(false);
-    } catch (error) {
-      console.error("Failed to create project: ", error);
-    }
-  };
+  const { mutateAsync: updateProjectMutation, isPending: isUpdating } =
+    useUpdateProject();
 
-  const {
-    mutateAsync: updateProjectMutation,
-    isPending: isUpdating,
-    error: updateError,
-  } = useUpdateProject();
-
-  const handleUpdate = async (id, projectData) => {
-    try {
-      await updateProjectMutation({ id, data: mapProjectToAPI(projectData) });
-      onProjectSaved();
-      setShowModal(false);
-    } catch (error) {
-      console.error("Failed to update project: ", error);
-    }
-  };
-
-  // Determine whtther we're in edit mode
+  // Determine whether we're in edit mode
   const isEditMode = !!projectToEdit;
+
+  const onSubmit = async (data) => {
+    clearErrors("root");
+
+    try {
+      if (isEditMode) {
+        await updateProjectMutation({
+          id: projectToEdit.id,
+          data: mapProjectToAPI(data),
+        });
+      } else {
+        await createProjectMutation(mapProjectToAPI(data));
+      }
+      onProjectSaved();
+      setShowModal(false);
+    } catch (error) {
+      const message =
+        error?.response?.data?.messages ||
+        error?.response?.data?.detail ||
+        error?.response?.data?.error?.message ||
+        error?.response?.data?.message ||
+        `Failed to ${isEditMode ? "update" : "create"} project. Please try again.`;
+      setError("root", { message });
+    }
+  };
 
   return (
     <div className={modalStyles.modalOverlay}>
@@ -66,46 +109,37 @@ export default function ProjectModal({
           </button>
         </div>
 
-        {(error || updateError) && (
-          <div className={modalStyles.errorMessage}>{error || updateError}</div>
+        {errors.root?.message && (
+          <div className={modalStyles.errorMessage}>{errors.root.message}</div>
         )}
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (isEditMode) {
-              handleUpdate(projectToEdit.id, newProject);
-            } else {
-              handleSubmit(newProject);
-            }
-          }}
-        >
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className={modalStyles.formGroup}>
             <label>Project Name</label>
             <input
               type="text"
               placeholder="Enter project name"
-              value={newProject.name}
-              onChange={(e) =>
-                setNewProject({ ...newProject, name: e.target.value })
-              }
-              required
+              aria-invalid={!!errors.name}
+              {...register("name")}
             />
+            {errors.name?.message && (
+              <p className={modalStyles.fieldError}>{errors.name.message}</p>
+            )}
           </div>
 
           <div className={modalStyles.formGroup}>
             <label>Description</label>
             <textarea
               placeholder="Describe the project goals and scope"
-              value={newProject.description}
-              onChange={(e) =>
-                setNewProject({
-                  ...newProject,
-                  description: e.target.value,
-                })
-              }
+              aria-invalid={!!errors.description}
+              {...register("description")}
               rows={4}
             />
+            {errors.description?.message && (
+              <p className={modalStyles.fieldError}>
+                {errors.description.message}
+              </p>
+            )}
             <span className={modalStyles.helpText}>
               Optional brief description of the project
             </span>
@@ -114,35 +148,35 @@ export default function ProjectModal({
           <div className={modalStyles.formRow}>
             <div className={modalStyles.formGroup}>
               <label>Status</label>
-              <select
-                value={newProject.status}
-                onChange={(e) =>
-                  setNewProject({ ...newProject, status: e.target.value })
-                }
-              >
+              <select aria-invalid={!!errors.status} {...register("status")}>
                 <option value="">Select</option>
                 <option value="Active">Active</option>
                 <option value="On hold">on Hold</option>
                 <option value="Completed">Completed</option>
               </select>
+              {errors.status?.message && (
+                <p className={modalStyles.fieldError}>
+                  {errors.status.message}
+                </p>
+              )}
             </div>
 
             <div className={modalStyles.formGroup}>
               <label>Priority</label>
               <select
-                value={newProject.priority}
-                onChange={(e) =>
-                  setNewProject({
-                    ...newProject,
-                    priority: e.target.value,
-                  })
-                }
+                aria-invalid={!!errors.priority}
+                {...register("priority")}
               >
                 <option value="">Select</option>
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
               </select>
+              {errors.priority?.message && (
+                <p className={modalStyles.fieldError}>
+                  {errors?.priority?.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -150,22 +184,24 @@ export default function ProjectModal({
             <label>Start Date</label>
             <input
               type="date"
-              value={newProject.startDate}
-              onChange={(e) =>
-                setNewProject({ ...newProject, startDate: e.target.value })
-              }
+              aria-invalid={!!errors.startDate}
+              {...register("startDate")}
             />
+            {errors.startDate?.message && (
+              <p className={modalStyles.fieldError}>{errors.status.message}</p>
+            )}
           </div>
 
           <div className={modalStyles.formGroup}>
             <label>Due Date</label>
             <input
               type="date"
-              value={newProject.dueDate}
-              onChange={(e) =>
-                setNewProject({ ...newProject, dueDate: e.target.value })
-              }
+              aria-invalid={!!errors.dueDate}
+              {...register("dueDate")}
             />
+            {errors.dueDate?.message && (
+              <p className={modalStyles.fieldError}>{errors.dueDate.message}</p>
+            )}
           </div>
 
           <div className={modalStyles.modalActions}>
