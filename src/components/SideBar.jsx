@@ -17,7 +17,7 @@ import styles from "@/styles/dashboard.module.css";
 const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: <LuLayoutDashboard /> },
   { path: "/projects", label: "Projects", icon: <LuFolderKanban /> },
-  { path: "/tasks", label: "Tasks", icon: <FiCheckSquare /> },
+  { path: "/tasks", label: "My Tasks", icon: <FiCheckSquare /> },
   { path: "/Calendar", label: "Calendar", icon: <FaRegCalendar /> },
   { path: "/team", label: "Team", icon: <RiTeamLine /> },
   {

@@ -20,7 +20,7 @@ const getProjectName = async (projectId) => {
 const getAssigneeData = async (assigneeId) => {
   const assigneeData = await authAPI.getUserById(assigneeId);
   const data = mapUserFromAPI(assigneeData);
-  return data.fullName;
+  return data.username;
 };
 
 // Transform API task response to frontend format

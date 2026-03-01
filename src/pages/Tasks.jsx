@@ -272,11 +272,11 @@ export default function Tasks() {
                   <div className={taskStyles.listAssignee}>
                     {task.assignee?.avatar && (
                       <img
-                        src={task.assignee.avatar}
-                        alt={task.assignee.name}
+                        src={task.assignee?.avatar}
+                        alt={task.assignee?.name}
                       />
                     )}
-                    <span>{task.assignee?.name}</span>
+                    <span>{task.assignee?.name || "John Doe"}</span>
                   </div>
 
                   <span
