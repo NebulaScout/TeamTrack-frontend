@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { FiSearch, FiPlus, FiMoreHorizontal, FiFilter } from "react-icons/fi";
 import { FaRegCalendar } from "react-icons/fa6";
 import SideBar from "@/components/SideBar";
@@ -7,19 +7,17 @@ import styles from "@/styles/dashboard.module.css";
 import taskStyles from "@/styles/tasks.module.css";
 import { formatDate } from "@/utils/formatDate";
 import TaskModal from "@/components/TaskModal";
-import { tasksAPI } from "@/services/tasksAPI";
-import { mapTaskFromAPI, mapTasksFromAPI } from "@/utils/taskMapper";
 import { getPriorityClass } from "@/utils/priorityClass";
 import { getTaskStatusClass, getStatusDotClass } from "@/utils/statusClass";
 import Loader from "@/components/ui/Loader";
+import { useGetTasks } from "@/hooks/useTasks";
 
 export default function Tasks() {
   const [activeView, setActiveView] = useState("kanban");
   const [searchQuery, setSearchQuery] = useState("");
-  const [tasks, setTasks] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+
+  const { data: tasks = [], isLoading, isError, refetch } = useGetTasks();
 
   // Filter tasks based on search query
   const filteredTasks = tasks.filter(
@@ -27,33 +25,6 @@ export default function Tasks() {
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       task.project.toLowerCase().includes(searchQuery.toLowerCase()),
   );
-
-  // fetch tasks from API
-  const fetchTasks = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const apiTasks = await tasksAPI.getAll();
-      const mappedTasks = mapTasksFromAPI(apiTasks);
-      setTasks(mappedTasks);
-    } catch (err) {
-      console.log("Failed to fetch tasks: ", err);
-      setError("Failed to load tasks. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
-
-  // Handle adding a new task
-  const handleTaskCreated = (newTask) => {
-    const mappedTask = mapTaskFromAPI(newTask);
-    setTasks((prevTasks) => [...prevTasks, mappedTask]);
-  };
 
   // Filter tasks based on search query
   // const filteredTasks = tasks.filter(
@@ -77,7 +48,7 @@ export default function Tasks() {
     <div className={styles.dashboardContainer}>
       <SideBar />
       <main className={styles.mainContent}>
-        <Header title="Tasks" pageIntro="Manage and track your team's tasks" />
+        <Header title="Tasks" pageIntro="Manage and track your tasks" />
 
         {/* Tasks Content */}
         <div className={taskStyles.tasksContainer}>
@@ -132,15 +103,15 @@ export default function Tasks() {
           )}
 
           {/* Error state */}
-          {error && (
+          {isError && (
             <div className="errorState">
-              <p>{error}</p>
-              <button onClick={fetchTasks}>Retry</button>
+              <p>Failed to load tasks. Please try again.</p>
+              <button onClick={() => refetch()}>Retry</button>
             </div>
           )}
 
           {/* Empty state */}
-          {!isLoading && !error && filteredTasks.length === 0 && (
+          {!isLoading && !isError && filteredTasks.length === 0 && (
             <div className="emptyState">
               <p>No tasks found.</p>
             </div>
@@ -149,7 +120,7 @@ export default function Tasks() {
           {/* Kanban View */}
           {activeView === "kanban" && (
             <div className={taskStyles.kanbanBoard}>
-              {/* ? Chec this out */}
+              {/* ? Check this out */}
               {Object.entries(tasksByStatus).map(([status, statusTasks]) => (
                 <div key={status} className={taskStyles.kanbanColumn}>
                   <div className={taskStyles.columnHeader}>
@@ -177,14 +148,14 @@ export default function Tasks() {
                         <p className={taskStyles.taskProject}>{task.project}</p>
 
                         <div className={taskStyles.taskFooter}>
-                          <div className={taskStyles.taskAssignee}>
+                          {/* <div className={taskStyles.taskAssignee}>
                             {task.assignee?.avatar && (
                               <img
                                 src={task.assignee.avatar}
                                 alt={task.assignee.name}
                               />
                             )}
-                          </div>
+                          </div> */}
 
                           <span
                             className={`${taskStyles.priorityBadge} ${getPriorityClass(task.priority)}`}
@@ -229,7 +200,7 @@ export default function Tasks() {
                   </div>
 
                   {/* TODO: Remove this */}
-                  <div className={taskStyles.listAssignee}>
+                  {/* <div className={taskStyles.listAssignee}>
                     {task.assignee?.avatar && (
                       <img
                         src={task.assignee?.avatar}
@@ -237,7 +208,7 @@ export default function Tasks() {
                       />
                     )}
                     <span>{task.assignee?.name || "John Doe"}</span>
-                  </div>
+                  </div> */}
 
                   <span
                     className={`${taskStyles.statusBadge} ${getTaskStatusClass(task.status)}`}
@@ -267,12 +238,7 @@ export default function Tasks() {
         </div>
 
         {/* Create Task Modal */}
-        {showModal && (
-          <TaskModal
-            onTaskCreated={handleTaskCreated}
-            setShowModal={setShowModal}
-          />
-        )}
+        {showModal && <TaskModal setShowModal={setShowModal} />}
       </main>
     </div>
   );

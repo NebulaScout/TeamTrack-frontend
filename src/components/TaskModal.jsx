@@ -25,7 +25,7 @@ const taskSchema = z.object({
   assignee: z.string().optional(),
   status: z.string().min(1, "Please select a status"),
   priority: z.string().min(1, "Please select a priority"),
-  dueDate: z.string().optional(),
+  dueDate: z.string(),
 });
 
 export default function TaskModal({ onTaskCreated, setShowModal }) {
