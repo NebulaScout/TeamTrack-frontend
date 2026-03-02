@@ -6,40 +6,68 @@ import { projectsAPI } from "@/services/projectsAPI";
 import { mapProjectsFromAPIs } from "@/utils/projectMapper";
 import { authAPI } from "@/services/authAPI";
 import { mapUsersFromAPI } from "@/utils/userMapper";
-
 import modalStyles from "@/styles/modals.module.css";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const taskSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(3, "Task title must be at least 3 characters long")
+    .max(100, "Task title is too long")
+    .refine((val) => !/^\d+$/.test(val), {
+      message: "Task title cannot consist of only numbers",
+    }),
+  description: z.string().trim().max(500, "Description is too long").optional(),
+  project: z.string().min(1, "Please select a project"),
+  assignee: z.string().optional(),
+  status: z.string().min(1, "Please select a status"),
+  priority: z.string().min(1, "Please select a priority"),
+  dueDate: z.string().optional(),
+});
 
 export default function TaskModal({ onTaskCreated, setShowModal }) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [projects, setProjects] = useState([]);
   const [users, setUsers] = useState([]);
-  // const [projectError, setProjectError] = useState(null)
-  const [newTask, setNewTask] = useState({
-    title: "",
-    description: "",
-    project: "",
-    assignee: "",
-    status: "To Do",
-    priority: "Medium",
-    dueDate: "",
+
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(taskSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      project: "",
+      assignee: "",
+      status: "To Do",
+      priority: "Medium",
+      dueDate: "",
+    },
   });
 
   const fetchProjects = useCallback(async () => {
     try {
       setIsLoading(true);
-      setError(null);
+      clearErrors("root");
 
       const availableProjects = await projectsAPI.getAll();
       setProjects(mapProjectsFromAPIs(availableProjects));
     } catch (err) {
       console.error("Failed to load projects: ", err);
-      setError(err.response?.data?.message || "Failed to load projects");
+      setError("root", {
+        message: err.response?.data?.message || "Failed to load projects",
+      });
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [clearErrors, setError]);
 
   const fetchUsers = useCallback(async () => {
     setIsLoading(true);
@@ -49,49 +77,39 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
       setUsers(mapUsersFromAPI(data));
     } catch (err) {
       console.error("Unable to fetch available users: ", err);
-      setError(err.response?.data?.message || "Failed to fetch users");
+      setError("root", {
+        message: err.response?.data?.message || "Failed to fetch users",
+      });
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [setError]);
 
   useEffect(() => {
     fetchProjects();
     fetchUsers();
   }, [fetchProjects, fetchUsers]);
 
-  const handleCreateTask = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
+    clearErrors("root");
 
     try {
-      setIsSubmitting(true);
-      setError(null);
-
-      const apiPayload = mapTaskToAPI(newTask);
+      const apiPayload = mapTaskToAPI(data);
       const createdTask = await tasksAPI.create(apiPayload.project, apiPayload);
 
       // Notify parent component of the new task
       onTaskCreated(createdTask);
 
-      // Reset form & close modal
-      setNewTask({
-        title: "",
-        description: "",
-        project: "",
-        assignee: "",
-        status: "To Do",
-        priority: "Medium",
-        dueDate: "",
-      });
       setShowModal(false);
     } catch (err) {
       console.error("Failed to create task: ", err);
-      setError(
-        err.response?.data?.message ||
-          "Failed to create task. Please try again.",
-      );
-    } finally {
-      setIsSubmitting(false);
+      const message =
+        err?.response?.data?.messages ||
+        err?.response?.data?.detail ||
+        err?.response?.data?.error?.message ||
+        err?.response?.data?.message ||
+        "Failed to create task. Please try again.";
+      setError("root", message);
     }
   };
 
@@ -108,34 +126,39 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
           </button>
         </div>
 
-        {error && <div className={modalStyles.errorMessage}>{error}</div>}
+        {errors.root?.message && (
+          <div className={modalStyles.errorMessage}>{errors.root.message}</div>
+        )}
 
-        <form onSubmit={handleCreateTask}>
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className={modalStyles.formGroup}>
             <label>Task Title</label>
             <input
               type="text"
               placeholder="Enter task title"
-              value={newTask.title}
-              onChange={(e) =>
-                setNewTask({ ...newTask, title: e.target.value })
-              }
-              required
+              aria-invalid={!!errors.title}
+              {...register("title")}
               disabled={isSubmitting}
             />
+            {errors.title?.message && (
+              <p className={modalStyles.fieldError}>{errors.title.message}</p>
+            )}
           </div>
 
           <div className={modalStyles.formGroup}>
             <label>Description</label>
             <textarea
               placeholder="Describe what needs to be done..."
-              value={newTask.description}
-              onChange={(e) =>
-                setNewTask({ ...newTask, description: e.target.value })
-              }
+              aria-invalid={!!errors.description}
+              {...register("description")}
               rows={3}
               disabled={isSubmitting}
             />
+            {errors.description?.message && (
+              <p className={modalStyles.fieldError}>
+                {errors.description.message}
+              </p>
+            )}
           </div>
 
           {/* TODO: Add API endpoints for this */}
@@ -143,10 +166,8 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
             <div className={modalStyles.formGroup}>
               <label>Project</label>
               <select
-                value={newTask.project}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, project: e.target.value })
-                }
+                ria-invalid={!!errors.project}
+                {...register("project")}
                 disabled={isSubmitting || isLoading}
               >
                 <option value="">Select project</option>
@@ -156,15 +177,19 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
                   </option>
                 ))}
               </select>
+              {errors.project?.message && (
+                <p className={modalStyles.fieldError}>
+                  {errors.project.message}
+                </p>
+              )}
             </div>
 
             <div className={modalStyles.formGroup}>
               <label>Assignee</label>
               <select
-                value={newTask.assignee}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, assignee: e.target.value })
-                }
+                aria-invalid={!!errors.assignee}
+                {...register("assignee")}
+                disabled={isSubmitting || isLoading}
               >
                 <option value="">Select assignee</option>
                 {users.map(
@@ -176,6 +201,11 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
                     ),
                 )}
               </select>
+              {errors.assignee?.message && (
+                <p className={modalStyles.fieldError}>
+                  {errors.assignee.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -183,10 +213,8 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
             <div className={modalStyles.formGroup}>
               <label>Status</label>
               <select
-                value={newTask.status}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, status: e.target.value })
-                }
+                aria-invalid={!!errors.status}
+                {...register("status")}
                 disabled={isSubmitting}
               >
                 <option value="To Do">To Do</option>
@@ -194,21 +222,29 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
                 <option value="In Review">In Review</option>
                 <option value="Done">Done</option>
               </select>
+              {errors.status?.message && (
+                <p className={modalStyles.fieldError}>
+                  {errors.status.message}
+                </p>
+              )}
             </div>
 
             <div className={modalStyles.formGroup}>
               <label>Priority</label>
               <select
-                value={newTask.priority}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, priority: e.target.value })
-                }
+                aria-invalid={!!errors.priority}
+                {...register("priority")}
                 disabled={isSubmitting}
               >
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
               </select>
+              {errors.priority?.message && (
+                <p className={modalStyles.fieldError}>
+                  {errors.priority.message}
+                </p>
+              )}
             </div>
           </div>
 
@@ -216,11 +252,13 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
             <label>Due Date</label>
             <input
               type="date"
-              value={newTask.dueDate}
-              onChange={(e) =>
-                setNewTask({ ...newTask, dueDate: e.target.value })
-              }
+              aria-invalid={!!errors.dueDate}
+              {...register("dueDate")}
+              disabled={isSubmitting}
             />
+            {errors.dueDate?.message && (
+              <p className={modalStyles.fieldError}>{errors.dueDate.message}</p>
+            )}
           </div>
 
           <div className={modalStyles.modalActions}>

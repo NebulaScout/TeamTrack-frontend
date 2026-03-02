@@ -9,6 +9,8 @@ import { formatDate } from "@/utils/formatDate";
 import TaskModal from "@/components/TaskModal";
 import { tasksAPI } from "@/services/tasksAPI";
 import { mapTaskFromAPI, mapTasksFromAPI } from "@/utils/taskMapper";
+import { getPriorityClass } from "@/utils/priorityClass";
+import { getTaskStatusClass, getStatusDotClass } from "@/utils/statusClass";
 import Loader from "@/components/ui/Loader";
 
 export default function Tasks() {
@@ -69,49 +71,6 @@ export default function Tasks() {
     ),
     "In Review": filteredTasks.filter((task) => task.status === "In Review"),
     Done: filteredTasks.filter((task) => task.status === "Done"),
-  };
-
-  const getPriorityClass = (priority) => {
-    switch (priority) {
-      case "High":
-        return taskStyles.priorityHigh;
-      case "Medium":
-        return taskStyles.priorityMedium;
-      case "Low":
-        return taskStyles.priorityLow;
-      default:
-        return taskStyles.priorityMedium;
-    }
-  };
-
-  const getStatusClass = (status) => {
-    switch (status) {
-      case "To Do":
-        return taskStyles.statusTodo;
-      case "In Progress":
-        return taskStyles.statusInProgress;
-      case "In Review":
-        return taskStyles.statusInReview;
-      case "Done":
-        return taskStyles.statusDone;
-      default:
-        return taskStyles.statusTodo;
-    }
-  };
-
-  const getStatusDotClass = (status) => {
-    switch (status) {
-      case "To Do":
-        return taskStyles.dotTodo;
-      case "In Progress":
-        return taskStyles.dotInProgress;
-      case "In Review":
-        return taskStyles.dotInReview;
-      case "Done":
-        return taskStyles.dotDone;
-      default:
-        return taskStyles.dotTodo;
-    }
   };
 
   return (
@@ -269,6 +228,7 @@ export default function Tasks() {
                     </span>
                   </div>
 
+                  {/* TODO: Remove this */}
                   <div className={taskStyles.listAssignee}>
                     {task.assignee?.avatar && (
                       <img
@@ -280,7 +240,7 @@ export default function Tasks() {
                   </div>
 
                   <span
-                    className={`${taskStyles.statusBadge} ${getStatusClass(task.status)}`}
+                    className={`${taskStyles.statusBadge} ${getTaskStatusClass(task.status)}`}
                   >
                     {task.status}
                   </span>
