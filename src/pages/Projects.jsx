@@ -1,11 +1,5 @@
-import React, { useState, useEffect } from "react";
-import {
-  FiSearch,
-  FiPlus,
-  FiMoreHorizontal,
-  FiEdit,
-  FiTrash2,
-} from "react-icons/fi";
+import React, { useState, useRef } from "react";
+import { FiSearch, FiPlus, FiMoreHorizontal } from "react-icons/fi";
 import { FaRegClock } from "react-icons/fa";
 import { FaRegCalendar } from "react-icons/fa6";
 import SideBar from "@/components/SideBar";
@@ -18,6 +12,8 @@ import { useProjects, useDeleteProject } from "@/hooks/useProjects";
 import ProjectDetailsModal from "@/components/ProjectDetailsModal";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import "@/App.css";
+import { DropdownMenu } from "@/components/DropdownMenu";
+import { useCloseOnOutsideClick } from "@/hooks/useHandleClicks";
 
 export default function Projects() {
   const [activeTab, setActiveTab] = useState("all");
@@ -27,6 +23,10 @@ export default function Projects() {
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
+  const detailsModalRef = useRef(null);
+  const deleteModalRef = useRef(null);
+  const createModalRef = useRef(null);
+  const dropdownModalRef = useRef(null);
 
   const {
     data: projects = [],
@@ -74,11 +74,11 @@ export default function Projects() {
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = () => setActiveDropdown(null);
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
-  }, []);
+  // useEffect(() => {
+  //   const handleClickOutside = () => setActiveDropdown(null);
+  //   document.addEventListener("click", handleClickOutside);
+  //   return () => document.removeEventListener("click", handleClickOutside);
+  // }, []);
 
   // Filter projects based on the active tab or the searched item
   const filteredProjects = projects.filter((project) => {
@@ -93,6 +93,11 @@ export default function Projects() {
 
     return selectedTab && searchedProject;
   });
+
+  useCloseOnOutsideClick([detailsModalRef], () => setShowDetailsModal(false));
+  useCloseOnOutsideClick([deleteModalRef], () => setShowDeleteModal(false));
+  useCloseOnOutsideClick([createModalRef], () => setShowModal(false));
+  useCloseOnOutsideClick([dropdownModalRef], () => setActiveDropdown(null));
 
   console.log(filteredProjects);
   return (
@@ -196,27 +201,15 @@ export default function Projects() {
                       </button>
 
                       {activeDropdown === project.id && (
-                        <div className="dropdownMenu">
-                          <button
-                            className="dropdownItem"
-                            onClick={(e) => handleEdit(e, project)}
-                          >
-                            <FiEdit />
-                            Edit
-                          </button>
-
-                          <button
-                            className="dropdownItem dropdownItemDanger"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedProject(project);
-                              setShowDeleteModal(true);
-                            }}
-                          >
-                            <FiTrash2 />
-                            Delete
-                          </button>
-                        </div>
+                        <DropdownMenu
+                          ref={dropdownModalRef}
+                          item={project}
+                          onEdit={handleEdit}
+                          onDelete={(project) => {
+                            setSelectedProject(project);
+                            setShowDeleteModal(true);
+                          }}
+                        />
                       )}
                     </div>
                   </div>
@@ -297,6 +290,7 @@ export default function Projects() {
         {/* Create project modal */}
         {showModal && (
           <ProjectModal
+            ref={createModalRef}
             setShowModal={setShowModal}
             onProjectSaved={handleProjectSaved}
             projectToEdit={selectedProject}
@@ -306,6 +300,7 @@ export default function Projects() {
         {/* Project details modal */}
         {showDetailsModal && selectedProject && (
           <ProjectDetailsModal
+            ref={detailsModalRef}
             project={selectedProject}
             setShowModal={setShowDetailsModal}
           />
@@ -314,6 +309,7 @@ export default function Projects() {
         {/* Delete project modal */}
         {showDeleteModal && (
           <ConfirmDeleteModal
+            ref={deleteModalRef}
             isOpen={showDeleteModal}
             onClose={() => setShowDeleteModal(false)}
             onConfirm={handleDelete}
