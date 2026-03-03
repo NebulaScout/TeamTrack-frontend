@@ -1,6 +1,6 @@
 import { projectsAPI } from "@/services/projectsAPI";
-import { authAPI } from "@/services/authAPI";
-import { mapUserFromAPI } from "./userMapper";
+// import { authAPI } from "@/services/authAPI";
+// import { mapUserFromAPI } from "./userMapper";
 import {
   STATUS_MAP,
   STATUS_TO_API,
@@ -17,11 +17,11 @@ const getProjectName = async (projectId) => {
   }
 };
 
-const getAssigneeData = async (assigneeId) => {
-  const assigneeData = await authAPI.getUserById(assigneeId);
-  const data = mapUserFromAPI(assigneeData);
-  return data.username;
-};
+// const getAssigneeData = async (assigneeId) => {
+//   const assigneeData = await authAPI.getUserById(assigneeId);
+//   const data = mapUserFromAPI(assigneeData);
+//   return data.username;
+// };
 
 // Transform API task response to frontend format
 export const mapTaskFromAPI = (apiTask) => ({
@@ -36,11 +36,12 @@ export const mapTaskFromAPI = (apiTask) => ({
   comments: apiTask.comments || [],
   history: apiTask.history || [],
 
+  // TODO: Add this to the admin endpoint
   // assignee: { name: "", avatar: "" }, // TODO: Fetch assignee info from a separate user endpoint
-  assignee: {
-    name: getAssigneeData(apiTask.assigned_to),
-    avatar: "https://placehold.co/32x32",
-  },
+  // assignee: {
+  //   name: getAssigneeData(apiTask.assigned_to),
+  //   avatar: "https://placehold.co/32x32",
+  // },
 });
 
 // Transform frontend task data to API request format

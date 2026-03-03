@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { authAPI } from "@/services/authAPI";
 import { mapUserFromAPI } from "@/utils/userMapper";
 import { Navigate } from "react-router-dom";
@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -38,14 +38,14 @@ export function AuthProvider({ children }) {
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
 
-        // navigate("/login");
+        navigate("/login");
       } finally {
         setIsLoading(false);
       }
     };
 
     checkAuthStatus();
-  }, []);
+  }, [navigate]);
 
   const login = async (credentials) => {
     const response = await authAPI.login(credentials);

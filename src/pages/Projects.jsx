@@ -195,6 +195,7 @@ export default function Projects() {
                     <div className="dropdownContainer">
                       <button
                         className={projectStyles.btnMore}
+                        onMouseDown={(e) => e.stopPropagation()}
                         onClick={(e) => toggleDropdown(e, project.id)}
                       >
                         <FiMoreHorizontal />

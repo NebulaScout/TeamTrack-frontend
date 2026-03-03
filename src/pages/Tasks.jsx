@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { FiSearch, FiPlus, FiMoreHorizontal, FiFilter } from "react-icons/fi";
 import { FaRegCalendar } from "react-icons/fa6";
 import SideBar from "@/components/SideBar";
@@ -10,15 +10,31 @@ import TaskModal from "@/components/TaskModal";
 import { getPriorityClass } from "@/utils/priorityClass";
 import { getTaskStatusClass, getStatusDotClass } from "@/utils/statusClass";
 import Loader from "@/components/ui/Loader";
-import { useGetTasks } from "@/hooks/useTasks";
+import { useDeleteTask, useGetTasks } from "@/hooks/useTasks";
+import { useCloseOnOutsideClick } from "@/hooks/useHandleClicks";
+import { DropdownMenu } from "@/components/DropdownMenu";
+import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
+import "@/App.css";
 
 export default function Tasks() {
   const [activeView, setActiveView] = useState("kanban");
   const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  // const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const deleteModalRef = useRef(null);
+  const createModalRef = useRef(null);
+  const dropdownModalRef = useRef(null);
+  // const dropdownTriggerRef = useRef(null);
 
   const { data: tasks = [], isLoading, isError, refetch } = useGetTasks();
-
+  const {
+    mutateAsync: deleteTask,
+    isPending: isDeleting,
+    // error: deleteError,
+  } = useDeleteTask();
   // Filter tasks based on search query
   const filteredTasks = tasks.filter(
     (task) =>
@@ -43,6 +59,34 @@ export default function Tasks() {
     "In Review": filteredTasks.filter((task) => task.status === "In Review"),
     Done: filteredTasks.filter((task) => task.status === "Done"),
   };
+
+  const toggleDropdown = (e, taskId) => {
+    e.stopPropagation();
+    setActiveDropdown(activeDropdown === taskId ? null : taskId);
+    console.log("Toggle DropdownMenu: ", activeDropdown);
+  };
+
+  const handleEdit = (e, task) => {
+    e.stopPropagation();
+    setActiveDropdown(null);
+    setSelectedTask(task);
+    setShowModal(true);
+  };
+
+  const handleDelete = async () => {
+    setActiveDropdown(null);
+
+    try {
+      await deleteTask({ id: selectedTask?.id });
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error("Failed to delete project: ", error);
+    }
+  };
+
+  useCloseOnOutsideClick([deleteModalRef], () => setShowDeleteModal(false));
+  useCloseOnOutsideClick([createModalRef], () => setShowModal(false));
+  useCloseOnOutsideClick([dropdownModalRef], () => setActiveDropdown(null));
 
   return (
     <div className={styles.dashboardContainer}>
@@ -140,9 +184,26 @@ export default function Tasks() {
                       <div key={task.id} className={taskStyles.taskCard}>
                         <div className={taskStyles.taskCardHeader}>
                           <h4 className={taskStyles.taskTitle}>{task.title}</h4>
-                          <button className={taskStyles.btnMore}>
+                          <button
+                            onMouseDown={(e) => e.stopPropagation()}
+                            className={taskStyles.btnMore}
+                            onClick={(e) => {
+                              toggleDropdown(e, task.id);
+                            }}
+                          >
                             <FiMoreHorizontal />
                           </button>
+                          {activeDropdown === task.id && (
+                            <DropdownMenu
+                              ref={dropdownModalRef}
+                              item={task}
+                              onEdit={handleEdit}
+                              onDelete={(task) => {
+                                setSelectedTask(task);
+                                setShowDeleteModal(true);
+                              }}
+                            />
+                          )}
                         </div>
 
                         <p className={taskStyles.taskProject}>{task.project}</p>
@@ -173,6 +234,7 @@ export default function Tasks() {
                   </div>
                 </div>
               ))}
+              onClick={}
             </div>
           )}
 
@@ -181,7 +243,7 @@ export default function Tasks() {
             <div className={taskStyles.listView}>
               <div className={taskStyles.listHeader}>
                 <span>Task</span>
-                <span>Assignee</span>
+                {/* <span>Assignee</span> */}
                 <span>Status</span>
                 <span>Priority</span>
                 <span>Due Date</span>
@@ -227,9 +289,25 @@ export default function Tasks() {
                   </span>
 
                   <div className={taskStyles.listActions}>
-                    <button className={taskStyles.btnMore}>
+                    <button
+                      className={taskStyles.btnMore}
+
+                      // onClick={(e) => toggleDropdown(e, task.id)}
+                    >
                       <FiMoreHorizontal />
                     </button>
+
+                    {activeDropdown === task.id && (
+                      <DropdownMenu
+                        ref={dropdownModalRef}
+                        item={task}
+                        onEdit={handleEdit}
+                        onDelete={(task) => {
+                          setSelectedTask(task);
+                          setShowDeleteModal(true);
+                        }}
+                      />
+                    )}
                   </div>
                 </div>
               ))}
@@ -238,7 +316,21 @@ export default function Tasks() {
         </div>
 
         {/* Create Task Modal */}
-        {showModal && <TaskModal setShowModal={setShowModal} />}
+        {showModal && (
+          <TaskModal ref={createModalRef} setShowModal={setShowModal} />
+        )}
+
+        {/* Delete task modal */}
+        {showDeleteModal && (
+          <ConfirmDeleteModal
+            ref={deleteModalRef}
+            isOpen={showDeleteModal}
+            onClose={() => setShowDeleteModal(false)}
+            onConfirm={handleDelete}
+            projectName={selectedTask?.name}
+            isDeleting={isDeleting}
+          />
+        )}
       </main>
     </div>
   );

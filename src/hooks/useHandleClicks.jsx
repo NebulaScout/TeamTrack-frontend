@@ -4,7 +4,7 @@ export function useCloseOnOutsideClick(refs, onClose) {
   useEffect(() => {
     const handleClickOutside = (e) => {
       const isOutside = refs.every(
-        (ref) => !ref.current || !ref.current.contains(e.target),
+        (ref) => ref.current && !ref.current.contains(e.target),
       );
 
       if (isOutside) onClose();

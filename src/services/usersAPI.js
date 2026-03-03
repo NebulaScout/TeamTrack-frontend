@@ -4,7 +4,8 @@ export const usersAPI = {
   // Get all users (admin)
   getAll: async () => {
     const response = await api.get("/api/v1/accounts/users/");
-    return response.data.data;
+    // console.log("Get all users: ", response.data);
+    return response.data;
   },
 
   // Get a single user

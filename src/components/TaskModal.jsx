@@ -1,15 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
 import { FiX } from "react-icons/fi";
-import { tasksAPI } from "@/services/tasksAPI";
 import { mapTaskToAPI } from "@/utils/taskMapper";
-import { projectsAPI } from "@/services/projectsAPI";
-import { mapProjectsFromAPIs } from "@/utils/projectMapper";
-import { authAPI } from "@/services/authAPI";
-import { mapUsersFromAPI } from "@/utils/userMapper";
 import modalStyles from "@/styles/modals.module.css";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useProjects } from "@/hooks/useProjects";
+import { useGetUsers } from "@/hooks/useManageUsers";
+import { useCreateTask } from "@/hooks/useTasks";
 
 const taskSchema = z.object({
   title: z
@@ -28,11 +25,7 @@ const taskSchema = z.object({
   dueDate: z.string(),
 });
 
-export default function TaskModal({ onTaskCreated, setShowModal }) {
-  const [isLoading, setIsLoading] = useState(false);
-  const [projects, setProjects] = useState([]);
-  const [users, setUsers] = useState([]);
-
+export default function TaskModal({ setShowModal }) {
   const {
     register,
     handleSubmit,
@@ -52,65 +45,36 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
     },
   });
 
-  const fetchProjects = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      clearErrors("root");
+  const { data: projects = [], isPending: isFetchingProjects } = useProjects();
+  const { data: users = [], isPending: isFetchingUsers } = useGetUsers();
 
-      const availableProjects = await projectsAPI.getAll();
-      setProjects(mapProjectsFromAPIs(availableProjects));
-    } catch (err) {
-      console.error("Failed to load projects: ", err);
-      setError("root", {
-        message: err.response?.data?.message || "Failed to load projects",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [clearErrors, setError]);
+  console.log("Users retrived: ", users);
 
-  const fetchUsers = useCallback(async () => {
-    setIsLoading(true);
+  const { mutate: createTask } = useCreateTask();
 
-    try {
-      const data = await authAPI.getAllUsers();
-      setUsers(mapUsersFromAPI(data));
-    } catch (err) {
-      console.error("Unable to fetch available users: ", err);
-      setError("root", {
-        message: err.response?.data?.message || "Failed to fetch users",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [setError]);
-
-  useEffect(() => {
-    fetchProjects();
-    fetchUsers();
-  }, [fetchProjects, fetchUsers]);
-
-  const onSubmit = async (data) => {
+  const onSubmit = (data) => {
     clearErrors("root");
 
-    try {
-      const apiPayload = mapTaskToAPI(data);
-      const createdTask = await tasksAPI.create(apiPayload.project, apiPayload);
+    const apiPayload = mapTaskToAPI(data);
 
-      // Notify parent component of the new task
-      onTaskCreated(createdTask);
-
-      setShowModal(false);
-    } catch (err) {
-      console.error("Failed to create task: ", err);
-      const message =
-        err?.response?.data?.messages ||
-        err?.response?.data?.detail ||
-        err?.response?.data?.error?.message ||
-        err?.response?.data?.message ||
-        "Failed to create task. Please try again.";
-      setError("root", message);
-    }
+    createTask.mutate(
+      { projectId: apiPayload.project, taskData: apiPayload },
+      {
+        onSuccess: () => {
+          setShowModal(false);
+        },
+        onError: (err) => {
+          console.error("Failed to create task: ", err);
+          const message =
+            err?.response?.data?.messages ||
+            err?.response?.data?.detail ||
+            err?.response?.data?.error?.message ||
+            err?.response?.data?.message ||
+            "Failed to create task. Please try again.";
+          setError("root", message);
+        },
+      },
+    );
   };
 
   return (
@@ -168,8 +132,9 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
               <select
                 ria-invalid={!!errors.project}
                 {...register("project")}
-                disabled={isSubmitting || isLoading}
+                disabled={isSubmitting}
               >
+                {/* TODO: Add loading state for this */}
                 <option value="">Select project</option>
                 {projects.map((project) => (
                   <option key={project.id} value={project.id}>
@@ -189,8 +154,9 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
               <select
                 aria-invalid={!!errors.assignee}
                 {...register("assignee")}
-                disabled={isSubmitting || isLoading}
+                disabled={isSubmitting}
               >
+                {/* TODO: Add loading state */}
                 <option value="">Select assignee</option>
                 {users.map(
                   (user) =>
@@ -276,7 +242,7 @@ export default function TaskModal({ onTaskCreated, setShowModal }) {
               className={modalStyles.btnCreate}
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Creating Task" : "Create Task"}
+              {isSubmitting ? "Creating Task..." : "Create Task"}
             </button>
           </div>
         </form>
