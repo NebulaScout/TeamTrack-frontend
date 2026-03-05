@@ -806,3 +806,36 @@ export const mockUsersForRoles = [
     avatar: user4,
   },
 ];
+
+// Mock discussion data
+export const mockDiscussions = [
+  {
+    id: 1,
+    user: {
+      name: "Sarah Chen",
+      avatar: null,
+    },
+    message:
+      "I've started working on the initial mockups. Will share the Figma link soon!",
+    timestamp: "2h ago",
+  },
+  {
+    id: 2,
+    user: {
+      name: "Emily Davis",
+      avatar: null,
+    },
+    message: "@Mike Johnson can you review the API requirements for this?",
+    timestamp: "1h ago",
+    mentions: ["Mike Johnson"],
+  },
+  {
+    id: 3,
+    user: {
+      name: "Mike Johnson",
+      avatar: null,
+    },
+    message: "Sure! I'll look into it this afternoon.",
+    timestamp: "30m ago",
+  },
+];

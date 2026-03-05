@@ -317,7 +317,7 @@ export default function Projects() {
             isOpen={showDeleteModal}
             onClose={() => setShowDeleteModal(false)}
             onConfirm={handleDelete}
-            projectName={selectedProject?.name}
+            itemName={selectedProject?.name}
             isDeleting={isDeleting}
           />
         )}

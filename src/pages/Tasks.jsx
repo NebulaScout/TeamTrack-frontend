@@ -14,6 +14,7 @@ import { useDeleteTask, useGetTasks } from "@/hooks/useTasks";
 import { useCloseOnOutsideClick } from "@/hooks/useHandleClicks";
 import { DropdownMenu } from "@/components/DropdownMenu";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
+import TaskDetailsSheet from "@/components/TaskDetailsSheet";
 import "@/App.css";
 
 export default function Tasks() {
@@ -21,6 +22,7 @@ export default function Tasks() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [showDetailsSheet, setShowDetailsSheet] = useState(false);
   // const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -71,6 +73,11 @@ export default function Tasks() {
     setActiveDropdown(null);
     setSelectedTask(task);
     setShowModal(true);
+  };
+
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+    setShowDetailsSheet(true);
   };
 
   const handleDelete = async () => {
@@ -184,7 +191,11 @@ export default function Tasks() {
 
                   <div className={taskStyles.tasksList}>
                     {statusTasks.map((task) => (
-                      <div key={task.id} className={taskStyles.taskCard}>
+                      <div
+                        key={task.id}
+                        className={taskStyles.taskCard}
+                        onClick={() => handleTaskClick(task)}
+                      >
                         <div className={taskStyles.taskCardHeader}>
                           <h4 className={taskStyles.taskTitle}>{task.title}</h4>
                           <button
@@ -333,8 +344,29 @@ export default function Tasks() {
             isOpen={showDeleteModal}
             onClose={() => setShowDeleteModal(false)}
             onConfirm={handleDelete}
-            projectName={selectedTask?.name}
+            itemName={selectedTask?.title}
             isDeleting={isDeleting}
+          />
+        )}
+
+        {showDetailsSheet && (
+          <TaskDetailsSheet
+            task={selectedTask}
+            isOpen={showDetailsSheet}
+            onClose={() => {
+              setShowDetailsSheet(false);
+              setSelectedTask(null);
+            }}
+            onEdit={(task) => {
+              setShowDetailsSheet(false);
+              setSelectedTask(task);
+              setShowModal(true);
+            }}
+            onDelete={(task) => {
+              setShowDetailsSheet(false);
+              setSelectedTask(task);
+              setShowDeleteModal(true);
+            }}
           />
         )}
       </main>

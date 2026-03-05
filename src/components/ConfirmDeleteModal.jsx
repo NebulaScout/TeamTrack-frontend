@@ -6,7 +6,7 @@ export default function ConfirmDeleteModal({
   isOpen,
   onClose,
   onConfirm,
-  projectName,
+  itemName,
   isDeleting = false,
 }) {
   if (!isOpen) return null;
@@ -32,7 +32,7 @@ export default function ConfirmDeleteModal({
         <h2 className={styles.modalTitle}>Delete Project</h2>
 
         <p className={styles.modalMessage}>
-          Are you sure you want to delete <strong>{projectName}</strong>? This
+          Are you sure you want to delete <strong>{itemName}</strong>? This
           action cannot be undone.
         </p>
 

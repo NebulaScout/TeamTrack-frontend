@@ -430,6 +430,423 @@
   }
 }
 
+/* Task Details Slide-Out Sheet */
+.sheetOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.detailsSheet {
+  width: 100%;
+  max-width: 600px;
+  height: 100vh;
+  background-color: var(--surface-color);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  overflow: hidden;
+}
+
+.sheetOpen {
+  transform: translateX(0);
+}
+
+/* Sheet Header */
+.sheetHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sheetTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.btnCloseSheet {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-gray);
+  font-size: 22px;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.btnCloseSheet:hover {
+  color: var(--text-color);
+}
+
+/* Sheet Content */
+.sheetContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Task Title Section */
+.taskTitleSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.taskDetailTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.taskBadges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.priorityBadgeLarge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.priorityBadgeLarge svg {
+  font-size: 12px;
+}
+
+/* Detail Section */
+.detailSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detailLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-gray);
+}
+
+.detailLabel svg {
+  font-size: 14px;
+}
+
+.detailValue {
+  font-size: 14px;
+  color: var(--text-color);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Details Row (Assignee & Due Date) */
+.detailsRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.detailCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background-color: #f1f5f9;
+  border-radius: 12px;
+}
+
+.detailCardLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-gray);
+}
+
+.detailCardLabel svg {
+  font-size: 12px;
+}
+
+.assigneeInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.assigneeAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.avatarPlaceholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.assigneeName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.dueDateValue {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+/* Full Width Detail Card (Project) */
+.detailCardFull {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  background-color: #f1f5f9;
+  border-radius: 12px;
+}
+
+.projectValue {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+/* Sheet Action Buttons */
+.sheetActions {
+  display: flex;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.btnEditTask {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: var(--surface-color);
+  color: var(--text-color);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnEditTask:hover {
+  background-color: #f3f4f6;
+  border-color: var(--text-gray);
+}
+
+.btnDeleteTask {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background-color: var(--surface-color);
+  color: var(--status-error);
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnDeleteTask:hover {
+  background-color: #fef2f2;
+  border-color: var(--status-error);
+}
+
+/* Discussion Section */
+.discussionSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+  margin-top: auto;
+}
+
+.discussionHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.discussionHeader svg {
+  font-size: 16px;
+}
+
+.discussionList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.discussionItem {
+  display: flex;
+  gap: 12px;
+}
+
+.discussionAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.discussionAvatarPlaceholder {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: #e0e7ff;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.discussionContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.discussionMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.discussionAuthor {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.discussionTime {
+  font-size: 12px;
+  color: var(--text-gray);
+}
+
+.discussionMessage {
+  font-size: 13px;
+  color: var(--text-color);
+  margin: 0;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.mention {
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+/* TODO: make content wrap */
+/* Comment Form */
+.commentForm {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+}
+
+.commentInput {
+  flex: 1;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--text-color);
+  padding: 6px 4px;
+}
+
+.commentInput::placeholder {
+  color: var(--text-gray);
+}
+
+.btnSendComment {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.btnSendComment:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.btnSendComment:disabled {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.btnSendComment svg {
+  font-size: 16px;
+}
+
+.mentionHint {
+  font-size: 12px;
+  color: var(--text-gray);
+  padding-left: 4px;
+}
+
 @media (max-width: 768px) {
   .tasksHeader {
     flex-direction: column;
@@ -465,5 +882,24 @@
   .listHeader span:nth-child(3),
   .listItem > *:nth-child(3) {
     display: none;
+  }
+}
+/* Responsive for Sheet */
+@media (max-width: 480px) {
+  .detailsSheet {
+    max-width: 100%;
+  }
+
+  .detailsRow {
+    grid-template-columns: 1fr;
+  }
+
+  .sheetActions {
+    flex-direction: column;
+  }
+
+  .btnEditTask,
+  .btnDeleteTask {
+    justify-content: center;
   }
 }
