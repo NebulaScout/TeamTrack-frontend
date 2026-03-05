@@ -149,7 +149,10 @@ export default function Projects() {
               </div>
               <button
                 className={projectStyles.btnNewProject}
-                onClick={() => setShowModal(true)}
+                onClick={() => {
+                  setSelectedProject(null);
+                  setShowModal(true);
+                }}
               >
                 <FiPlus />
                 New Project

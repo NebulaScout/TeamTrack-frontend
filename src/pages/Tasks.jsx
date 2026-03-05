@@ -130,7 +130,10 @@ export default function Tasks() {
 
               <button
                 className={taskStyles.btnAddTask}
-                onClick={() => setShowModal(true)}
+                onClick={() => {
+                  setSelectedTask(null);
+                  setShowModal(true);
+                }}
               >
                 <FiPlus />
                 Add Task
@@ -234,7 +237,6 @@ export default function Tasks() {
                   </div>
                 </div>
               ))}
-              onClick={}
             </div>
           )}
 
@@ -317,7 +319,11 @@ export default function Tasks() {
 
         {/* Create Task Modal */}
         {showModal && (
-          <TaskModal ref={createModalRef} setShowModal={setShowModal} />
+          <TaskModal
+            ref={createModalRef}
+            setShowModal={setShowModal}
+            taskToEdit={selectedTask}
+          />
         )}
 
         {/* Delete task modal */}

@@ -6,7 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useProjects } from "@/hooks/useProjects";
 import { useGetUsers } from "@/hooks/useManageUsers";
-import { useCreateTask } from "@/hooks/useTasks";
+import { useCreateTask, useUpdateTask } from "@/hooks/useTasks";
 
 const taskSchema = z.object({
   title: z
@@ -25,7 +25,11 @@ const taskSchema = z.object({
   dueDate: z.string(),
 });
 
-export default function TaskModal({ setShowModal }) {
+export default function TaskModal({
+  setShowModal,
+  taskToEdit = null,
+  onClose,
+}) {
   const {
     register,
     handleSubmit,
@@ -35,46 +39,55 @@ export default function TaskModal({ setShowModal }) {
   } = useForm({
     resolver: zodResolver(taskSchema),
     defaultValues: {
-      title: "",
-      description: "",
-      project: "",
-      assignee: "",
-      status: "To Do",
-      priority: "Medium",
-      dueDate: "",
+      title: taskToEdit?.title || "",
+      description: taskToEdit?.description || "",
+      project: taskToEdit?.project || "",
+      assignee: taskToEdit?.assignee || "",
+      status: taskToEdit?.status || "",
+      priority: taskToEdit?.priority || "",
+      dueDate: taskToEdit?.dueDate || "",
     },
   });
 
   const { data: projects = [], isPending: isFetchingProjects } = useProjects();
   const { data: users = [], isPending: isFetchingUsers } = useGetUsers();
 
-  console.log("Users retrived: ", users);
+  // console.log("Users retrived: ", users);
 
-  const { mutate: createTask } = useCreateTask();
+  const { mutateAsync: createTask } = useCreateTask();
+  const { mutateAsync: updateTask } = useUpdateTask();
 
-  const onSubmit = (data) => {
+  const isEditMode = !!taskToEdit;
+
+  const onSubmit = async (data) => {
     clearErrors("root");
 
     const apiPayload = mapTaskToAPI(data);
 
-    createTask.mutate(
-      { projectId: apiPayload.project, taskData: apiPayload },
-      {
-        onSuccess: () => {
-          setShowModal(false);
-        },
-        onError: (err) => {
-          console.error("Failed to create task: ", err);
-          const message =
-            err?.response?.data?.messages ||
-            err?.response?.data?.detail ||
-            err?.response?.data?.error?.message ||
-            err?.response?.data?.message ||
-            "Failed to create task. Please try again.";
-          setError("root", message);
-        },
-      },
-    );
+    try {
+      if (isEditMode) {
+        await updateTask({
+          id: taskToEdit.id,
+          data: apiPayload,
+        });
+      } else {
+        await createTask({
+          projectId: apiPayload.project,
+          taskData: apiPayload,
+        });
+      }
+      // onProjectSaved();
+
+      setShowModal(false);
+    } catch (error) {
+      const message =
+        error?.response?.data?.messages ||
+        error?.response?.data?.detail ||
+        error?.response?.data?.error?.message ||
+        error?.response?.data?.message ||
+        `Failed to ${isEditMode ? "update" : "create"} task. Please try again.`;
+      setError("root", { message });
+    }
   };
 
   return (
@@ -84,7 +97,10 @@ export default function TaskModal({ setShowModal }) {
           <h2>Create New Task</h2>
           <button
             className={modalStyles.btnClose}
-            onClick={() => setShowModal(false)}
+            onClick={() => {
+              setShowModal(false);
+              onClose();
+            }}
           >
             <FiX />
           </button>
@@ -132,10 +148,12 @@ export default function TaskModal({ setShowModal }) {
               <select
                 ria-invalid={!!errors.project}
                 {...register("project")}
-                disabled={isSubmitting}
+                disabled={isSubmitting || isFetchingProjects}
               >
                 {/* TODO: Add loading state for this */}
-                <option value="">Select project</option>
+                <option value="">
+                  {isFetchingProjects ? "Loading Projects" : "Select projects"}
+                </option>
                 {projects.map((project) => (
                   <option key={project.id} value={project.id}>
                     {project.name}
@@ -154,13 +172,16 @@ export default function TaskModal({ setShowModal }) {
               <select
                 aria-invalid={!!errors.assignee}
                 {...register("assignee")}
-                disabled={isSubmitting}
+                disabled={isSubmitting || isFetchingUsers}
               >
                 {/* TODO: Add loading state */}
-                <option value="">Select assignee</option>
+                <option value="">
+                  {isFetchingUsers ? "Loading users" : "Select assignee"}
+                </option>
                 {users.map(
                   (user) =>
-                    user.role === "Developer" && (
+                    (user.role === "Project Manager" ||
+                      user.role === "Developer") && (
                       <option key={user.id} value={user.id}>
                         {user.firstName} {user.lastName}
                       </option>
@@ -183,6 +204,7 @@ export default function TaskModal({ setShowModal }) {
                 {...register("status")}
                 disabled={isSubmitting}
               >
+                <option value="">Select Status</option>
                 <option value="To Do">To Do</option>
                 <option value="In Progress">In Progress</option>
                 <option value="In Review">In Review</option>
@@ -202,6 +224,7 @@ export default function TaskModal({ setShowModal }) {
                 {...register("priority")}
                 disabled={isSubmitting}
               >
+                <option value="">Select priority level</option>
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
