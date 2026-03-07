@@ -94,7 +94,7 @@ export default function TaskModal({
     <div className={modalStyles.modalOverlay}>
       <div className={modalStyles.modal}>
         <div className={modalStyles.modalHeader}>
-          <h2>Create New Task</h2>
+          <h2>{isEditMode ? "Edit Task" : "Create New Task"}</h2>
           <button
             className={modalStyles.btnClose}
             onClick={() => {
@@ -265,7 +265,14 @@ export default function TaskModal({
               className={modalStyles.btnCreate}
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Creating Task..." : "Create Task"}
+              {isSubmitting
+                ? isEditMode
+                  ? "Updating..."
+                  : "Creating..."
+                : isEditMode
+                  ? "Update Task"
+                  : "Create Task"}{" "}
+              {/* {isSubmitting ? "Creating Task..." : "Create Task"} */}
             </button>
           </div>
         </form>

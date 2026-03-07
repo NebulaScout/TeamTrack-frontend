@@ -15,22 +15,37 @@ import styles from "@/styles/tasks.module.css";
 import { getPriorityClass } from "@/utils/priorityClass";
 import { getTaskStatusClass } from "@/utils/statusClass";
 import { formatDate } from "@/utils/formatDate";
-import { mockDiscussions } from "@/utils/mockData";
+import { useGetTask } from "@/hooks/useTasks";
 
+// TODO: Figure a way to fetch comments without having to reopen the sheet
 export default function TaskDetailsSheet({
-  task,
+  taskId,
   isOpen,
   onClose,
   onEdit,
   onDelete,
 }) {
+  console.log("Task id in Sheet: ", taskId);
+  const { data: task } = useGetTask(taskId);
+  console.log("Task detail data: ", task);
+
+  // if (!taskId) return;
+
   const [comment, setComment] = useState("");
-  const [discussions, setDiscussions] = useState(mockDiscussions);
+  const [discussions, setDiscussions] = useState(null);
   const sheetRef = useRef(null);
   const inputRef = useRef(null);
 
+  useEffect(() => {
+    if (task?.comments) {
+      setDiscussions(task.comments);
+    }
+  }, [task?.comments]);
+
+  // TODO: Change this to a hook
   // Close on escape key
   useEffect(() => {
+    console.log("IsOpen: ", isOpen);
     const handleEscape = (e) => {
       if (e.key === "Escape") onClose();
     };
@@ -54,12 +69,23 @@ export default function TaskDetailsSheet({
     if (!comment.trim()) return;
 
     const newComment = {
-      id: Date.now(),
+      //   id: discussions.id,
+      //   user: {
+      //     id: discussions?.user?.id,
+      //     name: discussions?.user?.name || "",
+      //     avatar: discussions?.user?.avatar || null,
+      //   },
+      //   message: discussions?.message || "",
+      //   timestamp: discussions?.timestamp || "",
+      // };
+
+      id: Date.now(), // temporary ID
       user: {
-        name: "You", // Replace with loggined in user
+        id: 1, // Replace with actual current user ID
+        name: "Current User", // Replace with actual current user name
         avatar: null,
       },
-      message: comment,
+      message: comment.trim(),
       timestamp: "Just now",
     };
 
@@ -94,7 +120,8 @@ export default function TaskDetailsSheet({
       .slice(0, 2);
   };
 
-  if (!isOpen || !task) return null;
+  // Don't render if not open
+  if (!isOpen) return null;
 
   return (
     <div className={styles.sheetOverlay} onClick={handleOverlayClick}>
@@ -114,18 +141,18 @@ export default function TaskDetailsSheet({
         <div className={styles.sheetContent}>
           {/* Task Title & Badges */}
           <div className={styles.taskTitleSection}>
-            <h3 className={styles.taskDetailTitle}>{task.title}</h3>
+            <h3 className={styles.taskDetailTitle}>{task?.title}</h3>
             <div className={styles.taskBadges}>
               <span
-                className={`${styles.statusBadge} ${getTaskStatusClass(task.status)}`}
+                className={`${styles.statusBadge} ${getTaskStatusClass(task?.status)}`}
               >
-                {task.status}
+                {task?.status}
               </span>
               <span
-                className={`${styles.priorityBadgeLarge} ${getPriorityClass(task.priority)}`}
+                className={`${styles.priorityBadgeLarge} ${getPriorityClass(task?.priority)}`}
               >
                 <FiFlag />
-                {task.priority} Priority
+                {task?.priority} Priority
               </span>
             </div>
           </div>
@@ -137,7 +164,7 @@ export default function TaskDetailsSheet({
               <span>Description</span>
             </div>
             <p className={styles.detailValue}>
-              {task.description || "No description provided."}
+              {task?.description || "No description provided."}
             </p>
           </div>
 
@@ -149,19 +176,19 @@ export default function TaskDetailsSheet({
                 <span>Assignee</span>
               </div>
               <div className={styles.assigneeInfo}>
-                {task.assignee?.avatar ? (
+                {task?.assignee?.avatar ? (
                   <img
-                    src={task.assignee.avatar}
-                    alt={task.assignee.name}
+                    src={task?.assignee.avatar}
+                    alt={task?.assignee.name}
                     className={styles.assigneeAvatar}
                   />
                 ) : (
                   <div className={styles.avatarPlaceholder}>
-                    {getInitials(task.assignee?.name || "Unassigned")}
+                    {getInitials(task?.assignee?.name || "Unassigned")}
                   </div>
                 )}
                 <span className={styles.assigneeName}>
-                  {task.assignee?.name || "Unassigned"}
+                  {task?.assignee?.name || "Unassigned"}
                 </span>
               </div>
             </div>
@@ -172,7 +199,7 @@ export default function TaskDetailsSheet({
                 <span>Due Date</span>
               </div>
               <span className={styles.dueDateValue}>
-                {formatDate(task.dueDate) || "No due date"}
+                {formatDate(task?.dueDate) || "No due date"}
               </span>
             </div>
           </div>
@@ -184,7 +211,7 @@ export default function TaskDetailsSheet({
               <span>Project</span>
             </div>
             <span className={styles.projectValue}>
-              {task.project || "No project"}
+              {task?.project?.projectName || "No project"}
             </span>
           </div>
 
@@ -207,11 +234,11 @@ export default function TaskDetailsSheet({
           <div className={styles.discussionSection}>
             <div className={styles.discussionHeader}>
               <FiMessageSquare />
-              <span>Discussion ({discussions.length})</span>
+              <span>Discussion ({discussions?.length})</span>
             </div>
 
             <div className={styles.discussionList}>
-              {discussions.map((item) => (
+              {discussions?.map((item) => (
                 <div key={item.id} className={styles.discussionItem}>
                   {item.user.avatar ? (
                     <img

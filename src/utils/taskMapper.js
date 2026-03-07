@@ -1,6 +1,4 @@
-import { projectsAPI } from "@/services/projectsAPI";
-// import { authAPI } from "@/services/authAPI";
-// import { mapUserFromAPI } from "./userMapper";
+import { mapCommentsFromAPI, mapCommentFromAPI } from "./commentsMapper";
 import {
   STATUS_MAP,
   STATUS_TO_API,
@@ -8,40 +6,65 @@ import {
   PRIORITY_TO_API,
 } from "./enumMappings";
 
-const getProjectName = async (projectId) => {
-  try {
-    const data = await projectsAPI.getById(projectId);
-    return data.project_name;
-  } catch (err) {
-    console.error("Unable to fetch project name: ", err);
-  }
-};
-
-// const getAssigneeData = async (assigneeId) => {
-//   const assigneeData = await authAPI.getUserById(assigneeId);
-//   const data = mapUserFromAPI(assigneeData);
-//   return data.username;
-// };
-
-// Transform API task response to frontend format
 export const mapTaskFromAPI = (apiTask) => ({
   id: apiTask.id,
   title: apiTask.title,
   description: apiTask.description || "",
-  project: getProjectName(apiTask.project) || "", // TODO: fetch project name separately
+  status: STATUS_MAP[apiTask.status] || "To Do",
+  project: apiTask.project
+    ? {
+        id: apiTask.project.id,
+        projectName: apiTask.project?.project_name,
+      }
+    : null,
+  // status: STATUS_MAP[apiTask.status] || "To Do",
+  priority: PRIORITY_MAP[apiTask.priority] || "Low",
+  dueDate: apiTask.due_date || "",
+});
+
+// Transform API task response to frontend format
+export const mapTaskDetailsFromAPI = (apiTask) => ({
+  id: apiTask.id,
+  title: apiTask.title,
+  description: apiTask.description || "",
   status: STATUS_MAP[apiTask.status] || "To Do",
   priority: PRIORITY_MAP[apiTask.priority] || "Low",
   dueDate: apiTask.due_date || "",
-  createdAt: apiTask.created_at,
-  comments: apiTask.comments || [],
-  history: apiTask.history || [],
 
-  // TODO: Add this to the admin endpoint
-  // assignee: { name: "", avatar: "" }, // TODO: Fetch assignee info from a separate user endpoint
-  // assignee: {
-  //   name: getAssigneeData(apiTask.assigned_to),
-  //   avatar: "https://placehold.co/32x32",
-  // },
+  // map project info
+  project: apiTask.project
+    ? {
+        id: apiTask.project.id,
+        projectName: apiTask.project.project_name,
+      }
+    : null,
+
+  // map assignee data
+  assignee: apiTask.assigned_to
+    ? {
+        id: apiTask.assigned_to.id,
+        name: apiTask.assigned_to.username,
+        avatar: apiTask.assigned_to.avatar,
+        role: apiTask.assigned_to.role,
+      }
+    : null,
+
+  // map creaed by user
+  createdBy: apiTask.created_by
+    ? {
+        id: apiTask.created_by.id,
+        name: apiTask.created_by.username,
+        avatar: apiTask.created_by.avatar,
+        role: apiTask.created_by.role,
+      }
+    : null,
+
+  comments:
+    apiTask.comments.length > 1
+      ? mapCommentsFromAPI(apiTask.comments || [])
+      : mapCommentFromAPI(apiTask.comments || []),
+  // createdAt: apiTask.created_at,
+  // history: apiTask.history || [],
 });
 
 // Transform frontend task data to API request format
@@ -53,8 +76,6 @@ export const mapTaskToAPI = (frontendTask) => ({
   priority: PRIORITY_TO_API[frontendTask.priority] || "LOW",
   due_date: frontendTask.dueDate || null,
   status: STATUS_TO_API[frontendTask.status] ?? "TO_DO",
-  // TODO: include project API support in task schema
-  // ...(frontendTask.projectId && { project: frontendTask.projectId }),
 });
 
 // Transfrom an array of API tasks

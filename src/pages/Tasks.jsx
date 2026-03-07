@@ -29,9 +29,13 @@ export default function Tasks() {
   const deleteModalRef = useRef(null);
   const createModalRef = useRef(null);
   const dropdownModalRef = useRef(null);
+  // const TaskDetailsSheetRef = useRef(null);
+
   // const dropdownTriggerRef = useRef(null);
 
   const { data: tasks = [], isLoading, isError, refetch } = useGetTasks();
+
+  console.log("Tasks: ", tasks);
   const {
     mutateAsync: deleteTask,
     isPending: isDeleting,
@@ -41,7 +45,9 @@ export default function Tasks() {
   const filteredTasks = tasks.filter(
     (task) =>
       task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      task.project.toLowerCase().includes(searchQuery.toLowerCase()),
+      task.project?.projectName
+        ?.toLowerCase()
+        .includes(searchQuery.toLowerCase()),
   );
 
   // Filter tasks based on search query
@@ -76,8 +82,11 @@ export default function Tasks() {
   };
 
   const handleTaskClick = (task) => {
+    // console.log("Task on click: ", task);
     setSelectedTask(task);
+    // console.log("Selected task id: ", selectedTask?.id);
     setShowDetailsSheet(true);
+    // console.log("Show details called");
   };
 
   const handleDelete = async () => {
@@ -94,6 +103,9 @@ export default function Tasks() {
   useCloseOnOutsideClick([deleteModalRef], () => setShowDeleteModal(false));
   useCloseOnOutsideClick([createModalRef], () => setShowModal(false));
   useCloseOnOutsideClick([dropdownModalRef], () => setActiveDropdown(null));
+  // useCloseOnOutsideClick([TaskDetailsSheetRef], () =>
+  //   setShowDetailsSheet(false),
+  // );
 
   return (
     <div className={styles.dashboardContainer}>
@@ -220,7 +232,9 @@ export default function Tasks() {
                           )}
                         </div>
 
-                        <p className={taskStyles.taskProject}>{task.project}</p>
+                        <p className={taskStyles.taskProject}>
+                          {task.project.projectName}
+                        </p>
 
                         <div className={taskStyles.taskFooter}>
                           {/* <div className={taskStyles.taskAssignee}>
@@ -270,7 +284,7 @@ export default function Tasks() {
                       {task.title}
                     </span>
                     <span className={taskStyles.listTaskProject}>
-                      {task.project}
+                      {task.project.projectName}
                     </span>
                   </div>
 
@@ -351,7 +365,8 @@ export default function Tasks() {
 
         {showDetailsSheet && (
           <TaskDetailsSheet
-            task={selectedTask}
+            // ref={TaskDetailsSheetRef}
+            taskId={selectedTask?.id}
             isOpen={showDetailsSheet}
             onClose={() => {
               setShowDetailsSheet(false);

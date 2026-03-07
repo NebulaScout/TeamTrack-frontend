@@ -10,6 +10,7 @@ export const tasksAPI = {
   // Get a specific task
   getById: async (id) => {
     const response = await api.get(`/api/v1/tasks/${id}/`);
+    console.log("Task details response: ", response);
     return response.data;
   },
 

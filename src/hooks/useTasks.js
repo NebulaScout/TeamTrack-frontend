@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { tasksAPI } from "@/services/tasksAPI";
-import { mapTaskFromAPI, mapTasksFromAPI } from "@/utils/taskMapper";
+import { mapTaskDetailsFromAPI, mapTasksFromAPI } from "@/utils/taskMapper";
 
 // query keys for better cache management
 export const tasksKeys = {
@@ -30,7 +30,7 @@ export const useGetTask = (id) => {
     queryKey: tasksKeys.detail(id),
     queryFn: async () => {
       const data = await tasksAPI.getById(id);
-      return mapTaskFromAPI(data);
+      return mapTaskDetailsFromAPI(data);
     },
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
