@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { tasksAPI } from "@/services/tasksAPI";
 import { mapTaskDetailsFromAPI, mapTasksFromAPI } from "@/utils/taskMapper";
+import { mapCommentsFromAPI, mapCommentFromAPI } from "@/utils/commentsMapper";
 
 // query keys for better cache management
 export const tasksKeys = {
@@ -82,6 +83,46 @@ export const useDeleteTask = () => {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: tasksKeys.lists() });
       queryClient.removeQueries({ queryKey: tasksKeys.detail(id) });
+    },
+  });
+};
+
+// Get comments for a specific task
+export const useGetComments = (taskId) => {
+  console.log("Calling comments query");
+  return useQuery({
+    queryKey: [...tasksKeys.detail(taskId), "comments"],
+    queryFn: async () => {
+      const data = await tasksAPI.getComments(taskId);
+      console.log("Comments in task query: ", data);
+      if (data.length < 2) {
+        return mapCommentFromAPI(data);
+      }
+      return mapCommentsFromAPI(data);
+    },
+    enabled: !!taskId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes cache retention
+    refetchOnWindowFocus: false,
+  });
+};
+
+// create a comment
+export const useCreateComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ taskId, content }) =>
+      tasksAPI.createComment(taskId, { content }),
+    onSuccess: (data, { taskId }) => {
+      // invalidate comments query to refetch
+      queryClient.invalidateQueries({
+        queryKey: [...tasksKeys.detail(taskId), "comments"],
+      });
+      queryClient.invalidateQueries({
+        // refetch task details
+        queryKey: [...tasksKeys.detail(taskId)],
+      });
     },
   });
 };

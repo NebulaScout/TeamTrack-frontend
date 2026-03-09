@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import {
   FiX,
   FiEdit2,
@@ -15,7 +15,7 @@ import styles from "@/styles/tasks.module.css";
 import { getPriorityClass } from "@/utils/priorityClass";
 import { getTaskStatusClass } from "@/utils/statusClass";
 import { formatDate } from "@/utils/formatDate";
-import { useGetTask } from "@/hooks/useTasks";
+import { useGetTask, useGetComments, useCreateComment } from "@/hooks/useTasks";
 
 // TODO: Figure a way to fetch comments without having to reopen the sheet
 export default function TaskDetailsSheet({
@@ -25,27 +25,20 @@ export default function TaskDetailsSheet({
   onEdit,
   onDelete,
 }) {
-  console.log("Task id in Sheet: ", taskId);
+  // console.log("Task id in Sheet: ", taskId);
   const { data: task } = useGetTask(taskId);
-  console.log("Task detail data: ", task);
-
-  // if (!taskId) return;
+  const { data: comments, isLoading: commentsLoading } = useGetComments(taskId);
+  console.log("Comments: ", comments);
+  const createCommentMutation = useCreateComment();
 
   const [comment, setComment] = useState("");
-  const [discussions, setDiscussions] = useState(null);
   const sheetRef = useRef(null);
   const inputRef = useRef(null);
-
-  useEffect(() => {
-    if (task?.comments) {
-      setDiscussions(task.comments);
-    }
-  }, [task?.comments]);
 
   // TODO: Change this to a hook
   // Close on escape key
   useEffect(() => {
-    console.log("IsOpen: ", isOpen);
+    // console.log("IsOpen: ", isOpen);
     const handleEscape = (e) => {
       if (e.key === "Escape") onClose();
     };
@@ -64,33 +57,22 @@ export default function TaskDetailsSheet({
     }
   };
 
-  const handleSubmitComment = (e) => {
+  const handleSubmitComment = async (e) => {
     e.preventDefault();
-    if (!comment.trim()) return;
+    if (!comment.trim() || !taskId) return;
 
-    const newComment = {
-      //   id: discussions.id,
-      //   user: {
-      //     id: discussions?.user?.id,
-      //     name: discussions?.user?.name || "",
-      //     avatar: discussions?.user?.avatar || null,
-      //   },
-      //   message: discussions?.message || "",
-      //   timestamp: discussions?.timestamp || "",
-      // };
-
-      id: Date.now(), // temporary ID
-      user: {
-        id: 1, // Replace with actual current user ID
-        name: "Current User", // Replace with actual current user name
-        avatar: null,
-      },
-      message: comment.trim(),
-      timestamp: "Just now",
-    };
-
-    setDiscussions([...discussions, newComment]);
-    setComment("");
+    try {
+      await createCommentMutation.mutateAsync({
+        taskId,
+        content: comment.trim(),
+      });
+      setComment("");
+      // focus back on input after successful comment
+      inputRef.current?.focus();
+    } catch (error) {
+      console.error("Failed to create comment: ", error);
+      // TODO: Add toast notification
+    }
   };
 
   //   Render mention text with highlighting
@@ -234,38 +216,46 @@ export default function TaskDetailsSheet({
           <div className={styles.discussionSection}>
             <div className={styles.discussionHeader}>
               <FiMessageSquare />
-              <span>Discussion ({discussions?.length})</span>
+              <span>Discussion ({comments?.length || 0})</span>
             </div>
 
             <div className={styles.discussionList}>
-              {discussions?.map((item) => (
-                <div key={item.id} className={styles.discussionItem}>
-                  {item.user.avatar ? (
-                    <img
-                      src={item.user.avatar}
-                      alt={item.user.name}
-                      className={styles.discussionAvatar}
-                    />
-                  ) : (
-                    <div className={styles.discussionAvatarPlaceholder}>
-                      {getInitials(item.user.name)}
+              {commentsLoading ? (
+                <p className={styles.loadingText}>Loading comments...</p>
+              ) : comments?.length > 0 ? (
+                comments.map((item) => (
+                  <div key={item.id} className={styles.discussionItem}>
+                    {item.user?.avatar ? (
+                      <img
+                        src={item.user.avatar}
+                        alt={item.user.name}
+                        className={styles.discussionAvatar}
+                      />
+                    ) : (
+                      <div className={styles.discussionAvatarPlaceholder}>
+                        {getInitials(item.user?.name || "User")}
+                      </div>
+                    )}
+                    <div className={styles.discussionContent}>
+                      <div className={styles.discussionMeta}>
+                        <span className={styles.discussionAuthor}>
+                          {item.user?.name || "Unknown User"}
+                        </span>
+                        <span className={styles.discussionTime}>
+                          {item.timestamp}
+                        </span>
+                      </div>
+                      <p className={styles.discussionMessage}>
+                        {renderMessageWithMentions(item.message)}
+                      </p>
                     </div>
-                  )}
-                  <div className={styles.discussionContent}>
-                    <div className={styles.discussionMeta}>
-                      <span className={styles.discussionAuthor}>
-                        {item.user.name}
-                      </span>
-                      <span className={styles.discussionTime}>
-                        {item.timestamp}
-                      </span>
-                    </div>
-                    <p className={styles.discussionMessage}>
-                      {renderMessageWithMentions(item.message)}
-                    </p>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className={styles.emptyText}>
+                  No comments yet. Start the discussion!
+                </p>
+              )}
             </div>
 
             {/* Comment Input */}
@@ -281,13 +271,17 @@ export default function TaskDetailsSheet({
               <button
                 type="submit"
                 className={styles.btnSendComment}
-                disabled={!comment.trim()}
+                disabled={!comment.trim() || createCommentMutation.isPending}
               >
                 <FiSend />
               </button>
             </form>
 
-            <span className={styles.mentionHint}>@ Mention with @name</span>
+            <span className={styles.mentionHint}>
+              {createCommentMutation.isPending
+                ? "Sending..."
+                : "@ Mention with @name"}
+            </span>
           </div>
         </div>
       </div>

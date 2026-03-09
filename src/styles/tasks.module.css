@@ -725,6 +725,22 @@
   overflow-y: auto;
 }
 
+.loadingText {
+  text-align: center;
+  padding: 24px;
+  font-size: 14px;
+  color: var(--text-gray);
+  font-style: italic;
+}
+
+.emptyText {
+  text-align: center;
+  padding: 32px 16px;
+  font-size: 14px;
+  color: var(--text-gray);
+  line-height: 1.6;
+}
+
 .discussionItem {
   display: flex;
   gap: 12px;

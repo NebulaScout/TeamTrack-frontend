@@ -40,4 +40,19 @@ export const tasksAPI = {
     const response = await api.delete(`/api/v1/tasks/${id}/`);
     return response.data;
   },
+
+  // Comment endpoints
+  getComments: async (id) => {
+    const response = await api.get(`/api/v1/tasks/${id}/comments/`);
+    console.log("Get comments: ", response);
+    return response.data;
+  },
+
+  createComment: async (id, commentContent) => {
+    const response = await api.post(
+      `/api/v1/tasks/${id}/comments/`,
+      commentContent,
+    );
+    return response.data;
+  },
 };

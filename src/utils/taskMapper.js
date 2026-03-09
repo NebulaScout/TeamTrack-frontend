@@ -1,4 +1,4 @@
-import { mapCommentsFromAPI, mapCommentFromAPI } from "./commentsMapper";
+// import { mapCommentsFromAPI, mapCommentFromAPI } from "./commentsMapper";
 import {
   STATUS_MAP,
   STATUS_TO_API,
@@ -59,10 +59,10 @@ export const mapTaskDetailsFromAPI = (apiTask) => ({
       }
     : null,
 
-  comments:
-    apiTask.comments.length > 1
-      ? mapCommentsFromAPI(apiTask.comments || [])
-      : mapCommentFromAPI(apiTask.comments || []),
+  // comments:
+  //   apiTask.comments.length > 1
+  //     ? mapCommentsFromAPI(apiTask.comments || [])
+  //     : mapCommentFromAPI(apiTask.comments || []),
   // createdAt: apiTask.created_at,
   // history: apiTask.history || [],
 });
