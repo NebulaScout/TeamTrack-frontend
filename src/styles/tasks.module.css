@@ -403,6 +403,7 @@
 .listActions {
   display: flex;
   justify-content: flex-end;
+  position: relative;
 }
 
 /* Responsive */

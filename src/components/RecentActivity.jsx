@@ -4,10 +4,10 @@ import { FiMessageSquare } from "react-icons/fi";
 import { CgUserAdd } from "react-icons/cg";
 import { FaRegEdit } from "react-icons/fa";
 
-import { recentActivityData } from "@/utils/mockData";
+// import { recentActivityData } from "@/utils/mockData";
 import styles from "@/styles/dashboard.module.css";
 
-export default function RecentActivity() {
+export default function RecentActivity({ data = [] }) {
   const getActivityIcon = (type) => {
     switch (type) {
       case "completed":
@@ -38,6 +38,19 @@ export default function RecentActivity() {
         return null;
     }
   };
+
+  if (data.length === 0) {
+    return (
+      <div className={styles.card}>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>Recent Activity</h2>
+        </div>
+        <div className={styles.activityList}>
+          <p className={styles.emptyMessage}>No recent activity</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
@@ -45,15 +58,21 @@ export default function RecentActivity() {
       </div>
 
       <div className={styles.activityList}>
-        {recentActivityData.map((activity, index) => (
-          <div key={index} className={styles.activityItem}>
+        {data.map((activity) => (
+          <div key={activity.id} className={styles.activityItem}>
             <div className={styles.activityAvatar}>
-              <img src={activity.avatar} alt={activity.user} />
+              {activity.avatar ? (
+                <img src={activity.avatar} alt={activity.user} />
+              ) : (
+                <div className={styles.avatarPlaceholder}>
+                  {activity.user.charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
             <div className={styles.activityContent}>
               <p className={styles.activityText}>
                 <strong>{activity.user}</strong>
-                <span>{activity.action}</span>
+                <span> {activity.action} </span>
                 <a href="#">{activity.task}</a>
               </p>
               <p className={styles.activityTime}>{activity.time}</p>

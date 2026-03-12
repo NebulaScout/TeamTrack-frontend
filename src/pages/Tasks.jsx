@@ -93,7 +93,7 @@ export default function Tasks() {
     setActiveDropdown(null);
 
     try {
-      await deleteTask({ id: selectedTask?.id });
+      await deleteTask(selectedTask?.id);
       setShowDeleteModal(false);
     } catch (error) {
       console.error("Failed to delete project: ", error);
@@ -316,14 +316,35 @@ export default function Tasks() {
                   </span>
 
                   <div className={taskStyles.listActions}>
-                    <button
+                    {/* <button
                       className={taskStyles.btnMore}
 
                       // onClick={(e) => toggleDropdown(e, task.id)}
                     >
                       <FiMoreHorizontal />
-                    </button>
+                    </button> */}
 
+                    {/* {activeDropdown === task.id && (
+                      <DropdownMenu
+                        ref={dropdownModalRef}
+                        item={task}
+                        onEdit={handleEdit}
+                        onDelete={(task) => {
+                          setSelectedTask(task);
+                          setShowDeleteModal(true);
+                        }}
+                      />
+                    )} */}
+
+                    <button
+                      onMouseDown={(e) => e.stopPropagation()}
+                      className={taskStyles.btnMore}
+                      onClick={(e) => {
+                        toggleDropdown(e, task.id);
+                      }}
+                    >
+                      <FiMoreHorizontal />
+                    </button>
                     {activeDropdown === task.id && (
                       <DropdownMenu
                         ref={dropdownModalRef}

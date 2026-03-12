@@ -1,10 +1,10 @@
 import React from "react";
 import { FaRegCalendar } from "react-icons/fa6";
 import { FaRegClock } from "react-icons/fa";
-import { upcomingDeadlinesData } from "@/utils/mockData";
+// import { upcomingDeadlinesData } from "@/utils/mockData";
 import styles from "@/styles/dashboard.module.css";
 
-export default function UpcomingDeadlines() {
+export default function UpcomingDeadlines({ data = [] }) {
   const getPriorityClass = (priority) => {
     switch (priority) {
       case "High":
@@ -17,6 +17,22 @@ export default function UpcomingDeadlines() {
         return "";
     }
   };
+
+  if (data.length === 0) {
+    return (
+      <div className={styles.card}>
+        <div className={styles.cardHeader}>
+          <h2 className={styles.cardTitle}>Upcoming Deadlines</h2>
+          <button className={styles.cardAction}>
+            <FaRegCalendar />
+          </button>
+        </div>
+        <div className={styles.deadlinesList}>
+          <p className={styles.emptyMessage}>No upcoming deadlines</p>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
@@ -27,10 +43,16 @@ export default function UpcomingDeadlines() {
       </div>
 
       <div className={styles.deadlinesList}>
-        {upcomingDeadlinesData.map((deadline, index) => (
-          <div key={index} className={styles.deadlineItem}>
+        {data.map((deadline) => (
+          <div key={deadline.id} className={styles.deadlineItem}>
             <div className={styles.deadlineAvatar}>
-              <img src={deadline.avatar} alt={deadline.title} />
+              {deadline.avatar ? (
+                <img src={deadline.avatar} alt={deadline.title} />
+              ) : (
+                <div className={styles.avatarPlaceholder}>
+                  {deadline.title.charAt(0).toUpperCase()}
+                </div>
+              )}
             </div>
             <div className={styles.deadlineInfo}>
               <p className={styles.deadlineTitle} title={deadline.fullTitle}>

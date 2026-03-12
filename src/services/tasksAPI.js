@@ -42,8 +42,8 @@ export const tasksAPI = {
   },
 
   // Comment endpoints
-  getComments: async (id) => {
-    const response = await api.get(`/api/v1/tasks/${id}/comments/`);
+  getComments: async (taskId) => {
+    const response = await api.get(`/api/v1/tasks/${taskId}/comments/`);
     console.log("Get comments: ", response);
     return response.data;
   },
