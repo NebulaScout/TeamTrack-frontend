@@ -1,63 +1,93 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { FiMail, FiCopy, FiUsers, FiX } from "react-icons/fi";
+import { FiMail, FiUsers, FiUser, FiX } from "react-icons/fi";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import modalStyles from "@/styles/modals.module.css";
+import { useProjects } from "@/hooks/useProjects";
+import { useInviteTeamMember } from "@/hooks/useTeam";
+import { useGetUsers } from "@/hooks/useManageUsers";
+
+import { mapTeamInviteToAPI } from "@/utils/teamMapper";
+
+const inviteSchema = z.object({
+  username: z
+    .string()
+    .trim()
+    .min(3, "Username must be at least 3 characters long")
+    .max(50, "Username is too long")
+    .regex(
+      /^[a-zA-Z0-9_-]+$/,
+      "Username can only contain letters, numbers, underscores, and hyphens",
+    ),
+  email: z
+    .string()
+    .trim()
+    .email("Please enter a valid email address")
+    .max(254, "Email address is too long"),
+  role: z.string().min(1, "Please select a role"),
+  project: z.string().min(1, "Please select a project"),
+});
 
 export default function TeamInviteModal({ setShowInviteModal }) {
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [users, setUsers] = useState([]);
-  // const [projects, setProjects] = useState([]);
-  // const [error, setError] = useState(null);
-  const [inviteForm, setInviteForm] = useState({
-    email: "",
-    role: "Member",
-    department: "",
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(inviteSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+      role: "",
+      project: "",
+    },
   });
 
-  // const fetchProjects = useCallback(async () => {
-  //   try {
-  //     setIsLoading(true);
-  //     setError(null);
+  const { data: projects = [], isPending: isFetchingProjects } = useProjects();
+  const { data: users = [], isPending: isFetchingUsers } = useGetUsers();
+  const { mutateAsync: inviteTeamMember } = useInviteTeamMember();
 
-  //     const availableProjects = await projectsAPI.getAll();
-  //     setProjects(mapProjectsFromAPIs(availableProjects));
-  //   } catch (err) {
-  //     console.error("Failed to load projects: ", err);
-  //     setError(err.response?.data?.message || "Failed to load projects");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }, []);
+  const handleUserSelect = (userId) => {
+    if (!userId) {
+      // Clear fields if "Manual Entry" is selected
+      setValue("username", "");
+      setValue("email", "");
+      return;
+    }
 
-  // const fetchUsers = useCallback(async () => {
-  //   setIsLoading(true);
-
-  //   try {
-  //     const data = await authAPI.getAllUsers();
-  //     setUsers(mapUsersFromAPI(data));
-  //   } catch (err) {
-  //     console.error("Unable to fetch available users: ", err);
-  //     setError(err.response?.data?.message || "Failed to fetch users");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   fetchProjects();
-  //   fetchUsers();
-  // }, [fetchProjects, fetchUsers]);
-
-  const handleInviteSubmit = (e) => {
-    e.preventDefault();
-    console.log("Invite sent:", inviteForm);
-    setShowInviteModal(false);
-    setInviteForm({ email: "", role: "Member", department: "" });
+    const selectedUser = users.find((user) => user.id === parseInt(userId));
+    if (selectedUser) {
+      setValue("username", selectedUser.username);
+      setValue("email", selectedUser.email);
+      clearErrors(["username", "email"]);
+    }
   };
 
-  const copyInviteLink = () => {
-    navigator.clipboard.writeText("https://teamtrack.app/invite/abc123xyz");
-    alert("Invite link copied to clipboard!");
+  const onSubmit = async (data) => {
+    clearErrors("root");
+
+    const apiPayload = mapTeamInviteToAPI(data);
+
+    try {
+      await inviteTeamMember({
+        projectId: data.project,
+        inviteData: apiPayload,
+      });
+      setShowInviteModal(false);
+    } catch (error) {
+      const message =
+        error?.response?.data?.messages ||
+        error?.response?.data?.detail ||
+        error?.response?.data?.error?.message ||
+        error?.response?.data?.message ||
+        "Failed to send invitation. Please try again.";
+      setError("root", { message });
+    }
   };
+
   return (
     <div
       className={modalStyles.modalOverlay}
@@ -82,66 +112,106 @@ export default function TeamInviteModal({ setShowInviteModal }) {
           </button>
         </div>
 
-        <form onSubmit={handleInviteSubmit}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {errors.root && (
+            <div className={modalStyles.errorMessage}>
+              {errors.root.message}
+            </div>
+          )}
+
+          <div className={modalStyles.formGroup}>
+            <label>Select User</label>
+            <select
+              onChange={(e) => handleUserSelect(e.target.value)}
+              disabled={isFetchingUsers || isSubmitting}
+            >
+              <option value="">Manual Entry</option>
+              {users.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.username} ({user.email})
+                </option>
+              ))}
+            </select>
+            <small
+              style={{
+                color: "#888",
+                fontSize: "0.85rem",
+                marginTop: "0.25rem",
+              }}
+            >
+              Select a user to auto-fill their details, or use manual entry
+            </small>
+          </div>
+
+          <div className={modalStyles.formGroup}>
+            <label>Username</label>
+            <div className={modalStyles.emailInputWrapper}>
+              <FiUser className={modalStyles.inputIcon} />
+              <input
+                type="text"
+                placeholder="johndoe"
+                aria-invalid={!!errors.username}
+                // disabled={true}
+                {...register("username")}
+                className={errors.username ? modalStyles.inputError : ""}
+              />
+            </div>
+            {errors.username && (
+              <span className={modalStyles.fieldError}>
+                {errors.username.message}
+              </span>
+            )}
+          </div>
+
           <div className={modalStyles.formGroup}>
             <label>Email Address</label>
             <div className={modalStyles.emailInputWrapper}>
               <FiMail className={modalStyles.inputIcon} />
               <input
                 type="email"
-                placeholder="colleague@company.com"
-                value={inviteForm.email}
-                onChange={(e) =>
-                  setInviteForm({
-                    ...inviteForm,
-                    email: e.target.value,
-                  })
-                }
-                required
+                placeholder="example@company.com"
+                aria-invalid={!!errors.email}
+                // disabled={true}
+                {...register("email")}
+                className={errors.email ? modalStyles.inputError : ""}
               />
             </div>
+            {errors.email && (
+              <span className={modalStyles.fieldError}>
+                {errors.email.message}
+              </span>
+            )}
           </div>
 
           <div className={modalStyles.formRow}>
             <div className={modalStyles.formGroup}>
               <label>Role</label>
               <select
-                value={inviteForm.role}
-                onChange={(e) =>
-                  setInviteForm({ ...inviteForm, role: e.target.value })
-                }
+                aria-invalid={!!errors.role}
+                {...register("role")}
+                className={errors.role ? modalStyles.inputError : ""}
+                disabled={isSubmitting}
               >
-                <option value="Guest">Guest</option>
+                <option value="">Select role</option>
                 <option value="Developer">Developer</option>
                 <option value="Project Manager">Project Manager</option>
                 <option value="Admin">Admin</option>
+                <option value="Guest">Guest</option>
               </select>
-            </div>
-            <div className={modalStyles.formGroup}>
-              {/* // TODO: Change this to project name */}
-              <label>Project</label>
-              <input
-                type="text"
-                placeholder="e.g., Engineering"
-                value={inviteForm.department}
-                onChange={(e) =>
-                  setInviteForm({
-                    ...inviteForm,
-                    department: e.target.value,
-                  })
-                }
-              />
+              {errors.role && (
+                <span className={modalStyles.fieldError}>
+                  {errors.role.message}
+                </span>
+              )}
             </div>
 
-            {/* <div className={modalStyles.formRow}> */}
-            {/* <div className={modalStyles.formGroup}>
+            <div className={modalStyles.formGroup}>
               <label>Project</label>
               <select
-                value={newTask.project}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, project: e.target.value })
-                }
-                disabled={isSubmitting || isLoading}
+                aria-invalid={!!errors.project}
+                {...register("project")}
+                className={errors.project ? modalStyles.inputError : ""}
+                disabled={isSubmitting || isFetchingProjects}
               >
                 <option value="">Select project</option>
                 {projects.map((project) => (
@@ -150,28 +220,12 @@ export default function TeamInviteModal({ setShowInviteModal }) {
                   </option>
                 ))}
               </select>
-            </div> */}
-          </div>
-
-          <div className={modalStyles.inviteLinkSection}>
-            <label>Or share invite link</label>
-            <div className={modalStyles.inviteLinkWrapper}>
-              <input
-                type="text"
-                value="https://teamtrack.app/invite/abc123xyz"
-                readOnly
-              />
-              <button
-                type="button"
-                className={modalStyles.btnCopy}
-                onClick={copyInviteLink}
-              >
-                <FiCopy />
-              </button>
+              {errors.project && (
+                <span className={modalStyles.fieldError}>
+                  {errors.project.message}
+                </span>
+              )}
             </div>
-            <span className={modalStyles.inviteLinkHelp}>
-              Anyone with this link can join your team as a member.
-            </span>
           </div>
 
           <div className={modalStyles.modalActions}>
@@ -179,11 +233,16 @@ export default function TeamInviteModal({ setShowInviteModal }) {
               type="button"
               className={modalStyles.btnCancel}
               onClick={() => setShowInviteModal(false)}
+              disabled={isSubmitting}
             >
               Cancel
             </button>
-            <button type="submit" className={modalStyles.btnCreate}>
-              <FiMail /> Send Invitation
+            <button
+              type="submit"
+              className={modalStyles.btnCreate}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Adding..." : "Add Member"}
             </button>
           </div>
         </form>

@@ -13,4 +13,13 @@ export const teamAPI = {
     );
     return response.data.data;
   },
+
+  inviteTeamMember: async (projectId, inviteData) => {
+    const response = await api.post(
+      `/api/v1/projects/${projectId}/team/invite/`,
+      inviteData,
+    );
+    console.log("Adding Member:", response);
+    return response.data;
+  },
 };

@@ -22,3 +22,9 @@ export const mapTeamMemberFromAPI = (apiMember) => ({
 // Map array of team members
 export const mapTeamMembersFromAPI = (apiMembers) =>
   apiMembers.map(mapTeamMemberFromAPI);
+
+export const mapTeamInviteToAPI = (inviteData) => ({
+  username: inviteData.username,
+  email: inviteData.email,
+  role: inviteData.role,
+});

@@ -18,14 +18,14 @@ const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: <LuLayoutDashboard /> },
   { path: "/projects", label: "Projects", icon: <LuFolderKanban /> },
   { path: "/tasks", label: "My Tasks", icon: <FiCheckSquare /> },
-  { path: "/Calendar", label: "Calendar", icon: <FaRegCalendar /> },
+  // { path: "/Calendar", label: "Calendar", icon: <FaRegCalendar /> },
   { path: "/team", label: "Team", icon: <RiTeamLine /> },
-  {
-    path: "/notifications",
-    label: "Notifications",
-    icon: <IoNotificationsOutline />,
-  },
-  { path: "/reports", label: "Reports", icon: <VscGraph /> },
+  // {
+  //   path: "/notifications",
+  //   label: "Notifications",
+  //   icon: <IoNotificationsOutline />,
+  // },
+  // { path: "/reports", label: "Reports", icon: <VscGraph /> },
   { path: "/admin/dashboard", label: "Admin", icon: <FiShield /> },
 ];
 

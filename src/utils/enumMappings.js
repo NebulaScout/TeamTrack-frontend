@@ -54,6 +54,20 @@ const EVENT_TYPE_TO_API = {
   Reminder: "REMINDER",
 };
 
+const ROLE_MAP = {
+  DEVELOPER: "Developer",
+  PROJECT_MANAGER: "Project Manager",
+  ADMIN: "Admin",
+  GUEST: "Guest",
+};
+
+const ROLE_TO_API = {
+  Developer: "DEVELOPER",
+  "Project Manager": "PROJECT_MANAGER",
+  Admin: "ADMIN",
+  Guest: "GUEST",
+};
+
 export {
   STATUS_MAP,
   STATUS_TO_API,
@@ -63,4 +77,6 @@ export {
   EVENT_TYPE_TO_API,
   PROJECT_STATUS_MAP,
   PROJECT_STATUS_TO_API,
+  ROLE_MAP,
+  ROLE_TO_API,
 };

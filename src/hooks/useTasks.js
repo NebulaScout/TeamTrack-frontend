@@ -54,7 +54,11 @@ export const useUpdateTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, taskData }) => tasksAPI.update(id, taskData),
+    mutationFn: ({ id, taskData }) => {
+      console.log("Task query update: ", taskData);
+      console.log("Task query id: ", id);
+      tasksAPI.update(id, taskData);
+    },
     onSuccess: (data, { id }) => {
       // refetch specific task and tasks list
       queryClient.invalidateQueries({ queryKey: tasksKeys.detail(id) });

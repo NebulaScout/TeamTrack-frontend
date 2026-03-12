@@ -604,6 +604,20 @@
   font-size: 14px;
 }
 
+.errorMessage {
+  color: #dc2626;
+  background-color: #fee2e2;
+  border: 1px solid #fca5a5;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .fieldError {
   color: #dc3545;
   font-size: 12px;
@@ -624,4 +638,26 @@
 .formGroup select[aria-invalid="true"]:focus {
   border-color: #dc3545;
   box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+}
+
+/* Disabled Input Fields */
+.formGroup input:disabled,
+.formGroup textarea:disabled,
+.formGroup select:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.7;
+  border-color: #e5e7eb;
+}
+
+.emailInputWrapper input:disabled {
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.emailInputWrapper input:disabled + .inputIcon,
+.emailInputWrapper .inputIcon {
+  color: #9ca3af;
 }

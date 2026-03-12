@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { teamAPI } from "../services/teamAPI";
 import {
   mapTeamStatsFromAPI,
@@ -39,5 +39,19 @@ export const useGetTeamMembers = (projectId, options = {}) => {
     gcTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
     ...options,
+  });
+};
+
+export const useInviteTeamMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ projectId, inviteData }) =>
+      teamAPI.inviteTeamMember(projectId, inviteData),
+    onSuccess: (_, { projectId }) => {
+      // Invalidate team members and stats to refetch updated data
+      queryClient.invalidateQueries({ queryKey: teamKeys.members(projectId) });
+      queryClient.invalidateQueries({ queryKey: teamKeys.stats(projectId) });
+    },
   });
 };

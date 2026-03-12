@@ -25,6 +25,7 @@ export const tasksAPI = {
 
   // Update a task
   update: async (id, taskData) => {
+    console.log("Task update: ", taskData);
     const response = await api.put(`/api/v1/tasks/${id}/`, taskData);
     return response.data;
   },

@@ -108,7 +108,7 @@ export default function Team() {
               className={teamStyles.btnInvite}
               onClick={() => setShowInviteModal(true)}
             >
-              <FiPlus /> Invite Member
+              <FiPlus /> Add Member
             </button>
           </div>
 
