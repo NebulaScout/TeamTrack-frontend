@@ -186,9 +186,9 @@ export default function Team() {
                         }`}
                       ></span>
                     </div>
-                    <button className={teamStyles.btnMore}>
+                    {/* <button className={teamStyles.btnMore}>
                       <FiMoreHorizontal />
-                    </button>
+                    </button> */}
                   </div>
                   <div className={teamStyles.memberInfo}>
                     <h3 className={teamStyles.memberName}>

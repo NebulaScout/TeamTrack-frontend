@@ -557,14 +557,29 @@
   color: #dc2626;
 }
 
-.roleModerator {
+.roleProjectManager {
   background-color: #ffedd5;
   color: #ea580c;
 }
 
-.roleUser {
+.roleDeveloper {
   background-color: #dbeafe;
   color: #2563eb;
+}
+
+.roleGuest {
+  background-color: #f3f4f6;
+  color: #4b5563;
+}
+
+.roleModerator {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
+.roleUser {
+  background-color: #e0f2fe;
+  color: #0369a1;
 }
 
 /* Status Badges */
@@ -614,6 +629,70 @@
 .actionBtn:hover {
   background-color: #f3f4f6;
   color: var(--text-color);
+}
+
+.actionsCell {
+  width: 84px;
+}
+
+.userFloatingMenu {
+  position: fixed;
+  width: 220px;
+  background-color: var(--surface-color);
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  z-index: 1200;
+  padding: 8px 0;
+}
+
+.userFloatingMenuTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+  padding: 8px 14px 10px;
+}
+
+.userFloatingMenuSeparator {
+  height: 1px;
+  background-color: #e5e7eb;
+  margin: 6px 0;
+}
+
+.userFloatingMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 9px 14px;
+  font-size: 16px;
+  color: #1f2937;
+  cursor: pointer;
+}
+
+.userFloatingMenuItem:hover {
+  background-color: #f9fafb;
+}
+
+.userFloatingMenuIcon {
+  font-size: 16px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.userFloatingMenuItemDanger {
+  color: #374151;
+}
+
+.userFloatingMenuItemDanger .userFloatingMenuIcon {
+  color: #374151;
+}
+
+.userFloatingMenuItemDanger:hover {
+  background-color: #fef2f2;
 }
 
 /* Owner Cell */

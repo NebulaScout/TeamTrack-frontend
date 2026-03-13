@@ -89,3 +89,38 @@ export const mapAdminQuickActionsFromAPI = (apiData) => ({
   unassignedTasks: mapUnassignedTasksFromAPI(apiData.unassigned_tasks),
   recentActivity: mapAdminRecentActivityFromAPI(apiData.recent_activity),
 });
+
+// Map a single admin user details response
+export const mapAdminUserDetailsFromAPI = (apiUser) => ({
+  id: apiUser.id,
+  username: apiUser.username ?? "",
+  firstName: apiUser.first_name ?? "",
+  lastName: apiUser.last_name ?? "",
+  email: apiUser.email ?? "",
+  avatar: apiUser.avatar || "",
+  role: (apiUser.role ?? "user").toLowerCase(),
+  status: (apiUser.status ?? "inactive").toLowerCase(),
+  registeredOn: apiUser.registered_on ?? "",
+  registered: formatDate(apiUser.registered_on),
+  projectCount: apiUser.project_count ?? 0,
+  taskCount: apiUser.task_count ?? 0,
+});
+
+// Map a single admin user from API
+export const mapAdminUserFromAPI = (apiUser) => ({
+  id: apiUser.id,
+  username: apiUser.username,
+  firstName: apiUser.first_name ?? "",
+  lastName: apiUser.last_name ?? "",
+  email: apiUser.email ?? "",
+  avatar: apiUser.avatar || "",
+  role: (apiUser.role ?? "user").toLowerCase(),
+  status: (apiUser.status ?? "inactive").toLowerCase(),
+  registered: formatDate(apiUser.registered_on),
+  projects: apiUser.project_count ?? 0,
+  tasks: apiUser.task_count ?? 0,
+});
+
+// Map admin users list from API
+export const mapAdminUsersFromAPI = (apiUsers) =>
+  (apiUsers ?? []).map(mapAdminUserFromAPI);

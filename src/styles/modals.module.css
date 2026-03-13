@@ -661,3 +661,204 @@
 .emailInputWrapper .inputIcon {
   color: #9ca3af;
 }
+
+/* User Details Modal */
+.userDetailsModal {
+  width: min(760px, calc(100vw - 32px));
+  max-height: 90vh;
+  overflow-y: auto;
+  background-color: #f8fafc;
+  border-radius: 14px;
+  padding: 20px 22px;
+  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.22);
+}
+
+.userDetailsHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.userDetailsHeader h2 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.userDetailsHeader p {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.35;
+  color: #64748b;
+}
+
+.userDetailsCloseBtn {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 2px solid #93c5fd;
+  background: #eff6ff;
+  color: #3b82f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.userDetailsCloseBtn:hover {
+  background: #dbeafe;
+}
+
+.userDetailsState {
+  min-height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userDetailsContent {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.userDetailsIdentity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.userDetailsAvatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #dbe3ee;
+  background: #e2e8f0;
+}
+
+.userDetailsIdentityText h3 {
+  margin: 0;
+  font-size: 36px;
+  line-height: 1;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.userDetailsIdentityText p {
+  margin: 4px 0 0;
+  font-size: 16px;
+  line-height: 1.3;
+  color: #64748b;
+}
+
+.userDetailsBadges {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* local base badge styles so pills are consistent even without admin.module.css base classes */
+.roleBadge,
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  text-transform: lowercase;
+}
+
+.userDetailsStatsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.userDetailsStatCard {
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  padding: 16px 18px;
+  background: #ffffff;
+  min-height: 110px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.userDetailsStatLabel {
+  font-size: 15px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.userDetailsStatValue {
+  font-size: 38px;
+  line-height: 1;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.userDetailsMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.userDetailsMetaLabel {
+  font-size: 31px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.userDetailsMetaValue {
+  font-size: 38px;
+  line-height: 1.15;
+  font-weight: 400;
+  color: #64748b;
+}
+
+@media (max-width: 768px) {
+  .userDetailsModal {
+    width: calc(100vw - 16px);
+    padding: 16px;
+  }
+
+  .userDetailsHeader h2 {
+    font-size: 24px;
+  }
+
+  .userDetailsIdentityText h3 {
+    font-size: 24px;
+  }
+
+  .userDetailsIdentityText p {
+    font-size: 14px;
+  }
+
+  .userDetailsStatsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .userDetailsStatValue {
+    font-size: 30px;
+  }
+
+  .userDetailsMetaLabel {
+    font-size: 20px;
+  }
+
+  .userDetailsMetaValue {
+    font-size: 17px;
+  }
+}
