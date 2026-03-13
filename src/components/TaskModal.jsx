@@ -6,7 +6,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useProjects } from "@/hooks/useProjects";
 import { useGetUsers } from "@/hooks/useManageUsers";
-import { useCreateTask, useUpdateTask } from "@/hooks/useTasks";
+import { useCreateTask, useGetTask, useUpdateTask } from "@/hooks/useTasks";
 
 const taskSchema = z.object({
   title: z
@@ -28,8 +28,13 @@ const taskSchema = z.object({
 export default function TaskModal({
   setShowModal,
   taskToEdit = null,
+  taskId = null,
   onClose,
 }) {
+  const { data: projects = [], isPending: isFetchingProjects } = useProjects();
+  const { data: users = [], isPending: isFetchingUsers } = useGetUsers();
+  const { data: task } = useGetTask(taskId);
+
   const {
     register,
     handleSubmit,
@@ -39,25 +44,23 @@ export default function TaskModal({
   } = useForm({
     resolver: zodResolver(taskSchema),
     defaultValues: {
-      title: taskToEdit?.title || "",
-      description: taskToEdit?.description || "",
-      project: taskToEdit?.project || "",
-      assignee: taskToEdit?.assignee || "",
-      status: taskToEdit?.status || "",
-      priority: taskToEdit?.priority || "",
-      dueDate: taskToEdit?.dueDate || "",
+      title: task?.title || taskToEdit?.title || "",
+      description: task?.description || taskToEdit?.description || "",
+      project:
+        task?.project?.projectName || taskToEdit?.project?.projectName || "",
+      assignee: task?.assignee?.name || taskToEdit?.assignee?.name || "",
+      status: task?.status || taskToEdit?.status || "",
+      priority: task?.priority || taskToEdit?.priority || "",
+      dueDate: task?.dueDate || taskToEdit?.dueDate || "",
     },
   });
-
-  const { data: projects = [], isPending: isFetchingProjects } = useProjects();
-  const { data: users = [], isPending: isFetchingUsers } = useGetUsers();
 
   // console.log("Users retrived: ", users);
 
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: updateTask } = useUpdateTask();
 
-  const isEditMode = !!taskToEdit;
+  const isEditMode = !!taskToEdit || !!taskId;
 
   const onSubmit = async (data) => {
     clearErrors("root");

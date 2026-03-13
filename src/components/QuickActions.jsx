@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import adminStyles from "@/styles/admin.module.css";
 import {
   FiAlertCircle,
@@ -7,17 +7,49 @@ import {
   FiUserPlus,
 } from "react-icons/fi";
 import { MdOutlineAssignmentInd } from "react-icons/md";
-import {
-  mockOverdueTasks,
-  mockUnassignedTasks,
-  mockRecentActivity,
-} from "@/utils/mockData";
+
 import { getPriorityClass } from "@/utils/priorityClass";
+import { adminAPI } from "@/services/adminAPI";
+import { mapAdminQuickActionsFromAPI } from "@/utils/adminMapper";
+import Loader from "@/components/ui/Loader";
+import TaskModal from "@/components/TaskModal";
+// import { useGetTask } from "@/hooks/useTasks";
 
 export default function QuickActionsTab() {
-  const [overdueTasks, setOverdueTasks] = useState(mockOverdueTasks);
-  const [unassignedTasks, setUnassignedTasks] = useState(mockUnassignedTasks);
-  const [recentActivity, setRecentActivity] = useState(mockRecentActivity);
+  const [overdueTasks, setOverdueTasks] = useState([]);
+  const [unassignedTasks, setUnassignedTasks] = useState([]);
+  const [recentActivity, setRecentActivity] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // task modal
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  // const [taskToEdit, setTaskToEdit] = useState(null);
+  // const [fetchingTask, setFetchingTask] = useState(false);
+
+  // TODO: replace with useQuery
+  useEffect(() => {
+    const fetchQuickActionsData = async () => {
+      try {
+        setLoading(true);
+        const data = await adminAPI.getQuickActions();
+        const mappedData = mapAdminQuickActionsFromAPI(data);
+
+        setOverdueTasks(mappedData.overdueTasks);
+        setUnassignedTasks(mappedData.unassignedTasks);
+        setRecentActivity(mappedData.recentActivity);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching admin quick actions data:", err);
+        setError("Failed to load quick actions data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuickActionsData();
+  }, []);
 
   const quickActionCards = [
     { id: "newProject", label: "New Project", icon: FiFolder },
@@ -26,13 +58,13 @@ export default function QuickActionsTab() {
       id: "overdueTasks",
       label: "Overdue Tasks",
       icon: FiAlertCircle,
-      badge: overdueTasks.length,
+      badge: overdueTasks?.length,
     },
     {
       id: "unassigned",
       label: "Unassigned",
       icon: MdOutlineAssignmentInd,
-      badge: unassignedTasks.length,
+      badge: unassignedTasks?.length,
     },
   ];
 
@@ -53,8 +85,27 @@ export default function QuickActionsTab() {
 
   const handleAssignedTask = (taskId) => {
     console.log("Assign task: ", taskId);
-    // TODO: Implement assign task modal
+    setSelectedTask(taskId);
+    setShowTaskModal(true);
   };
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className={adminStyles.quickActionsContent}>
+        <Loader />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className={adminStyles.quickActionsContent}>
+        <div className={adminStyles.errorMessage}>{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className={adminStyles.quickActionsContent}>
@@ -68,7 +119,7 @@ export default function QuickActionsTab() {
                 <Icon className={`${getActionCard(card.id)}`} />
               </div>
               <span className={adminStyles.actionCardLabel}>{card.label}</span>
-              {card.badge && (
+              {card.badge !== undefined && (
                 <span
                   className={`${adminStyles.actionCardBadge} ${card.id === "overdueTasks" ? adminStyles.badgeRed : adminStyles.badgeBlue}`}
                 >
@@ -89,7 +140,7 @@ export default function QuickActionsTab() {
               <FiAlertCircle className={adminStyles.iconRed} />
               <h3>Overdue Tasks</h3>
               <span className={adminStyles.countBadgeRed}>
-                {overdueTasks.length}
+                {overdueTasks?.length}
               </span>
             </div>
             <p className={adminStyles.taskCardSubtitle}>
@@ -97,32 +148,36 @@ export default function QuickActionsTab() {
             </p>
           </div>
           <div className={adminStyles.taskList}>
-            {overdueTasks.map((task) => (
-              <div key={task.id} className={adminStyles.taskItem}>
-                <div className={adminStyles.taskInfo}>
-                  <h4 className={adminStyles.taskTitle}>{task.title}</h4>
-                  <p className={adminStyles.taskMeta}>
-                    {task.project} ·{" "}
-                    <span className={adminStyles.dueDate}>
-                      Due: {task.dueDate}
-                    </span>
-                  </p>
+            {overdueTasks?.length > 0 ? (
+              overdueTasks.map((task) => (
+                <div key={task.id} className={adminStyles.taskItem}>
+                  <div className={adminStyles.taskInfo}>
+                    <h4 className={adminStyles.taskTitle}>{task.title}</h4>
+                    <p className={adminStyles.taskMeta}>
+                      {task.project} ·{" "}
+                      <span className={adminStyles.dueDate}>
+                        Due: {task.dueDate}
+                      </span>
+                    </p>
+                  </div>
+                  <div className={adminStyles.taskActions}>
+                    {task.assigee ? (
+                      <img
+                        src={task.assigee.avatar}
+                        alt={task.assigee.name}
+                        className={adminStyles.assigneeAvatar}
+                      />
+                    ) : (
+                      <span className={adminStyles.unassignedLabel}>
+                        Unassigned
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <div className={adminStyles.taskActions}>
-                  {task.assigee ? (
-                    <img
-                      src={task.assigee.avatar}
-                      alt={task.assigee.name}
-                      className={adminStyles.assigneeAvatar}
-                    />
-                  ) : (
-                    <span className={adminStyles.unassignedLabel}>
-                      Unassigned
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className={adminStyles.emptyState}>No overdue tasks</p>
+            )}
           </div>
         </div>
 
@@ -133,37 +188,40 @@ export default function QuickActionsTab() {
               <MdOutlineAssignmentInd className={adminStyles.iconOrange} />
               <h3>Unassigned Tasks</h3>
               <span className={adminStyles.countBadgeBlue}>
-                {" "}
-                {unassignedTasks.length}
+                {unassignedTasks?.length}
               </span>
             </div>
             <p className={adminStyles.taskCardSubtitle}>
-              Tasks waiting for assignement
+              Tasks waiting for assignment
             </p>
           </div>
           <div className={adminStyles.taskList}>
-            {unassignedTasks.map((task) => (
-              <div key={task.id} className={adminStyles.taskItem}>
-                <div className={adminStyles.taskInfo}>
-                  <h4 className={adminStyles.taskTitle}>{task.title}</h4>
-                  <p className={adminStyles.taskMeta}>{task.project}</p>
-                </div>
-                <div className={adminStyles.taskActions}>
-                  <span
-                    className={`${adminStyles.priorityBadge} ${getPriorityClass(task.priority)}`}
-                  >
-                    {task.priority.toUpperCase()}
-                  </span>
+            {unassignedTasks?.length > 0 ? (
+              unassignedTasks.map((task) => (
+                <div key={task.id} className={adminStyles.taskItem}>
+                  <div className={adminStyles.taskInfo}>
+                    <h4 className={adminStyles.taskTitle}>{task.title}</h4>
+                    <p className={adminStyles.taskMeta}>{task.project}</p>
+                  </div>
+                  <div className={adminStyles.taskActions}>
+                    <span
+                      className={`${adminStyles.priorityBadge} ${getPriorityClass(task.priority)}`}
+                    >
+                      {task.priority.toUpperCase()}
+                    </span>
 
-                  <button
-                    className={adminStyles.btnAssign}
-                    onClick={() => handleAssignedTask(task.id)}
-                  >
-                    Assign
-                  </button>
+                    <button
+                      className={adminStyles.btnAssign}
+                      onClick={() => handleAssignedTask(task.id)}
+                    >
+                      Assign
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className={adminStyles.emptyState}>No unassigned tasks</p>
+            )}
           </div>
         </div>
       </div>
@@ -180,20 +238,35 @@ export default function QuickActionsTab() {
           </p>
         </div>
         <div className={adminStyles.activityList}>
-          {recentActivity.map((activity) => (
-            <div key={activity.id} className={adminStyles.activityItem}>
-              <span className={adminStyles.activityDot}></span>
-              <span className={adminStyles.activityText}>
-                {activity.action}{" "}
-                <span className={adminStyles.activityUser}>
-                  {activity.user}
+          {recentActivity?.length > 0 ? (
+            recentActivity.map((activity) => (
+              <div key={activity.id} className={adminStyles.activityItem}>
+                <span className={adminStyles.activityDot}></span>
+                <span className={adminStyles.activityText}>
+                  {activity.action}{" "}
+                  <span className={adminStyles.activityUser}>
+                    {activity.user}
+                  </span>
                 </span>
-              </span>
-              <span className={adminStyles.activityTime}>{activity.time}</span>
-            </div>
-          ))}
+                <span className={adminStyles.activityTime}>
+                  {activity.time}
+                </span>
+              </div>
+            ))
+          ) : (
+            <p className={adminStyles.emptyState}>No recent activity</p>
+          )}
         </div>
       </div>
+
+      {showTaskModal && (
+        <TaskModal
+          setShowModal={setShowTaskModal}
+          taskToEdit={selectedTask}
+          taskId={selectedTask}
+          onClose={() => setShowTaskModal(false)}
+        />
+      )}
     </div>
   );
 }
