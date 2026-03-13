@@ -124,3 +124,227 @@ export const mapAdminUserFromAPI = (apiUser) => ({
 // Map admin users list from API
 export const mapAdminUsersFromAPI = (apiUsers) =>
   (apiUsers ?? []).map(mapAdminUserFromAPI);
+
+const ADMIN_PROJECT_STATUS_MAP = {
+  ACTIVE: "in progress",
+  IN_PROGRESS: "in progress",
+  ON_HOLD: "on hold",
+  COMPLETED: "completed",
+  PLANNING: "planning",
+  PLANNED: "planning",
+};
+
+const normalizeAdminProjectStatus = (status) => {
+  const normalized = String(status ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "_");
+
+  return (
+    ADMIN_PROJECT_STATUS_MAP[normalized] ||
+    String(status ?? "planning")
+      .toLowerCase()
+      .replace(/_/g, " ")
+  );
+};
+
+const mapAdminProjectMembersToAvatars = (members, memberCount, ownerAvatar) => {
+  let parsedMembers = members;
+
+  if (typeof members === "string") {
+    const trimmed = members.trim();
+
+    if (!trimmed) {
+      parsedMembers = [];
+    } else if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
+      try {
+        parsedMembers = JSON.parse(trimmed);
+      } catch {
+        parsedMembers = trimmed
+          .split(",")
+          .map((value) => value.trim())
+          .filter(Boolean);
+      }
+    } else {
+      parsedMembers = trimmed
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+    }
+  }
+
+  if (!Array.isArray(parsedMembers)) parsedMembers = [];
+
+  const avatars = parsedMembers
+    .map((member) => {
+      if (typeof member === "string") return member;
+      return member?.avatar ?? member?.profile_picture ?? "";
+    })
+    .filter(Boolean);
+
+  if (avatars.length > 0) return avatars;
+
+  const count = Number(memberCount) || 0;
+  if (count <= 0) return [];
+
+  const fallbackAvatar = ownerAvatar || "/vite.svg";
+  return Array.from({ length: Math.min(count, 3) }, () => fallbackAvatar);
+};
+
+export const mapAdminProjectFromAPI = (apiProject) => {
+  const owner = apiProject?.owner ?? {};
+
+  return {
+    id: apiProject?.id,
+    name: apiProject?.project_name ?? "",
+    description: apiProject?.description ?? "",
+    status: normalizeAdminProjectStatus(apiProject?.status),
+    created: formatDate(apiProject?.created_at),
+    createdAt: apiProject?.created_at ?? "",
+    startDate: apiProject?.start_date ?? "",
+    endDate: apiProject?.end_date ?? "",
+    priority: String(apiProject?.priority ?? "").toLowerCase(),
+    owner: {
+      id: owner?.id,
+      username: owner?.username ?? "",
+      name: owner?.full_name || owner?.username || "Unknown Owner",
+      avatar: owner?.avatar || "/vite.svg",
+    },
+    members: mapAdminProjectMembersToAvatars(
+      apiProject?.members,
+      apiProject?.member_count,
+      owner?.avatar,
+    ),
+    memberCount: apiProject?.member_count ?? 0,
+    tasksCompleted: apiProject?.tasks_completed ?? 0,
+    totalTasks: apiProject?.tasks_total ?? 0,
+  };
+};
+
+export const mapAdminProjectsFromAPI = (apiProjects) =>
+  (apiProjects ?? []).map(mapAdminProjectFromAPI);
+
+const ADMIN_PRIORITY_MAP = {
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
+};
+
+const normalizeAdminProjectPriority = (priority) => {
+  const normalized = String(priority ?? "")
+    .trim()
+    .toUpperCase();
+
+  return ADMIN_PRIORITY_MAP[normalized] || "Medium";
+};
+
+const normalizeMemberRole = (role) => {
+  return String(role ?? "Member")
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (ch) => ch.toUpperCase());
+};
+
+const mapMemberObject = (member, index) => {
+  if (typeof member === "string") {
+    const name = member.trim();
+    return {
+      id: `member-${index}-${name}`,
+      username: name,
+      name,
+      role: "Member",
+      avatar: "",
+    };
+  }
+
+  const username = member?.username ?? "";
+  const fullName =
+    member?.full_name ??
+    member?.name ??
+    `${member?.first_name ?? ""} ${member?.last_name ?? ""}`.trim();
+
+  const displayName = fullName || username || `Member ${index + 1}`;
+
+  return {
+    id: member?.id ?? `member-${index}-${displayName}`,
+    username,
+    name: displayName,
+    role: normalizeMemberRole(member?.role),
+    avatar: member?.avatar || member?.profile_picture || "",
+  };
+};
+
+const parseAdminProjectMembers = (members) => {
+  if (!members) return [];
+
+  let parsed = members;
+
+  if (typeof members === "string") {
+    const trimmed = members.trim();
+    if (!trimmed) return [];
+
+    if (
+      (trimmed.startsWith("[") && trimmed.endsWith("]")) ||
+      (trimmed.startsWith("{") && trimmed.endsWith("}"))
+    ) {
+      try {
+        parsed = JSON.parse(trimmed);
+      } catch {
+        parsed = trimmed
+          .split(",")
+          .map((value) => value.trim())
+          .filter(Boolean);
+      }
+    } else {
+      parsed = trimmed
+        .split(",")
+        .map((value) => value.trim())
+        .filter(Boolean);
+    }
+  }
+
+  if (Array.isArray(parsed)) {
+    return parsed.map((member, index) => mapMemberObject(member, index));
+  }
+
+  if (typeof parsed === "object" && parsed !== null) {
+    return Object.values(parsed).map((member, index) =>
+      mapMemberObject(member, index),
+    );
+  }
+
+  return [];
+};
+
+export const mapAdminProjectDetailsFromAPI = (apiProject) => {
+  const owner = apiProject?.owner ?? {};
+  const members = parseAdminProjectMembers(apiProject?.members);
+  const tasksCompleted = Number(apiProject?.tasks_completed ?? 0);
+  const tasksTotal = Number(apiProject?.tasks_total ?? 0);
+  const progress =
+    tasksTotal > 0 ? Math.round((tasksCompleted / tasksTotal) * 100) : 0;
+
+  return {
+    id: apiProject?.id,
+    name: apiProject?.project_name ?? "",
+    description: apiProject?.description ?? "",
+    status: normalizeAdminProjectStatus(apiProject?.status),
+    priority: normalizeAdminProjectPriority(apiProject?.priority),
+    startDate: apiProject?.start_date ?? "",
+    endDate: apiProject?.end_date ?? "",
+    createdAt: apiProject?.created_at ?? "",
+    created: formatDate(apiProject?.created_at),
+    owner: {
+      id: owner?.id,
+      username: owner?.username ?? "",
+      name: owner?.full_name || owner?.username || "Unknown Owner",
+      avatar: owner?.avatar || "/vite.svg",
+    },
+    members,
+    memberCount: Number(apiProject?.member_count ?? members.length ?? 0),
+    tasksCompleted,
+    totalTasks: tasksTotal,
+    pendingTasks: Math.max(tasksTotal - tasksCompleted, 0),
+    progress,
+  };
+};

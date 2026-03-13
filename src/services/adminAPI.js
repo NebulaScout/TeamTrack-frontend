@@ -26,4 +26,22 @@ export const adminAPI = {
     );
     return response.data?.data ?? response.data;
   },
+
+  getProjects: async () => {
+    const response = await api.get("/api/v1/dashboard/admin/projects/");
+    return response.data?.data ?? response.data ?? [];
+  },
+
+  getProjectById: async (id) => {
+    const response = await api.get(`/api/v1/dashboard/admin/projects/${id}/`);
+    return response.data?.data ?? response.data;
+  },
+
+  // Remove a member from a project team
+  removeTeamMember: async (projectId, memberId) => {
+    const response = await api.delete(
+      `/api/v1/projects/${projectId}/team/members/${memberId}/`,
+    );
+    return response.data?.data ?? response.data;
+  },
 };
