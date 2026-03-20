@@ -1,4 +1,8 @@
-import { PRIORITY_MAP } from "./enumMappings";
+import {
+  PRIORITY_MAP,
+  ADMIN_TASK_STATUS_MAP,
+  ADMIN_TASK_PRIORITY_MAP,
+} from "./enumMappings";
 import { formatDate } from "./formatDate";
 
 // Map overdue tasks from API
@@ -348,3 +352,76 @@ export const mapAdminProjectDetailsFromAPI = (apiProject) => {
     progress,
   };
 };
+
+const normalizeAdminTaskStatus = (status) => {
+  const normalized = String(status ?? "")
+    .trim()
+    .toUpperCase();
+
+  return ADMIN_TASK_STATUS_MAP[normalized] || "open";
+};
+
+const normalizeAdminTaskPriority = (priority) => {
+  const normalized = String(priority ?? "")
+    .trim()
+    .toUpperCase();
+
+  return ADMIN_TASK_PRIORITY_MAP[normalized] || "Low";
+};
+
+const normalizeIsOverdue = (value) => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value > 0;
+
+  const normalized = String(value ?? "")
+    .trim()
+    .toLowerCase();
+
+  return ["true", "1", "yes", "y"].includes(normalized);
+};
+
+const mapAdminTaskAssignee = (assignee) => {
+  if (!assignee) return null;
+
+  if (typeof assignee === "string") {
+    return {
+      name: assignee,
+      avatar: "/vite.svg",
+    };
+  }
+
+  const fullName =
+    `${assignee?.first_name ?? ""} ${assignee?.last_name ?? ""}`.trim() ||
+    assignee?.full_name ||
+    assignee?.username ||
+    "Unknown User";
+
+  return {
+    id: assignee?.id,
+    name: fullName,
+    avatar: assignee?.avatar || "/vite.svg",
+  };
+};
+
+export const mapAdminTaskFromAPI = (apiTask) => ({
+  id: apiTask?.id,
+  title: apiTask?.title ?? "",
+  projectId: apiTask?.project_id ?? null,
+  project: apiTask?.project_name ?? "",
+  assignee: mapAdminTaskAssignee(apiTask?.assignee),
+  status: normalizeAdminTaskStatus(apiTask?.status),
+  priority: normalizeAdminTaskPriority(apiTask?.priority),
+  dueDate: formatDate(apiTask?.due_date),
+  rawDueDate: apiTask?.due_date ?? "",
+  isOverdue: normalizeIsOverdue(apiTask?.is_overdue),
+  createdAt: apiTask?.created_at ?? "",
+  updatedAt: apiTask?.updated_at ?? "",
+});
+
+export const mapAdminTasksFromAPI = (apiData) => ({
+  stats: {
+    overdueCount: Number(apiData?.stats?.overdue_count ?? 0),
+    unassignedCount: Number(apiData?.stats?.unassigned_count ?? 0),
+  },
+  tasks: (apiData?.tasks ?? []).map(mapAdminTaskFromAPI),
+});

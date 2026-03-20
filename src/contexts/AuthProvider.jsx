@@ -2,9 +2,13 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { authAPI } from "@/services/authAPI";
 import { mapUserFromAPI } from "@/utils/userMapper";
-import { Navigate } from "react-router-dom";
 
 const AuthContext = createContext(null);
+
+const normalizeRole = (role) =>
+  String(role ?? "")
+    .trim()
+    .toUpperCase();
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -14,31 +18,27 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     const checkAuthStatus = async () => {
-      // Check if user is logged in
       const token = localStorage.getItem("accessToken");
 
       if (!token) {
         setIsAuthenticated(false);
+        setUser(null);
         setIsLoading(false);
+        return;
       }
 
       try {
-        // Validate token by fetching user data
         const userData = await authAPI.getCurrentUser();
         const mappedData = mapUserFromAPI(userData);
         setUser(mappedData);
         setIsAuthenticated(true);
       } catch (err) {
-        // Token is expired/ invalid and refresh failed
-        console.error("Auth check failed: ", err);
+        console.error("Auth check failed:", err);
         setIsAuthenticated(false);
         setUser(null);
-
-        // Clear tokens
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-
-        navigate("/login");
+        navigate("/login", { replace: true });
       } finally {
         setIsLoading(false);
       }
@@ -48,29 +48,45 @@ export function AuthProvider({ children }) {
   }, [navigate]);
 
   const login = async (credentials) => {
-    const response = await authAPI.login(credentials);
-    // fetch user data after login
+    const authResponse = await authAPI.login(credentials);
     const userData = await authAPI.getCurrentUser();
     const mappedData = mapUserFromAPI(userData);
+
     setUser(mappedData);
     setIsAuthenticated(true);
-    return response;
+
+    // Return user so caller can route immediately by role
+    return { authResponse, user: mappedData };
   };
 
   const logout = async () => {
     try {
       await authAPI.logout();
-      <Navigate to="/login" />;
     } catch (err) {
       console.error("Logout API error:", err);
+    } finally {
+      setIsAuthenticated(false);
+      setUser(null);
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      navigate("/login", { replace: true });
     }
-    setIsAuthenticated(false);
-    setUser(null);
   };
+
+  const isAdmin = normalizeRole(user?.role) === "ADMIN";
+  const homeRoute = isAdmin ? "/admin/dashboard" : "/dashboard";
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, isLoading, user, login, logout }}
+      value={{
+        isAuthenticated,
+        isLoading,
+        user,
+        isAdmin,
+        homeRoute,
+        login,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
@@ -81,6 +97,5 @@ export function AuthProvider({ children }) {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
-
   return context;
 };

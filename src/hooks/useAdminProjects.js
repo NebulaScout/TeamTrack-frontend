@@ -56,3 +56,19 @@ export const useRemoveAdminProjectMember = () => {
     },
   });
 };
+
+export const useDeleteAdminProject = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id) => adminAPI.deleteProject(id),
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries({
+        queryKey: adminProjectsKeys.lists(),
+      });
+      queryClient.removeQueries({
+        queryKey: adminProjectsKeys.detail(id),
+      });
+    },
+  });
+};

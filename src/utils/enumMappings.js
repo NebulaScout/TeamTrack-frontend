@@ -68,6 +68,19 @@ const ROLE_TO_API = {
   Guest: "GUEST",
 };
 
+const ADMIN_TASK_STATUS_MAP = {
+  TO_DO: "open",
+  IN_PROGRESS: "in_progress",
+  IN_REVIEW: "in_progress",
+  DONE: "done",
+};
+
+const ADMIN_TASK_PRIORITY_MAP = {
+  LOW: "Low",
+  MEDIUM: "Medium",
+  HIGH: "High",
+};
+
 export {
   STATUS_MAP,
   STATUS_TO_API,
@@ -79,4 +92,6 @@ export {
   PROJECT_STATUS_TO_API,
   ROLE_MAP,
   ROLE_TO_API,
+  ADMIN_TASK_STATUS_MAP,
+  ADMIN_TASK_PRIORITY_MAP,
 };
