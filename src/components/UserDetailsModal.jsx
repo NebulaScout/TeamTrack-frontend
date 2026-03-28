@@ -2,7 +2,7 @@ import { useEffect, useMemo } from "react";
 import { FiX } from "react-icons/fi";
 import modalStyles from "@/styles/modals.module.css";
 import Loader from "@/components/ui/Loader";
-import { useAdminUser } from "@/hooks/useAdminUsers";
+import { useAdminUser } from "@/utils/queries/useAdminUsers";
 import { getRoleClass } from "@/utils/roleClass";
 import { getStatusClass } from "@/utils/statusClass";
 

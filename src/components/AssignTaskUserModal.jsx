@@ -1,21 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { FiSearch, FiX } from "react-icons/fi";
 import modalStyles from "@/styles/modals.module.css";
-import { useGetTeamMembers } from "@/hooks/useTeam";
-import { usePatchAdminTask } from "@/hooks/useAdminTasks";
+import { useGetTeamMembers } from "@/utils/queries/useTeam";
+import { usePatchAdminTask } from "@/utils/queries/useAdminTasks";
 import { STATUS_TO_API, PRIORITY_TO_API } from "@/utils/enumMappings";
-
-// const STATUS_TO_API = {
-//   open: "TO_DO",
-//   in_progress: "IN_PROGRESS",
-//   done: "DONE",
-// };
-
-// const PRIORITY_TO_API = {
-//   low: "LOW",
-//   medium: "MEDIUM",
-//   high: "HIGH",
-// };
 
 const toApiStatus = (status) =>
   STATUS_TO_API[
@@ -205,14 +193,14 @@ export default function AssignTaskUserModal({ isOpen, onClose, task }) {
             Cancel
           </button>
 
-          <button
+          {/* <button
             type="button"
             className={modalStyles.btnCancel}
             onClick={handleUnassign}
             disabled={isAssigning}
           >
             Unassign
-          </button>
+          </button> */}
 
           <button
             type="button"

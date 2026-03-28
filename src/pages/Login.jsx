@@ -44,8 +44,9 @@ export default function Login() {
 
   const loginMutation = useMutation({
     mutationFn: login,
-    onSuccess: () => {
-      navigate("/dashboard");
+    onSuccess: ({ user }) => {
+      const isAdmin = String(user?.role ?? "").toUpperCase() === "ADMIN";
+      navigate(isAdmin ? "/admin/dashboard" : "/dashboard", { replace: true });
     },
     onError: (err) => {
       const message =

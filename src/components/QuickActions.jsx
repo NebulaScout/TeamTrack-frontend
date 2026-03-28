@@ -13,6 +13,8 @@ import { adminAPI } from "@/services/adminAPI";
 import { mapAdminQuickActionsFromAPI } from "@/utils/adminMapper";
 import Loader from "@/components/ui/Loader";
 import TaskModal from "@/components/TaskModal";
+import ProjectModal from "./ProjectModal";
+import TeamInviteModal from "./TeamInviteModal";
 // import { useGetTask } from "@/hooks/useTasks";
 
 export default function QuickActionsTab() {
@@ -25,6 +27,8 @@ export default function QuickActionsTab() {
   // task modal
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   // const [taskToEdit, setTaskToEdit] = useState(null);
   // const [fetchingTask, setFetchingTask] = useState(false);
 
@@ -89,6 +93,19 @@ export default function QuickActionsTab() {
     setShowTaskModal(true);
   };
 
+  const handleQuickActionClick = (cardId) => {
+    switch (cardId) {
+      case "newProject":
+        setShowProjectModal(true);
+        break;
+      case "inviteUser":
+        setShowInviteModal(true);
+        break;
+      default:
+        break;
+    }
+  };
+
   // Loading state
   if (loading) {
     return (
@@ -114,7 +131,11 @@ export default function QuickActionsTab() {
         {quickActionCards.map((card) => {
           const Icon = card.icon;
           return (
-            <button key={card.id} className={adminStyles.actionCard}>
+            <button
+              key={card.id}
+              className={adminStyles.actionCard}
+              onClick={() => handleQuickActionClick(card.id)}
+            >
               <div className={adminStyles.actionCardIcon}>
                 <Icon className={`${getActionCard(card.id)}`} />
               </div>
@@ -266,6 +287,17 @@ export default function QuickActionsTab() {
           taskId={selectedTask}
           onClose={() => setShowTaskModal(false)}
         />
+      )}
+
+      {showProjectModal && (
+        <ProjectModal
+          setShowModal={setShowProjectModal}
+          onProjectSaved={() => {}}
+        />
+      )}
+
+      {showInviteModal && (
+        <TeamInviteModal setShowInviteModal={setShowInviteModal} />
       )}
     </div>
   );

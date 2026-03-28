@@ -13,8 +13,12 @@ import {
 import adminStyles from "@/styles/admin.module.css";
 import { getStatusClass } from "@/utils/statusClass";
 import Loader from "@/components/ui/Loader";
-import { useAdminProjects } from "@/hooks/useAdminProjects";
+import {
+  useAdminProjects,
+  useDeleteAdminProject,
+} from "@/utils/queries/useAdminProjects";
 import AdminProjectDetailsModal from "@/components/AdminProjectDetailsModal";
+import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 
 export default function ProjectsManagement() {
   const [projectsSearch, setProjectsSearch] = useState("");
@@ -25,11 +29,15 @@ export default function ProjectsManagement() {
 
   const [isProjectDetailsOpen, setIsProjectDetailsOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
 
   const menuRef = useRef(null);
   const triggerRefs = useRef(new Map());
 
   const { data: projects = [], isLoading, isError, error } = useAdminProjects();
+  const { mutateAsync: deleteAdminProject, isPending: isDeletingProject } =
+    useDeleteAdminProject();
 
   const filteredProjects = useMemo(() => {
     return projects.filter((project) => {
@@ -91,10 +99,26 @@ export default function ProjectsManagement() {
     }
 
     if (action === "delete-project") {
-      console.log("Delete project:", project);
+      setSelectedProject(project);
+      setShowDeleteModal(true);
+      setOpenMenuFor(null);
+      return;
     }
 
     setOpenMenuFor(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedProject?.id) return;
+
+    try {
+      await deleteAdminProject(selectedProject.id);
+      setShowDeleteModal(false);
+      setSelectedProject(null);
+      setOpenMenuFor(null);
+    } catch (err) {
+      console.error("Failed to delete project:", err);
+    }
   };
 
   const closeProjectDetailsModal = () => {
@@ -295,7 +319,7 @@ export default function ProjectsManagement() {
                         View Details
                       </button>
 
-                      <button
+                      {/* <button
                         className={adminStyles.userFloatingMenuItem}
                         onClick={() =>
                           handleProjectAction("edit-project", project)
@@ -304,9 +328,9 @@ export default function ProjectsManagement() {
                       >
                         <FiEdit2 className={adminStyles.userFloatingMenuIcon} />
                         Edit Project
-                      </button>
+                      </button> */}
 
-                      <button
+                      {/* <button
                         className={adminStyles.userFloatingMenuItem}
                         onClick={() =>
                           handleProjectAction("manage-members", project)
@@ -315,7 +339,7 @@ export default function ProjectsManagement() {
                       >
                         <FiUsers className={adminStyles.userFloatingMenuIcon} />
                         Manage Members
-                      </button>
+                      </button> */}
 
                       <div className={adminStyles.userFloatingMenuSeparator} />
 
@@ -352,6 +376,21 @@ export default function ProjectsManagement() {
             isOpen={isProjectDetailsOpen}
             onClose={closeProjectDetailsModal}
             projectId={selectedProjectId}
+          />
+        )}
+
+        {showDeleteModal && (
+          <ConfirmDeleteModal
+            isOpen={showDeleteModal}
+            onClose={() => {
+              if (isDeletingProject) return;
+              setShowDeleteModal(false);
+              setSelectedProject(null);
+            }}
+            onConfirm={handleConfirmDelete}
+            itemName={selectedProject?.name}
+            itemType="Project"
+            isDeleting={isDeletingProject}
           />
         )}
       </div>

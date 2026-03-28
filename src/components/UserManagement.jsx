@@ -12,7 +12,10 @@ import {
 import adminStyles from "@/styles/admin.module.css";
 import { getStatusClass } from "@/utils/statusClass";
 import { getRoleClass } from "@/utils/roleClass";
-import { useAdminUsers, usePatchAdminUser } from "@/hooks/useAdminUsers";
+import {
+  useAdminUsers,
+  usePatchAdminUser,
+} from "@/utils/queries/useAdminUsers";
 import { ROLE_MAP } from "@/utils/enumMappings";
 import Loader from "@/components/ui/Loader";
 import UserDetailsModal from "@/components/UserDetailsModal";
@@ -353,7 +356,7 @@ export default function UserManagement() {
                           Actions
                         </div>
 
-                        <button
+                        {/* <button
                           className={adminStyles.userFloatingMenuItem}
                           onClick={() => handleUserAction("view-details", user)}
                           role="menuitem"
@@ -361,9 +364,9 @@ export default function UserManagement() {
                         >
                           <FiEye className={adminStyles.userFloatingMenuIcon} />
                           View Details
-                        </button>
+                        </button> */}
 
-                        <button
+                        {/* <button
                           className={adminStyles.userFloatingMenuItem}
                           onClick={() => handleUserAction("edit-user", user)}
                           role="menuitem"
@@ -373,7 +376,7 @@ export default function UserManagement() {
                             className={adminStyles.userFloatingMenuIcon}
                           />
                           Edit User
-                        </button>
+                        </button> */}
 
                         <div
                           className={adminStyles.userFloatingMenuSeparator}

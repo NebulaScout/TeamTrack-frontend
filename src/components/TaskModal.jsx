@@ -4,9 +4,13 @@ import modalStyles from "@/styles/modals.module.css";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useProjects } from "@/hooks/useProjects";
-import { useGetUsers } from "@/hooks/useManageUsers";
-import { useCreateTask, useGetTask, useUpdateTask } from "@/hooks/useTasks";
+import { useProjects } from "@/utils/queries/useProjects";
+import { useGetUsers } from "@/utils/queries/useManageUsers";
+import {
+  useCreateTask,
+  useGetTask,
+  useUpdateTask,
+} from "@/utils/queries/useTasks";
 
 const taskSchema = z.object({
   title: z

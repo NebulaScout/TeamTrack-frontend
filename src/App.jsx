@@ -1,5 +1,5 @@
-import { Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthProvider";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./contexts/AuthProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -14,14 +14,67 @@ import Notifications from "./pages/Notifications";
 import PageNotFound from "./pages/PageNotFound";
 import Admin from "./pages/Admin";
 
+function PublicOnlyRoute({ children }) {
+  const { isAuthenticated, isLoading, homeRoute } = useAuth();
+  if (isLoading) return <div>Loading...</div>;
+  if (isAuthenticated) return <Navigate to={homeRoute} replace />;
+  return children;
+}
+
+function RoleHomeRedirect() {
+  const { homeRoute } = useAuth();
+  return <Navigate to={homeRoute} replace />;
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<ProtectedRoute> <Dashboard /> </ProtectedRoute>} />
-        <Route path="/admin/dashboard" element={<ProtectedRoute> <Admin /> </ProtectedRoute>} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <RoleHomeRedirect />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/login"
+          element={
+            <PublicOnlyRoute>
+              <Login />
+            </PublicOnlyRoute>
+          }
+        />
+
+        <Route
+          path="/register"
+          element={
+            <PublicOnlyRoute>
+              <Register />
+            </PublicOnlyRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute requiredRole="ADMIN">
+              <Admin />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
         <Route path="/tasks" element={<ProtectedRoute><Tasks /></ProtectedRoute>} />
         <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
@@ -29,8 +82,9 @@ export default function App() {
         <Route path="/team" element={<ProtectedRoute><Team /></ProtectedRoute>} />
         <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
         <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+
         <Route path="*" element={<PageNotFound />} />
       </Routes>
-      </AuthProvider>
+    </AuthProvider>
   );
 }

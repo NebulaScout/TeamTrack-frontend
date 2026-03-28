@@ -1,18 +1,32 @@
 import React from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthProvider";
-import { useLocation } from "react-router-dom";
 
-export default function ProtectedRoute({ children }) {
-  const { isAuthenticated, isLoading } = useAuth();
+const normalizeRole = (role) =>
+  String(role ?? "")
+    .trim()
+    .toUpperCase();
+
+export default function ProtectedRoute({ children, requiredRole }) {
+  const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
 
-  if (isLoading) return <div>Loading...</div>; //TODO: Add spinner
+  if (isLoading) return <div>Loading...</div>;
 
   if (!isAuthenticated) {
-    if (location.pathname === "/login") return "";
-
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
+
+  if (requiredRole) {
+    const currentRole = normalizeRole(user?.role);
+    const targetRole = normalizeRole(requiredRole);
+
+    if (currentRole !== targetRole) {
+      const fallback =
+        currentRole === "ADMIN" ? "/admin/dashboard" : "/dashboard";
+      return <Navigate to={fallback} replace />;
+    }
+  }
+
   return children;
 }

@@ -4,35 +4,42 @@ import { FiCheckSquare, FiShield } from "react-icons/fi";
 import { FaChevronLeft } from "react-icons/fa6";
 import { LuLayoutDashboard } from "react-icons/lu";
 import { LuFolderKanban } from "react-icons/lu";
-import { FaRegCalendar } from "react-icons/fa6";
 import { RiTeamLine } from "react-icons/ri";
-import { VscGraph } from "react-icons/vsc";
-import { IoNotificationsOutline } from "react-icons/io5";
 import { IoSettingsOutline } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
 import { useAuth } from "@/contexts/AuthProvider";
-
 import styles from "@/styles/dashboard.module.css";
 
-const navItems = [
+const baseNavItems = [
   { path: "/dashboard", label: "Dashboard", icon: <LuLayoutDashboard /> },
   { path: "/projects", label: "Projects", icon: <LuFolderKanban /> },
   { path: "/tasks", label: "My Tasks", icon: <FiCheckSquare /> },
-  // { path: "/Calendar", label: "Calendar", icon: <FaRegCalendar /> },
-  { path: "/team", label: "Team", icon: <RiTeamLine /> },
-  // {
-  //   path: "/notifications",
-  //   label: "Notifications",
-  //   icon: <IoNotificationsOutline />,
-  // },
-  // { path: "/reports", label: "Reports", icon: <VscGraph /> },
-  { path: "/admin/dashboard", label: "Admin", icon: <FiShield /> },
 ];
+
+const teamNavItem = { path: "/team", label: "Team", icon: <RiTeamLine /> };
+
+const adminNavItem = {
+  path: "/admin/dashboard",
+  label: "Admin",
+  icon: <FiShield />,
+};
 
 export default function SideBar() {
   const location = useLocation();
   const { user, logout } = useAuth();
-  // TODO: Add role in sidebar
+
+  const role = String(user?.role ?? "")
+    .trim()
+    .toUpperCase();
+  const isAdmin = role === "ADMIN";
+  const canViewTeam = !["DEVELOPER", "GUEST"].includes(role);
+
+  const navItems = [
+    ...baseNavItems,
+    ...(canViewTeam ? [teamNavItem] : []),
+    ...(isAdmin ? [adminNavItem] : []),
+  ];
+
   return (
     <aside className={styles.sidebar}>
       <div className={styles.sidebarHeader}>
@@ -54,7 +61,7 @@ export default function SideBar() {
             <Link
               key={item.path}
               to={item.path}
-              className={`${styles.navItem} ${isActive ? styles.navItemActive : ""} `}
+              className={`${styles.navItem} ${isActive ? styles.navItemActive : ""}`}
             >
               <span className={styles.navIcon}>{item.icon}</span>
               {item.label}
@@ -66,7 +73,7 @@ export default function SideBar() {
       <div className={styles.sidebarFooter}>
         <Link
           to="/settings"
-          className={`${styles.navItem} ${location.pathname === "/settings" && styles.navItemActive}`}
+          className={`${styles.navItem} ${location.pathname === "/settings" ? styles.navItemActive : ""}`}
         >
           <span className={styles.navIcon}>
             <IoSettingsOutline />
@@ -76,17 +83,15 @@ export default function SideBar() {
 
         <div className={styles.userProfile}>
           <div className={styles.userAvatar}>
-            <img src={user.avatar} alt={`${user.username}'s avatar`} />
+            <img src={user?.avatar} alt={`${user?.username}'s avatar`} />
           </div>
 
           <div className={styles.userInfo}>
-            <p className={styles.userName}> {user.username} </p>
-            <p className={styles.userEmail}> {user.email} </p>
+            <p className={styles.userName}>{user?.username}</p>
+            <p className={styles.userEmail}>{user?.email}</p>
           </div>
-          <button
-            className={styles.btnLogout}
-            onClick={async () => await logout()}
-          >
+
+          <button className={styles.btnLogout} onClick={logout}>
             <FiLogOut />
           </button>
         </div>

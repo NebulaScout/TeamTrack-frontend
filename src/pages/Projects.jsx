@@ -8,12 +8,13 @@ import styles from "@/styles/dashboard.module.css";
 import projectStyles from "@/styles/projects.module.css";
 import { formatDate } from "@/utils/formatDate";
 import ProjectModal from "@/components/ProjectModal";
-import { useProjects, useDeleteProject } from "@/hooks/useProjects";
+import { useProjects, useDeleteProject } from "@/utils/queries/useProjects";
 import ProjectDetailsModal from "@/components/ProjectDetailsModal";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import "@/App.css";
 import { DropdownMenu } from "@/components/DropdownMenu";
 import { useCloseOnOutsideClick } from "@/hooks/useHandleClicks";
+import { useAuth } from "@/contexts/AuthProvider";
 
 export default function Projects() {
   const [activeTab, setActiveTab] = useState("all");
@@ -27,6 +28,12 @@ export default function Projects() {
   const deleteModalRef = useRef(null);
   const createModalRef = useRef(null);
   const dropdownModalRef = useRef(null);
+  const { user } = useAuth();
+
+  const normalizedRole = String(user?.role ?? "")
+    .trim()
+    .toUpperCase();
+  const canManageProjects = !["DEVELOPER", "GUEST"].includes(normalizedRole);
 
   const {
     data: projects = [],
@@ -46,6 +53,7 @@ export default function Projects() {
   };
 
   const toggleDropdown = (e, projectId) => {
+    if (!canManageProjects) return;
     e.stopPropagation();
     setActiveDropdown(activeDropdown === projectId ? null : projectId);
   };
@@ -53,6 +61,9 @@ export default function Projects() {
   const handleEdit = (e, project) => {
     e.stopPropagation();
     setActiveDropdown(null);
+
+    if (!canManageProjects) return;
+
     setSelectedProject(project);
     setShowModal(true);
   };
@@ -65,6 +76,8 @@ export default function Projects() {
 
   const handleDelete = async () => {
     setActiveDropdown(null);
+
+    if (!canManageProjects) return;
 
     try {
       await DeleteProject({ id: selectedProject?.id });
@@ -150,9 +163,12 @@ export default function Projects() {
               <button
                 className={projectStyles.btnNewProject}
                 onClick={() => {
+                  if (!canManageProjects) return;
                   setSelectedProject(null);
                   setShowModal(true);
                 }}
+                disabled={!canManageProjects}
+                aria-disabled={!canManageProjects}
               >
                 <FiPlus />
                 New Project
@@ -195,27 +211,30 @@ export default function Projects() {
                     <h3 className={projectStyles.projectName}>
                       {project.name}
                     </h3>
-                    <div className="dropdownContainer">
-                      <button
-                        className={projectStyles.btnMore}
-                        onMouseDown={(e) => e.stopPropagation()}
-                        onClick={(e) => toggleDropdown(e, project.id)}
-                      >
-                        <FiMoreHorizontal />
-                      </button>
 
-                      {activeDropdown === project.id && (
-                        <DropdownMenu
-                          ref={dropdownModalRef}
-                          item={project}
-                          onEdit={handleEdit}
-                          onDelete={(project) => {
-                            setSelectedProject(project);
-                            setShowDeleteModal(true);
-                          }}
-                        />
-                      )}
-                    </div>
+                    {canManageProjects && (
+                      <div className="dropdownContainer">
+                        <button
+                          className={projectStyles.btnMore}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onClick={(e) => toggleDropdown(e, project.id)}
+                        >
+                          <FiMoreHorizontal />
+                        </button>
+
+                        {activeDropdown === project.id && (
+                          <DropdownMenu
+                            ref={dropdownModalRef}
+                            item={project}
+                            onEdit={handleEdit}
+                            onDelete={(project) => {
+                              setSelectedProject(project);
+                              setShowDeleteModal(true);
+                            }}
+                          />
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <p className={projectStyles.projectDescription}>
@@ -313,11 +332,11 @@ export default function Projects() {
         {/* Delete project modal */}
         {showDeleteModal && (
           <ConfirmDeleteModal
-            ref={deleteModalRef}
             isOpen={showDeleteModal}
             onClose={() => setShowDeleteModal(false)}
             onConfirm={handleDelete}
             itemName={selectedProject?.name}
+            itemType="Project"
             isDeleting={isDeleting}
           />
         )}

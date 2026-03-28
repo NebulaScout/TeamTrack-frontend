@@ -10,12 +10,13 @@ import TaskModal from "@/components/TaskModal";
 import { getPriorityClass } from "@/utils/priorityClass";
 import { getTaskStatusClass, getStatusDotClass } from "@/utils/statusClass";
 import Loader from "@/components/ui/Loader";
-import { useDeleteTask, useGetTasks } from "@/hooks/useTasks";
+import { useDeleteTask, useGetTasks } from "@/utils/queries/useTasks";
 import { useCloseOnOutsideClick } from "@/hooks/useHandleClicks";
 import { DropdownMenu } from "@/components/DropdownMenu";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import TaskDetailsSheet from "@/components/TaskDetailsSheet";
 import "@/App.css";
+import { useAuth } from "@/contexts/AuthProvider";
 
 export default function Tasks() {
   const [activeView, setActiveView] = useState("kanban");
@@ -29,6 +30,13 @@ export default function Tasks() {
   const deleteModalRef = useRef(null);
   const createModalRef = useRef(null);
   const dropdownModalRef = useRef(null);
+  const { user } = useAuth();
+
+  const role = String(user?.role ?? "")
+    .trim()
+    .toUpperCase();
+  const canAddTask = role !== "GUEST";
+  const canManageTaskActions = role !== "GUEST";
   // const TaskDetailsSheetRef = useRef(null);
 
   // const dropdownTriggerRef = useRef(null);
@@ -69,6 +77,7 @@ export default function Tasks() {
   };
 
   const toggleDropdown = (e, taskId) => {
+    if (!canManageTaskActions) return;
     e.stopPropagation();
     setActiveDropdown(activeDropdown === taskId ? null : taskId);
     console.log("Toggle DropdownMenu: ", activeDropdown);
@@ -77,11 +86,13 @@ export default function Tasks() {
   const handleEdit = (e, task) => {
     e.stopPropagation();
     setActiveDropdown(null);
+    if (!canManageTaskActions) return;
     setSelectedTask(task);
     setShowModal(true);
   };
 
   const handleTaskClick = (task) => {
+    if (!canManageTaskActions) return;
     // console.log("Task on click: ", task);
     setSelectedTask(task);
     // console.log("Selected task id: ", selectedTask?.id);
@@ -91,6 +102,8 @@ export default function Tasks() {
 
   const handleDelete = async () => {
     setActiveDropdown(null);
+
+    if (!canManageTaskActions) return;
 
     try {
       await deleteTask(selectedTask?.id);
@@ -150,9 +163,12 @@ export default function Tasks() {
               <button
                 className={taskStyles.btnAddTask}
                 onClick={() => {
+                  if (!canAddTask) return;
                   setSelectedTask(null);
                   setShowModal(true);
                 }}
+                disabled={!canAddTask}
+                aria-disabled={!canAddTask}
               >
                 <FiPlus />
                 Add Task
@@ -210,25 +226,29 @@ export default function Tasks() {
                       >
                         <div className={taskStyles.taskCardHeader}>
                           <h4 className={taskStyles.taskTitle}>{task.title}</h4>
-                          <button
-                            onMouseDown={(e) => e.stopPropagation()}
-                            className={taskStyles.btnMore}
-                            onClick={(e) => {
-                              toggleDropdown(e, task.id);
-                            }}
-                          >
-                            <FiMoreHorizontal />
-                          </button>
-                          {activeDropdown === task.id && (
-                            <DropdownMenu
-                              ref={dropdownModalRef}
-                              item={task}
-                              onEdit={handleEdit}
-                              onDelete={(task) => {
-                                setSelectedTask(task);
-                                setShowDeleteModal(true);
-                              }}
-                            />
+                          {canManageTaskActions && (
+                            <>
+                              <button
+                                onMouseDown={(e) => e.stopPropagation()}
+                                className={taskStyles.btnMore}
+                                onClick={(e) => {
+                                  toggleDropdown(e, task.id);
+                                }}
+                              >
+                                <FiMoreHorizontal />
+                              </button>
+                              {activeDropdown === task.id && (
+                                <DropdownMenu
+                                  ref={dropdownModalRef}
+                                  item={task}
+                                  onEdit={handleEdit}
+                                  onDelete={(task) => {
+                                    setSelectedTask(task);
+                                    setShowDeleteModal(true);
+                                  }}
+                                />
+                              )}
+                            </>
                           )}
                         </div>
 
@@ -336,25 +356,29 @@ export default function Tasks() {
                       />
                     )} */}
 
-                    <button
-                      onMouseDown={(e) => e.stopPropagation()}
-                      className={taskStyles.btnMore}
-                      onClick={(e) => {
-                        toggleDropdown(e, task.id);
-                      }}
-                    >
-                      <FiMoreHorizontal />
-                    </button>
-                    {activeDropdown === task.id && (
-                      <DropdownMenu
-                        ref={dropdownModalRef}
-                        item={task}
-                        onEdit={handleEdit}
-                        onDelete={(task) => {
-                          setSelectedTask(task);
-                          setShowDeleteModal(true);
-                        }}
-                      />
+                    {canManageTaskActions && (
+                      <>
+                        <button
+                          onMouseDown={(e) => e.stopPropagation()}
+                          className={taskStyles.btnMore}
+                          onClick={(e) => {
+                            toggleDropdown(e, task.id);
+                          }}
+                        >
+                          <FiMoreHorizontal />
+                        </button>
+                        {activeDropdown === task.id && (
+                          <DropdownMenu
+                            ref={dropdownModalRef}
+                            item={task}
+                            onEdit={handleEdit}
+                            onDelete={(task) => {
+                              setSelectedTask(task);
+                              setShowDeleteModal(true);
+                            }}
+                          />
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
@@ -380,11 +404,12 @@ export default function Tasks() {
             onClose={() => setShowDeleteModal(false)}
             onConfirm={handleDelete}
             itemName={selectedTask?.title}
+            itemType="Task"
             isDeleting={isDeleting}
           />
         )}
 
-        {showDetailsSheet && (
+        {showDetailsSheet && canManageTaskActions && (
           <TaskDetailsSheet
             // ref={TaskDetailsSheetRef}
             taskId={selectedTask?.id}
@@ -394,15 +419,18 @@ export default function Tasks() {
               setSelectedTask(null);
             }}
             onEdit={(task) => {
+              if (!canManageTaskActions) return;
               setShowDetailsSheet(false);
               setSelectedTask(task);
               setShowModal(true);
             }}
             onDelete={(task) => {
+              if (!canManageTaskActions) return;
               setShowDetailsSheet(false);
               setSelectedTask(task);
               setShowDeleteModal(true);
             }}
+            canManageTaskActions={canManageTaskActions}
           />
         )}
       </main>

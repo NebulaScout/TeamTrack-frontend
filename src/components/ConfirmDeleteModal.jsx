@@ -7,16 +7,17 @@ export default function ConfirmDeleteModal({
   onClose,
   onConfirm,
   itemName,
+  itemType = "Project",
   isDeleting = false,
+  title,
+  confirmText = "Delete",
+  cancelText = "Cancel",
 }) {
   if (!isOpen) return null;
 
-  // make this a hook
-  //   const handleOverlayClick = (e) => {
-  //     if (e.target === e.currentTarget) {
-  //       onClose();
-  //     }
-  //   };
+  const resolvedType = String(itemType || "Item");
+  const modalTitle = title || `Delete ${resolvedType}`;
+  const safeName = itemName || `this ${resolvedType.toLowerCase()}`;
 
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
@@ -29,10 +30,10 @@ export default function ConfirmDeleteModal({
           <FiAlertTriangle className={styles.warningIcon} />
         </div>
 
-        <h2 className={styles.modalTitle}>Delete Project</h2>
+        <h2 className={styles.modalTitle}>{modalTitle}</h2>
 
         <p className={styles.modalMessage}>
-          Are you sure you want to delete <strong>{itemName}</strong>? This
+          Are you sure you want to delete <strong>{safeName}</strong>? This
           action cannot be undone.
         </p>
 
@@ -42,14 +43,14 @@ export default function ConfirmDeleteModal({
             onClick={onClose}
             disabled={isDeleting}
           >
-            Cancel
+            {cancelText}
           </button>
           <button
             className={styles.btnDelete}
             onClick={onConfirm}
             disabled={isDeleting}
           >
-            {isDeleting ? "Deleting..." : "Delete"}
+            {isDeleting ? "Deleting..." : confirmText}
           </button>
         </div>
       </div>

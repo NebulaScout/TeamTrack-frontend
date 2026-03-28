@@ -6,7 +6,7 @@ import Loader from "@/components/ui/Loader";
 import {
   useAdminProject,
   useRemoveAdminProjectMember,
-} from "@/hooks/useAdminProjects";
+} from "@/utils/queries/useAdminProjects";
 import { getStatusClass } from "@/utils/statusClass";
 
 export default function AdminProjectDetailsModal({

@@ -15,7 +15,11 @@ import styles from "@/styles/tasks.module.css";
 import { getPriorityClass } from "@/utils/priorityClass";
 import { getTaskStatusClass } from "@/utils/statusClass";
 import { formatDate } from "@/utils/formatDate";
-import { useGetTask, useGetComments, useCreateComment } from "@/hooks/useTasks";
+import {
+  useGetTask,
+  useGetComments,
+  useCreateComment,
+} from "@/utils/queries/useTasks";
 
 // TODO: Figure a way to fetch comments without having to reopen the sheet
 export default function TaskDetailsSheet({
@@ -24,6 +28,7 @@ export default function TaskDetailsSheet({
   onClose,
   onEdit,
   onDelete,
+  canManageTaskActions = true,
 }) {
   // console.log("Task id in Sheet: ", taskId);
   const { data: task } = useGetTask(taskId);
@@ -198,19 +203,24 @@ export default function TaskDetailsSheet({
           </div>
 
           {/* Action Buttons */}
-          <div className={styles.sheetActions}>
-            <button className={styles.btnEditTask} onClick={() => onEdit(task)}>
-              <FiEdit2 />
-              Edit Task
-            </button>
-            <button
-              className={styles.btnDeleteTask}
-              onClick={() => onDelete(task)}
-            >
-              <FiTrash2 />
-              Delete
-            </button>
-          </div>
+          {canManageTaskActions && (
+            <div className={styles.sheetActions}>
+              <button
+                className={styles.btnEditTask}
+                onClick={() => onEdit(task)}
+              >
+                <FiEdit2 />
+                Edit Task
+              </button>
+              <button
+                className={styles.btnDeleteTask}
+                onClick={() => onDelete(task)}
+              >
+                <FiTrash2 />
+                Delete
+              </button>
+            </div>
+          )}
 
           {/* Discussion Section */}
           <div className={styles.discussionSection}>

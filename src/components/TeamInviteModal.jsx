@@ -3,9 +3,9 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import modalStyles from "@/styles/modals.module.css";
-import { useProjects } from "@/hooks/useProjects";
-import { useInviteTeamMember } from "@/hooks/useTeam";
-import { useGetUsers } from "@/hooks/useManageUsers";
+import { useProjects } from "@/utils/queries/useProjects";
+import { useInviteTeamMember } from "@/utils/queries/useTeam";
+import { useGetUsers } from "@/utils/queries/useManageUsers";
 
 import { mapTeamInviteToAPI } from "@/utils/teamMapper";
 

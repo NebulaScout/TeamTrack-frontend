@@ -662,6 +662,96 @@
   color: #9ca3af;
 }
 
+/* Assign task modal */
+.assignSearchBox {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.assignSearchBox input {
+  width: 100%;
+  padding: 11px 14px 11px 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  font-size: 15px;
+  box-sizing: border-box;
+}
+
+.assignSearchBox input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+}
+
+.assignSearchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.assignMembersList {
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.assignMemberRow {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 10px 8px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.assignMemberRow:hover {
+  background-color: #f3f4f6;
+}
+
+.assignMemberRowActive {
+  background-color: #eef2ff;
+}
+
+.assignMemberAvatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.assignMemberText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.assignMemberName {
+  font-size: 16px;
+  color: #111827;
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+.assignMemberMeta {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.assignEmptyState {
+  padding: 20px 8px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 14px;
+}
+
 /* User Details Modal */
 .userDetailsModal {
   width: min(760px, calc(100vw - 32px));
