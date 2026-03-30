@@ -1,7 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { tasksAPI } from "@/services/tasksAPI";
-import { mapTaskDetailsFromAPI, mapTasksFromAPI } from "@/utils/taskMapper";
-import { mapCommentsFromAPI, mapCommentFromAPI } from "@/utils/commentsMapper";
+import {
+  mapTaskDetailsFromAPI,
+  mapTasksFromAPI,
+} from "@/utils/mappers/taskMapper";
+import {
+  mapCommentsFromAPI,
+  mapCommentFromAPI,
+} from "@/utils/mappers/commentsMapper";
 
 // query keys for better cache management
 export const tasksKeys = {

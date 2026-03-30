@@ -3,7 +3,7 @@ import { adminAPI } from "@/services/adminAPI";
 import {
   mapAdminProjectDetailsFromAPI,
   mapAdminProjectsFromAPI,
-} from "@/utils/adminMapper";
+} from "@/utils/mappers/adminMapper";
 
 export const adminProjectsKeys = {
   all: ["adminProjects"],

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { usersAPI } from "@/services/usersAPI";
-import { mapUsersFromAPI, mapUserFromAPI } from "@/utils/userMapper";
+import { mapUsersFromAPI, mapUserFromAPI } from "@/utils/mappers/userMapper";
 
 // query keys
 export const usersKeys = {

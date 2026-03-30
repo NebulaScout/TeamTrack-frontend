@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { projectsAPI } from "@/services/projectsAPI";
-import { mapProjectsFromAPIs } from "@/utils/projectMapper";
+import { mapProjectsFromAPIs } from "@/utils/mappers/projectMapper";
 
 // Query keys for better cache management
 export const projectsKeys = {

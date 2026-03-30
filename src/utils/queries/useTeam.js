@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { teamAPI } from "../../services/teamAPI";
-import { mapTeamStatsFromAPI, mapTeamMembersFromAPI } from "../teamMapper";
+import {
+  mapTeamStatsFromAPI,
+  mapTeamMembersFromAPI,
+} from "../mappers/teamMapper";
 
 // Query keys for caching and invalidation
 export const teamKeys = {

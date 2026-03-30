@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adminAPI } from "@/services/adminAPI";
-import { mapAdminTasksFromAPI } from "@/utils/adminMapper";
+import { mapAdminTasksFromAPI } from "@/utils/mappers/adminMapper";
 
 export const adminTasksKeys = {
   all: ["adminTasks"],
