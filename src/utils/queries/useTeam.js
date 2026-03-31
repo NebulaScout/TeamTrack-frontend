@@ -1,8 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { teamAPI } from "../../services/teamAPI";
+import { teamAPI } from "@/services/teamAPI";
+import { adminAPI } from "@/services/adminAPI";
 import {
   mapTeamStatsFromAPI,
   mapTeamMembersFromAPI,
+  mapAdminProjectMembersFromAPI,
 } from "../mappers/teamMapper";
 
 // Query keys for caching and invalidation
@@ -10,6 +12,11 @@ export const teamKeys = {
   all: ["team"],
   stats: (projectId) => [...teamKeys.all, "stats", projectId],
   members: (projectId) => [...teamKeys.all, "members", projectId],
+};
+
+export const projectMemberKeys = {
+  all: ["members"],
+  project: (projectId) => [...projectMemberKeys.all, "project", projectId],
 };
 
 export const useGetTeamStats = (projectId, options = {}) => {
@@ -53,5 +60,20 @@ export const useInviteTeamMember = () => {
       queryClient.invalidateQueries({ queryKey: teamKeys.members(projectId) });
       queryClient.invalidateQueries({ queryKey: teamKeys.stats(projectId) });
     },
+  });
+};
+
+export const useGetProjectMembers = (projectId, options = {}) => {
+  return useQuery({
+    queryKey: projectMemberKeys.project(projectId),
+    queryFn: async () => {
+      const data = await adminAPI.getProjectMembers(projectId);
+      return mapAdminProjectMembersFromAPI(data);
+    },
+    enabled: !!projectId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    ...options,
   });
 };

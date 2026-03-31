@@ -21,10 +21,20 @@ export const mapTeamMemberFromAPI = (apiMember) => ({
 
 // Map array of team members
 export const mapTeamMembersFromAPI = (apiMembers) =>
-  apiMembers.map(mapTeamMemberFromAPI);
+  apiMembers?.map(mapTeamMemberFromAPI);
 
 export const mapTeamInviteToAPI = (inviteData) => ({
   username: inviteData.username,
   email: inviteData.email,
   role: inviteData.role,
 });
+
+export const mapAdminProjectMemberFromAPI = (apiMember) => ({
+  id: apiMember.id,
+  username: apiMember.username,
+  avatar: apiMember.avatar,
+  role: apiMember.role,
+});
+
+export const mapAdminProjectMembersFromAPI = (apiMembers) =>
+  apiMembers?.map(mapAdminProjectMemberFromAPI);

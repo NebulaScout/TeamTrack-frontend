@@ -1,5 +1,5 @@
 import { FiX } from "react-icons/fi";
-import { mapTaskToAPI } from "@/utils/taskMapper";
+import { mapTaskToAPI } from "@/utils/mappers/taskMapper";
 import modalStyles from "@/styles/modals.module.css";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

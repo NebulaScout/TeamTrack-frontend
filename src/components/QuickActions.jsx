@@ -10,11 +10,12 @@ import { MdOutlineAssignmentInd } from "react-icons/md";
 
 import { getPriorityClass } from "@/utils/priorityClass";
 import { adminAPI } from "@/services/adminAPI";
-import { mapAdminQuickActionsFromAPI } from "@/utils/adminMapper";
+import { mapAdminQuickActionsFromAPI } from "@/utils/mappers/adminMapper";
 import Loader from "@/components/ui/Loader";
 import TaskModal from "@/components/TaskModal";
 import ProjectModal from "./ProjectModal";
 import TeamInviteModal from "./TeamInviteModal";
+import AssignTaskUserModal from "./AssignTaskUserModal";
 // import { useGetTask } from "@/hooks/useTasks";
 
 export default function QuickActionsTab() {
@@ -25,7 +26,7 @@ export default function QuickActionsTab() {
   const [error, setError] = useState(null);
 
   // task modal
-  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -87,10 +88,10 @@ export default function QuickActionsTab() {
     }
   };
 
-  const handleAssignedTask = (taskId) => {
-    console.log("Assign task: ", taskId);
-    setSelectedTask(taskId);
-    setShowTaskModal(true);
+  const handleTaskAssignment = (task) => {
+    console.log("Assign task: ", task);
+    setSelectedTask(task);
+    setShowAssignModal(true);
   };
 
   const handleQuickActionClick = (cardId) => {
@@ -233,7 +234,7 @@ export default function QuickActionsTab() {
 
                     <button
                       className={adminStyles.btnAssign}
-                      onClick={() => handleAssignedTask(task.id)}
+                      onClick={() => handleTaskAssignment(task)}
                     >
                       Assign
                     </button>
@@ -280,12 +281,11 @@ export default function QuickActionsTab() {
         </div>
       </div>
 
-      {showTaskModal && (
-        <TaskModal
-          setShowModal={setShowTaskModal}
-          taskToEdit={selectedTask}
-          taskId={selectedTask}
-          onClose={() => setShowTaskModal(false)}
+      {showAssignModal && (
+        <AssignTaskUserModal
+          isOpen={showAssignModal}
+          task={selectedTask}
+          onClose={() => setShowAssignModal(false)}
         />
       )}
 

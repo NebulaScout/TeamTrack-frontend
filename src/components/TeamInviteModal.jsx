@@ -7,7 +7,7 @@ import { useProjects } from "@/utils/queries/useProjects";
 import { useInviteTeamMember } from "@/utils/queries/useTeam";
 import { useGetUsers } from "@/utils/queries/useManageUsers";
 
-import { mapTeamInviteToAPI } from "@/utils/teamMapper";
+import { mapTeamInviteToAPI } from "@/utils/mappers/teamMapper";
 
 const inviteSchema = z.object({
   username: z

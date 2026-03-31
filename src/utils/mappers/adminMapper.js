@@ -30,6 +30,7 @@ export const mapUnassignedTasksFromAPI = (apiTasks) => {
   return apiTasks?.map((task) => ({
     id: task.id,
     title: task.title,
+    projectId: task.project_id,
     project: task.project_name,
     priority: PRIORITY_MAP[task.priority] || task.priority,
   }));

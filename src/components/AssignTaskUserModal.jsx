@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { FiSearch, FiX } from "react-icons/fi";
 import modalStyles from "@/styles/modals.module.css";
-import { useGetTeamMembers } from "@/utils/queries/useTeam";
+import { useGetProjectMembers } from "@/utils/queries/useTeam";
 import { usePatchAdminTask } from "@/utils/queries/useAdminTasks";
-import { STATUS_TO_API, PRIORITY_TO_API } from "@/utils/enumMappings";
+import { STATUS_TO_API, PRIORITY_TO_API } from "@/utils/mappers/enumMappings";
 
 const toApiStatus = (status) =>
   STATUS_TO_API[
@@ -37,8 +37,8 @@ export default function AssignTaskUserModal({ isOpen, onClose, task }) {
 
   const projectId = task?.projectId ?? null;
 
-  const { data: teamMembers = [], isLoading: isLoadingMembers } =
-    useGetTeamMembers(projectId, { enabled: isOpen && !!projectId });
+  const { data: projectMembers = [], isLoading: isLoadingMembers } =
+    useGetProjectMembers(projectId);
 
   const { mutateAsync: patchAdminTask, isPending: isAssigning } =
     usePatchAdminTask();
@@ -61,8 +61,8 @@ export default function AssignTaskUserModal({ isOpen, onClose, task }) {
   }, [isOpen, onClose]);
 
   const assignableMembers = useMemo(
-    () => teamMembers.filter((m) => isAssignableRole(m.role)),
-    [teamMembers],
+    () => projectMembers.filter((member) => isAssignableRole(member.role)),
+    [projectMembers],
   );
 
   const filteredMembers = useMemo(() => {

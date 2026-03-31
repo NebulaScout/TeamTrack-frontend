@@ -12,7 +12,7 @@ import styles from "@/styles/dashboard.module.css";
 import Loader from "@/components/ui/Loader";
 // import { statsData } from "@/utils/mockData";
 import { dashboardAPI } from "@/services/dashboardAPI";
-import { mapDashboardFromAPI } from "@/utils/dashboardMapper";
+import { mapDashboardFromAPI } from "@/utils/mappers/dashboardMapper";
 import { useAuth } from "@/contexts/AuthProvider";
 
 export default function Dashboard() {

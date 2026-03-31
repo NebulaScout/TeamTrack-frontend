@@ -8,7 +8,7 @@ import {
   useCreateProject,
   useUpdateProject,
 } from "@/utils/queries/useProjects";
-import { mapProjectToAPI } from "@/utils/projectMapper";
+import { mapProjectToAPI } from "@/utils/mappers/projectMapper";
 
 const projectSchema = z
   .object({

@@ -10,7 +10,7 @@ import {
   mapCalendarEventToAPI,
   mapEventsFromAPI,
   mapEventFromAPI,
-} from "@/utils/calendarEventMapper";
+} from "@/utils/mappers/calendarEventMapper";
 
 const WEEKDAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MONTH_NAMES = [
@@ -49,7 +49,7 @@ const formatDateForInput = (date) => {
   const suffix = getDaySuffix(day);
   return `${month} ${day}${suffix}, ${year}`;
 };
-// TODO: Add Calendar implementation in add event button to prevent errors  
+// TODO: Add Calendar implementation in add event button to prevent errors
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());

@@ -16,7 +16,7 @@ import {
   useAdminUsers,
   usePatchAdminUser,
 } from "@/utils/queries/useAdminUsers";
-import { ROLE_MAP } from "@/utils/enumMappings";
+import { ROLE_MAP } from "@/utils/mappers/enumMappings";
 import Loader from "@/components/ui/Loader";
 import UserDetailsModal from "@/components/UserDetailsModal";
 

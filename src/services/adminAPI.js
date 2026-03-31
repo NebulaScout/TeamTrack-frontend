@@ -70,4 +70,11 @@ export const adminAPI = {
     const response = await api.delete(`/api/v1/dashboard/admin/tasks/${id}/`);
     return response.data?.data ?? response.data ?? null;
   },
+
+  getProjectMembers: async (projectId) => {
+    const response = await api.get(
+      `/api/v1/dashboard/admin/projects/${projectId}/members/`,
+    );
+    return response.data?.data ?? response.data ?? null;
+  },
 };

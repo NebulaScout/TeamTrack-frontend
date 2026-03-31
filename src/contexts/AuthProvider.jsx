@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { authAPI } from "@/services/authAPI";
-import { mapUserFromAPI } from "@/utils/userMapper";
+import { mapUserFromAPI } from "@/utils/mappers/userMapper";
 
 const AuthContext = createContext(null);
 
