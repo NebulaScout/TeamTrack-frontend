@@ -49,7 +49,10 @@ export default function UserDetailsModal({ isOpen, onClose, userId }) {
   if (!isOpen) return null;
 
   return (
-    <div className={modalStyles.modalOverlay} onClick={onClose}>
+    <div
+      className={`${modalStyles.modalOverlay} ${modalStyles.userDetailsOverlay}`}
+      onClick={onClose}
+    >
       <div
         className={modalStyles.userDetailsModal}
         onClick={(e) => e.stopPropagation()}

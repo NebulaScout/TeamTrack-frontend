@@ -39,6 +39,7 @@ export default function QuickActionsTab() {
       try {
         setLoading(true);
         const data = await adminAPI.getQuickActions();
+        console.log("Quick Actions Data:", data);
         const mappedData = mapAdminQuickActionsFromAPI(data);
 
         setOverdueTasks(mappedData.overdueTasks);

@@ -753,55 +753,65 @@
 }
 
 /* User Details Modal */
+.userDetailsOverlay {
+  background: rgba(2, 6, 23, 0.56);
+  backdrop-filter: blur(2px);
+}
+
 .userDetailsModal {
-  width: min(760px, calc(100vw - 32px));
+  width: min(720px, calc(100vw - 28px));
   max-height: 90vh;
   overflow-y: auto;
-  background-color: #f8fafc;
-  border-radius: 14px;
-  padding: 20px 22px;
-  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.22);
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 22px 48px rgba(15, 23, 42, 0.2);
 }
 
 .userDetailsHeader {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .userDetailsHeader h2 {
   margin: 0;
-  font-size: 34px;
-  line-height: 1.1;
-  font-weight: 700;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 600;
   color: #0f172a;
 }
 
 .userDetailsHeader p {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   font-size: 14px;
-  line-height: 1.35;
+  line-height: 1.4;
   color: #64748b;
 }
 
 .userDetailsCloseBtn {
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
   border-radius: 999px;
-  border: 2px solid #93c5fd;
-  background: #eff6ff;
-  color: #3b82f6;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #475569;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   flex-shrink: 0;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .userDetailsCloseBtn:hover {
-  background: #dbeafe;
+  background: #f8fafc;
+  border-color: #94a3b8;
 }
 
 .userDetailsState {
@@ -814,13 +824,13 @@
 .userDetailsContent {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 24px;
 }
 
 .userDetailsIdentity {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 .userDetailsAvatar {
@@ -828,72 +838,74 @@
   height: 64px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid #dbe3ee;
+  border: 1px solid #e2e8f0;
   background: #e2e8f0;
+  flex-shrink: 0;
 }
 
 .userDetailsIdentityText h3 {
   margin: 0;
-  font-size: 36px;
-  line-height: 1;
-  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  font-weight: 600;
   color: #0f172a;
 }
 
 .userDetailsIdentityText p {
   margin: 4px 0 0;
-  font-size: 16px;
-  line-height: 1.3;
+  font-size: 0.95rem;
+  line-height: 1.4;
   color: #64748b;
 }
 
 .userDetailsBadges {
-  margin-top: 8px;
+  margin-top: 10px;
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
-/* local base badge styles so pills are consistent even without admin.module.css base classes */
 .roleBadge,
 .statusBadge {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
   padding: 4px 10px;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   line-height: 1;
-  text-transform: lowercase;
+  text-transform: capitalize;
 }
 
 .userDetailsStatsGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 16px;
 }
 
 .userDetailsStatCard {
-  border: 1px solid #dbe3ee;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 16px 18px;
+  padding: 16px;
   background: #ffffff;
-  min-height: 110px;
+  min-height: 112px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .userDetailsStatLabel {
-  font-size: 15px;
+  font-size: 0.875rem;
+  line-height: 1.3;
   color: #64748b;
   font-weight: 500;
 }
 
 .userDetailsStatValue {
-  font-size: 38px;
-  line-height: 1;
+  font-size: 1.6rem;
+  line-height: 1.1;
   color: #0f172a;
   font-weight: 700;
 }
@@ -901,19 +913,19 @@
 .userDetailsMeta {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .userDetailsMetaLabel {
-  font-size: 31px;
-  line-height: 1.1;
-  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.3;
+  font-weight: 600;
   color: #0f172a;
 }
 
 .userDetailsMetaValue {
-  font-size: 38px;
-  line-height: 1.15;
+  font-size: 0.95rem;
+  line-height: 1.5;
   font-weight: 400;
   color: #64748b;
 }
@@ -925,32 +937,115 @@
   }
 
   .userDetailsHeader h2 {
-    font-size: 24px;
+    font-size: 1.25rem;
   }
 
   .userDetailsIdentityText h3 {
-    font-size: 24px;
+    font-size: 1.1rem;
   }
 
   .userDetailsIdentityText p {
-    font-size: 14px;
+    font-size: 0.9rem;
   }
 
   .userDetailsStatsGrid {
     grid-template-columns: 1fr;
   }
 
+  .userDetailsStatLabel {
+    font-size: 0.84rem;
+  }
+
   .userDetailsStatValue {
-    font-size: 30px;
+    font-size: 1.35rem;
   }
 
   .userDetailsMetaLabel {
-    font-size: 20px;
+    font-size: 0.95rem;
   }
 
   .userDetailsMetaValue {
-    font-size: 17px;
+    font-size: 0.9rem;
   }
+}
+
+/* Edit user modal */
+.editUserModal {
+  background-color: var(--surface-color);
+  border-radius: 12px;
+  padding: 24px;
+  width: min(520px, calc(100vw - 32px));
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.22);
+}
+
+.modalSelectWrapper {
+  position: relative;
+}
+
+.modalSelectWrapper select {
+  width: 100%;
+  padding-right: 42px;
+}
+
+.modalSelectIcon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--text-gray);
+  font-size: 16px;
+}
+
+.toggleRow {
+  margin-top: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toggleLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+}
+
+.toggleSwitch {
+  width: 44px;
+  height: 24px;
+  border: none;
+  border-radius: 999px;
+  background: #cbd5e1;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.toggleSwitch:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.toggleSwitchActive {
+  background: var(--primary-color);
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #ffffff;
+  transition: transform 0.2s ease;
+}
+
+.toggleSwitchActive .toggleThumb {
+  transform: translateX(20px);
 }
 
 /* Project details modal */

@@ -44,7 +44,10 @@ export const usePatchAdminUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }) => adminAPI.patchUser(id, data),
+    mutationFn: ({ id, data }) => {
+      console.log("Patch admin data:", data);
+      adminAPI.patchUser(id, data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminUsersKeys.lists() });
     },

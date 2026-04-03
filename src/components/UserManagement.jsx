@@ -20,6 +20,7 @@ import { ROLE_MAP } from "@/utils/mappers/enumMappings";
 import Loader from "@/components/ui/Loader";
 import UserDetailsModal from "@/components/UserDetailsModal";
 
+// TODO: create a dedicated file for this
 const ROLE_OPTIONS = Object.values(ROLE_MAP);
 const ROLE_BY_LOWER = ROLE_OPTIONS.reduce((acc, role) => {
   acc[role.toLowerCase()] = role;
@@ -116,17 +117,33 @@ export default function UserManagement() {
     }
   };
 
+  // const patchUserFromMenu = async (user, nextRole, nextIsActive) => {
+  //   setPendingUserId(user.id);
+
+  // try {
+  //     await patchAdminUser({
+  //       id: user.id,
+  //       data: {
+  //         role: nextRole ?? toApiRoleValue(user.role),
+  //         is_active:
+  //           typeof nextIsActive === "boolean"
+  //             ? nextIsActive
+  //             : user.status === "active",
+  //       },
+  //     });
+  //     setOpenMenuFor(null);
+  //   } catch (err) {
+  //     console.error("Failed to update user:", err);
+  //   } finally {
+  //     setPendingUserId(null);
+  //   }
+  // };
+
   const handleUserAction = async (action, user) => {
     if (action === "view-details") {
       setOpenMenuFor(null);
       setSelectedUserId(user.id);
       setIsUserDetailsOpen(true);
-      return;
-    }
-
-    if (action === "edit-user") {
-      setOpenMenuFor(null);
-      console.log("Edit user:", user);
       return;
     }
 
@@ -356,7 +373,7 @@ export default function UserManagement() {
                           Actions
                         </div>
 
-                        {/* <button
+                        <button
                           className={adminStyles.userFloatingMenuItem}
                           onClick={() => handleUserAction("view-details", user)}
                           role="menuitem"
@@ -364,19 +381,7 @@ export default function UserManagement() {
                         >
                           <FiEye className={adminStyles.userFloatingMenuIcon} />
                           View Details
-                        </button> */}
-
-                        {/* <button
-                          className={adminStyles.userFloatingMenuItem}
-                          onClick={() => handleUserAction("edit-user", user)}
-                          role="menuitem"
-                          disabled={isThisUserPending}
-                        >
-                          <FiEdit2
-                            className={adminStyles.userFloatingMenuIcon}
-                          />
-                          Edit User
-                        </button> */}
+                        </button>
 
                         <div
                           className={adminStyles.userFloatingMenuSeparator}
