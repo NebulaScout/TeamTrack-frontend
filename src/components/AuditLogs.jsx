@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   FiUsers,
   FiCheckSquare,
@@ -6,30 +6,77 @@ import {
   FiSearch,
   FiFilter,
   FiChevronDown,
+  FiEdit3,
+  FiFileText,
 } from "react-icons/fi";
 import adminStyles from "@/styles/admin.module.css";
-import { mockAuditLogs } from "@/utils/mockData";
+import Loader from "@/components/ui/Loader";
+import { useAdminAuditLogs } from "@/utils/queries/useAdminAuditLogs";
+
+const CHANGE_FILTER_OPTIONS = [
+  { value: "all", label: "All Changes" },
+  { value: "status", label: "Status Changes" },
+  { value: "priority", label: "Priority Changes" },
+  { value: "assigned_to", label: "Assignments" },
+  { value: "due_date", label: "Due Date Changes" },
+  { value: "title", label: "Title Changes" },
+  { value: "description", label: "Description Changes" },
+];
 
 export default function AuditLogs() {
   const [auditSearch, setAuditSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [auditProjectFilter, setAuditProjectFilter] = useState("all");
   const [auditUserFilter, setAuditUserFilter] = useState("all");
   const [auditChangeFilter, setAuditChangeFilter] = useState("all");
 
-  const getFilteredAuditLogs = () => {
-    return mockAuditLogs.filter((log) => {
-      const matchesSearch =
-        log.task.toLowerCase().includes(auditSearch.toLowerCase()) ||
-        log.project.toLowerCase().includes(auditSearch.toLowerCase());
-      const matchesProject =
-        auditProjectFilter === "all" || log.project === auditProjectFilter;
-      const matchesUser =
-        auditUserFilter === "all" || log.user.name === auditUserFilter;
-      const matchesChange =
-        auditChangeFilter === "all" || log.type === auditChangeFilter;
-      return matchesSearch && matchesProject && matchesUser && matchesChange;
-    });
-  };
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(auditSearch.trim());
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [auditSearch]);
+
+  const queryFilters = useMemo(() => {
+    return {
+      search: debouncedSearch,
+      project: auditProjectFilter,
+      user: auditUserFilter,
+      change_type: auditChangeFilter,
+      limit: 50,
+    };
+  }, [debouncedSearch, auditProjectFilter, auditUserFilter, auditChangeFilter]);
+
+  const { data, isLoading, isError, error } = useAdminAuditLogs(queryFilters);
+  const logs = data?.logs ?? [];
+  const totalCount = data?.totalCount ?? 0;
+
+  const projectOptions = useMemo(() => {
+    const seen = new Set();
+    const options = [];
+
+    for (const log of logs) {
+      if (!log.projectId || seen.has(log.projectId)) continue;
+      seen.add(log.projectId);
+      options.push({ id: log.projectId, name: log.project });
+    }
+
+    return options.sort((a, b) => a.name.localeCompare(b.name));
+  }, [logs]);
+
+  const userOptions = useMemo(() => {
+    const seen = new Set();
+    const options = [];
+
+    for (const log of logs) {
+      if (!log.user?.id || seen.has(log.user.id)) continue;
+      seen.add(log.user.id);
+      options.push({ id: log.user.id, name: log.user.name });
+    }
+
+    return options.sort((a, b) => a.name.localeCompare(b.name));
+  }, [logs]);
 
   const getAuditIcon = (type) => {
     switch (type) {
@@ -41,16 +88,35 @@ export default function AuditLogs() {
         return <FiUsers />;
       case "duedate":
         return <FiClock />;
-      case "created":
-        return <FiCheckSquare />;
+      case "title":
+        return <FiEdit3 />;
+      case "description":
+        return <FiFileText />;
       default:
         return <FiCheckSquare />;
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className={adminStyles.tabSection}>
+        <Loader />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className={adminStyles.tabSection}>
+        <div className={adminStyles.errorMessage}>
+          {error?.message || "Failed to load audit logs."}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={adminStyles.tabSection}>
-      {/* Search and Filters */}
       <div className={adminStyles.tableControls}>
         <div className={adminStyles.searchBox}>
           <FiSearch className={adminStyles.searchIcon} />
@@ -62,6 +128,7 @@ export default function AuditLogs() {
             className={adminStyles.searchInput}
           />
         </div>
+
         <div className={adminStyles.filterGroup}>
           <div className={adminStyles.filterDropdown}>
             <FiFilter className={adminStyles.filterIcon} />
@@ -71,15 +138,15 @@ export default function AuditLogs() {
               className={adminStyles.filterSelect}
             >
               <option value="all">All Projects</option>
-              <option value="Website Redesign">Website Redesign</option>
-              <option value="Mobile App Development">
-                Mobile App Development
-              </option>
-              <option value="Marketing Campaign">Marketing Campaign</option>
-              <option value="API Integration">API Integration</option>
+              {projectOptions.map((project) => (
+                <option key={project.id} value={String(project.id)}>
+                  {project.name}
+                </option>
+              ))}
             </select>
             <FiChevronDown className={adminStyles.dropdownIcon} />
           </div>
+
           <div className={adminStyles.filterDropdown}>
             <select
               value={auditUserFilter}
@@ -87,96 +154,108 @@ export default function AuditLogs() {
               className={adminStyles.filterSelect}
             >
               <option value="all">All Users</option>
-              <option value="John Doe">John Doe</option>
-              <option value="Sarah Wilson">Sarah Wilson</option>
-              <option value="Mike Johnson">Mike Johnson</option>
-              <option value="Emily Davis">Emily Davis</option>
+              {userOptions.map((user) => (
+                <option key={user.id} value={String(user.id)}>
+                  {user.name}
+                </option>
+              ))}
             </select>
             <FiChevronDown className={adminStyles.dropdownIcon} />
           </div>
+
           <div className={adminStyles.filterDropdown}>
             <select
               value={auditChangeFilter}
               onChange={(e) => setAuditChangeFilter(e.target.value)}
               className={adminStyles.filterSelect}
             >
-              <option value="all">All Changes</option>
-              <option value="status">Status Changes</option>
-              <option value="priority">Priority Changes</option>
-              <option value="assignment">Assignments</option>
-              <option value="duedate">Due Date Changes</option>
-              <option value="created">Task Created</option>
+              {CHANGE_FILTER_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
             <FiChevronDown className={adminStyles.dropdownIcon} />
           </div>
         </div>
       </div>
 
-      {/* Task History */}
       <div className={adminStyles.auditSection}>
-        <h3 className={adminStyles.sectionTitle}>Task History</h3>
+        <h3 className={adminStyles.sectionTitle}>
+          Task History ({totalCount})
+        </h3>
+
         <div className={adminStyles.auditList}>
-          {getFilteredAuditLogs().map((log) => (
-            <div key={log.id} className={adminStyles.auditItem}>
-              <img
-                src={log.user.avatar}
-                alt={log.user.name}
-                className={adminStyles.auditAvatar}
-              />
+          {logs.length === 0 ? (
+            <div className={adminStyles.auditItem}>
               <div className={adminStyles.auditContent}>
-                <div className={adminStyles.auditMain}>
-                  <span className={adminStyles.auditUserName}>
-                    {log.user.name}
-                  </span>
-                  <span className={adminStyles.auditAction}>{log.action}</span>
-                  <span className={adminStyles.auditTask}>{log.task}</span>
-                </div>
                 <div className={adminStyles.auditMeta}>
-                  <span className={adminStyles.auditProject}>
-                    {log.project}
+                  <span className={adminStyles.auditDate}>
+                    No audit logs found for the selected filters.
                   </span>
-                  <span className={adminStyles.auditDot}>·</span>
-                  <span className={adminStyles.auditDate}>{log.date}</span>
                 </div>
-                {log.type === "status" && (
-                  <div className={adminStyles.auditChanges}>
-                    <span className={adminStyles.changeFrom}>{log.from}</span>
-                    <span className={adminStyles.changeArrow}>→</span>
-                    <span className={adminStyles.changeTo}>{log.to}</span>
-                  </div>
-                )}
-                {log.type === "priority" && (
-                  <div className={adminStyles.auditChanges}>
-                    <span className={adminStyles.changeFrom}>{log.from}</span>
-                    <span className={adminStyles.changeArrow}>→</span>
-                    <span className={adminStyles.changeTo}>{log.to}</span>
-                  </div>
-                )}
-                {log.type === "duedate" && (
-                  <div className={adminStyles.auditChanges}>
-                    <span className={adminStyles.changeDateFrom}>
-                      {log.from}
-                    </span>
-                    <span className={adminStyles.changeArrow}>→</span>
-                    <span className={adminStyles.changeDateTo}>{log.to}</span>
-                  </div>
-                )}
-                {log.type === "assignment" && (
-                  <div className={adminStyles.auditChanges}>
-                    <span className={adminStyles.assignedLabel}>
-                      Assigned to
-                    </span>
-                    <span className={adminStyles.assignedUser}>
-                      {log.assignedTo}
-                    </span>
-                  </div>
-                )}
-              </div>
-              <div className={adminStyles.auditIcon}>
-                {getAuditIcon(log.type)}
               </div>
             </div>
-          ))}
+          ) : (
+            logs.map((log) => (
+              <div key={log.id} className={adminStyles.auditItem}>
+                <img
+                  src={log.user?.avatar} // || "/vite.svg"
+                  alt={log.user?.name || "User"}
+                  className={adminStyles.auditAvatar}
+                  onError={(e) => {
+                    e.currentTarget.src = "/vite.svg";
+                  }}
+                />
+
+                <div className={adminStyles.auditContent}>
+                  <div className={adminStyles.auditMain}>
+                    <span className={adminStyles.auditUserName}>
+                      {log.user?.name || "Unknown User"}
+                    </span>
+                    <span className={adminStyles.auditAction}>
+                      {log.action}
+                    </span>
+                    <span className={adminStyles.auditTask}>{log.task}</span>
+                  </div>
+
+                  <div className={adminStyles.auditMeta}>
+                    <span className={adminStyles.auditProject}>
+                      {log.project}
+                    </span>
+                    <span className={adminStyles.auditDot}>·</span>
+                    <span className={adminStyles.auditDate}>{log.date}</span>
+                  </div>
+
+                  {log.type === "assignment" && (
+                    <div className={adminStyles.auditChanges}>
+                      <span className={adminStyles.assignedLabel}>
+                        Assigned to
+                      </span>
+                      <span className={adminStyles.assignedUser}>
+                        {log.assignedTo || "N/A"}
+                      </span>
+                    </div>
+                  )}
+
+                  {log.type !== "assignment" &&
+                    (log.from !== "N/A" || log.to !== "N/A") && (
+                      <div className={adminStyles.auditChanges}>
+                        <span className={adminStyles.changeFrom}>
+                          {log.from}
+                        </span>
+                        <span className={adminStyles.changeArrow}>→</span>
+                        <span className={adminStyles.changeTo}>{log.to}</span>
+                      </div>
+                    )}
+                </div>
+
+                <div className={adminStyles.auditIcon}>
+                  {getAuditIcon(log.type)}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

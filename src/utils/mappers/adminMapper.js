@@ -2,6 +2,7 @@ import {
   PRIORITY_MAP,
   ADMIN_TASK_STATUS_MAP,
   ADMIN_TASK_PRIORITY_MAP,
+  AUDIT_ACTION_LABELS,
 } from "./enumMappings";
 import { formatDate } from "../formatDate";
 
@@ -426,3 +427,119 @@ export const mapAdminTasksFromAPI = (apiData) => ({
   },
   tasks: (apiData?.tasks ?? []).map(mapAdminTaskFromAPI),
 });
+
+const normalizeAuditType = (fieldChanged) => {
+  const value = String(fieldChanged ?? "")
+    .trim()
+    .toLowerCase();
+
+  if (value === "assigned_to") return "assignment";
+  if (value === "due_date") return "duedate";
+  if (value === "status") return "status";
+  if (value === "priority") return "priority";
+  if (value === "title") return "title";
+  if (value === "description") return "description";
+
+  return "other";
+};
+
+const formatAuditTimestamp = (timestamp) => {
+  if (!timestamp) return "";
+
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) return String(timestamp);
+
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+};
+
+const stringifyAuditValue = (value) => {
+  if (value === null || value === undefined || value === "") return "N/A";
+
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+};
+
+const normalizeAuditAction = (actionType, description) => {
+  const directDescription = String(description ?? "").trim();
+  if (directDescription) return directDescription;
+
+  const key = String(actionType ?? "")
+    .trim()
+    .toLowerCase();
+  if (AUDIT_ACTION_LABELS[key]) return AUDIT_ACTION_LABELS[key];
+
+  if (!key) return "updated task";
+
+  return key.replace(/_/g, " ");
+};
+
+const mapAuditActor = (actor) => {
+  const safeActor = actor ?? {};
+
+  const fullName = String(
+    safeActor.full_name ??
+      safeActor.name ??
+      (
+        String(safeActor.first_name ?? "") +
+        " " +
+        String(safeActor.last_name ?? "")
+      ).trim() ??
+      safeActor.username ??
+      "Unknown User",
+  ).trim();
+
+  return {
+    id: safeActor.id ?? null,
+    username: safeActor.username ?? "",
+    name: fullName || safeActor.username || "Unknown User",
+    avatar: safeActor.avatar || "/vite.svg",
+  };
+};
+
+export const mapAdminAuditLogFromAPI = (apiLog) => {
+  const fieldChanged = String(apiLog?.field_changed ?? "").toLowerCase();
+  const type = normalizeAuditType(fieldChanged);
+  const oldValue = stringifyAuditValue(apiLog?.old_value);
+  const newValue = stringifyAuditValue(apiLog?.new_value);
+
+  return {
+    id: apiLog?.id ?? null,
+    user: mapAuditActor(apiLog?.actor),
+    action: normalizeAuditAction(apiLog?.action_type, apiLog?.description),
+    actionType: apiLog?.action_type ?? "",
+    description: apiLog?.description ?? "",
+    taskId: apiLog?.task_id ?? null,
+    task: apiLog?.task_title ?? "Untitled Task",
+    projectId: apiLog?.project_id ?? null,
+    project: apiLog?.project_name ?? "Unknown Project",
+    fieldChanged,
+    type,
+    from: oldValue,
+    to: newValue,
+    assignedTo: type === "assignment" ? newValue : "",
+    timestamp: apiLog?.timestamp ?? "",
+    date: formatAuditTimestamp(apiLog?.timestamp),
+  };
+};
+
+export const mapAdminAuditLogsFromAPI = (apiData) => {
+  const logs = Array.isArray(apiData?.logs) ? apiData.logs : [];
+  return {
+    logs: logs.map(mapAdminAuditLogFromAPI),
+    totalCount: Number(apiData?.total_count ?? logs.length),
+  };
+};

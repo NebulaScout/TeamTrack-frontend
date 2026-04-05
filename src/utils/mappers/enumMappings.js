@@ -81,6 +81,18 @@ const ADMIN_TASK_PRIORITY_MAP = {
   HIGH: "High",
 };
 
+const AUDIT_ACTION_LABELS = {
+  task_created: "created task",
+  task_updated: "updated task",
+  task_deleted: "deleted task",
+  status_changed: "changed status",
+  priority_changed: "changed priority",
+  due_date_changed: "changed due date",
+  task_assigned: "updated assignment",
+  title_changed: "changed title",
+  description_changed: "changed description",
+};
+
 export {
   STATUS_MAP,
   STATUS_TO_API,
@@ -94,4 +106,5 @@ export {
   ROLE_TO_API,
   ADMIN_TASK_STATUS_MAP,
   ADMIN_TASK_PRIORITY_MAP,
+  AUDIT_ACTION_LABELS,
 };

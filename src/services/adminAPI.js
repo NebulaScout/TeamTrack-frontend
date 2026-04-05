@@ -77,4 +77,36 @@ export const adminAPI = {
     );
     return response.data?.data ?? response.data ?? null;
   },
+
+  getAuditLogs: async (params = {}) => {
+    const normalized = {};
+
+    const search = String(params.search ?? "").trim();
+    if (search) normalized.search = search;
+
+    if (params.project && params.project !== "all") {
+      normalized.project = params.project;
+    }
+
+    if (params.user && params.user !== "all") {
+      normalized.user = params.user;
+    }
+
+    if (params.change_type && params.change_type !== "all") {
+      normalized.change_type = params.change_type;
+    }
+
+    const requestedLimit = Number(params.limit);
+    if (Number.isFinite(requestedLimit) && requestedLimit > 0) {
+      normalized.limit = Math.min(requestedLimit, 200);
+    } else {
+      normalized.limit = 50;
+    }
+
+    const response = await api.get("/api/v1/dashboard/admin/audit-logs/", {
+      params: normalized,
+    });
+
+    return response.data?.data ?? response.data ?? { logs: [], total_count: 0 };
+  },
 };
