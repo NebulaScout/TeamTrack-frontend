@@ -92,6 +92,26 @@ export const adminAPI = {
       normalized.user = params.user;
     }
 
+    // New endpoint filters
+    if (params.module && params.module !== "all") {
+      normalized.module = params.module;
+    }
+
+    // Action/action_type support (keep both for backend compatibility)
+    if (params.action && params.action !== "all") {
+      normalized.action = params.action;
+      normalized.action_type = params.action;
+    }
+
+    if (params.action_type && params.action_type !== "all") {
+      normalized.action_type = params.action_type;
+    }
+
+    if (params.target_type && params.target_type !== "all") {
+      normalized.target_type = params.target_type;
+    }
+
+    // Keep legacy filter passthrough if backend still supports it
     if (params.change_type && params.change_type !== "all") {
       normalized.change_type = params.change_type;
     }
@@ -106,6 +126,7 @@ export const adminAPI = {
     const response = await api.get("/api/v1/dashboard/admin/audit-logs/", {
       params: normalized,
     });
+    console.log("Audit response", response);
 
     return response.data?.data ?? response.data ?? { logs: [], total_count: 0 };
   },
