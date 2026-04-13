@@ -82,9 +82,16 @@ const ADMIN_TASK_PRIORITY_MAP = {
 };
 
 const AUDIT_ACTION_LABELS = {
+  created: "created",
+  updated: "updated",
+  deleted: "deleted",
+  registered: "registered",
   task_created: "created task",
   task_updated: "updated task",
   task_deleted: "deleted task",
+  user_registered: "registered user",
+  project_created: "created project",
+  comment_added: "added comment",
   status_changed: "changed status",
   priority_changed: "changed priority",
   due_date_changed: "changed due date",

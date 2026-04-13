@@ -428,17 +428,19 @@ export const mapAdminTasksFromAPI = (apiData) => ({
   tasks: (apiData?.tasks ?? []).map(mapAdminTaskFromAPI),
 });
 
-const normalizeAuditType = (fieldChanged) => {
-  const value = String(fieldChanged ?? "")
+// Audit logs
+const normalizeAuditType = (actionType, action, module) => {
+  const joined = `${actionType ?? ""} ${action ?? ""}`.toLowerCase();
+  const normalizedModule = String(module ?? "")
     .trim()
     .toLowerCase();
 
-  if (value === "assigned_to") return "assignment";
-  if (value === "due_date") return "duedate";
-  if (value === "status") return "status";
-  if (value === "priority") return "priority";
-  if (value === "title") return "title";
-  if (value === "description") return "description";
+  if (joined.includes("assign")) return "assignment";
+  if (joined.includes("create")) return "create";
+  if (joined.includes("delete") || joined.includes("remove")) return "delete";
+  if (joined.includes("register")) return "register";
+  if (joined.includes("update") || joined.includes("edit")) return "update";
+  if (normalizedModule === "system") return "system";
 
   return "other";
 };
@@ -473,18 +475,36 @@ const stringifyAuditValue = (value) => {
   }
 };
 
-const normalizeAuditAction = (actionType, description) => {
+const parseMetadata = (metadata) => {
+  if (!metadata) return null;
+  if (typeof metadata === "object") return metadata;
+
+  const asString = String(metadata).trim();
+  if (!asString) return null;
+
+  try {
+    return JSON.parse(asString);
+  } catch {
+    return { raw: asString };
+  }
+};
+
+const normalizeAuditAction = (action, actionType, description) => {
   const directDescription = String(description ?? "").trim();
   if (directDescription) return directDescription;
 
-  const key = String(actionType ?? "")
+  const actionKey = String(action ?? "")
     .trim()
     .toLowerCase();
-  if (AUDIT_ACTION_LABELS[key]) return AUDIT_ACTION_LABELS[key];
+  if (actionKey) return actionKey.replace(/_/g, " ");
 
-  if (!key) return "updated task";
+  const typeKey = String(actionType ?? "")
+    .trim()
+    .toLowerCase();
+  if (AUDIT_ACTION_LABELS[typeKey]) return AUDIT_ACTION_LABELS[typeKey];
+  if (typeKey) return typeKey.replace(/_/g, " ");
 
-  return key.replace(/_/g, " ");
+  return "performed action";
 };
 
 const mapAuditActor = (actor) => {
@@ -510,29 +530,73 @@ const mapAuditActor = (actor) => {
   };
 };
 
+const normalizeModule = (module) => {
+  const value = String(module ?? "")
+    .trim()
+    .toLowerCase();
+
+  return value || "system";
+};
+
+const toTitleCase = (value) =>
+  String(value ?? "")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (ch) => ch.toUpperCase());
+
 export const mapAdminAuditLogFromAPI = (apiLog) => {
-  const fieldChanged = String(apiLog?.field_changed ?? "").toLowerCase();
-  const type = normalizeAuditType(fieldChanged);
-  const oldValue = stringifyAuditValue(apiLog?.old_value);
-  const newValue = stringifyAuditValue(apiLog?.new_value);
+  const metadata = parseMetadata(apiLog?.metadata);
+
+  const oldValueCandidate =
+    metadata?.old_value ?? metadata?.old ?? metadata?.from ?? apiLog?.old_value;
+  const newValueCandidate =
+    metadata?.new_value ?? metadata?.new ?? metadata?.to ?? apiLog?.new_value;
+
+  const oldValue = stringifyAuditValue(oldValueCandidate);
+  const newValue = stringifyAuditValue(newValueCandidate);
+
+  const module = normalizeModule(apiLog?.module);
+  const action = normalizeAuditAction(
+    apiLog?.action,
+    apiLog?.action_type,
+    apiLog?.description,
+  );
+  const type = normalizeAuditType(apiLog?.action_type, apiLog?.action, module);
+
+  const targetType = String(apiLog?.target_type ?? "")
+    .trim()
+    .toLowerCase();
+  const targetLabel =
+    apiLog?.target_label ??
+    metadata?.target_label ??
+    (targetType ? `#${apiLog?.target_id ?? ""}` : "System");
+  const projectName = apiLog?.project_name ?? "";
 
   return {
     id: apiLog?.id ?? null,
     user: mapAuditActor(apiLog?.actor),
-    action: normalizeAuditAction(apiLog?.action_type, apiLog?.description),
-    actionType: apiLog?.action_type ?? "",
+    module,
+    action,
+    actionType: String(apiLog?.action_type ?? "").toLowerCase(),
     description: apiLog?.description ?? "",
-    taskId: apiLog?.task_id ?? null,
-    task: apiLog?.task_title ?? "Untitled Task",
+    targetType,
+    targetId: apiLog?.target_id ?? null,
+    targetLabel,
     projectId: apiLog?.project_id ?? null,
-    project: apiLog?.project_name ?? "Unknown Project",
-    fieldChanged,
+    project: projectName,
+    metadata,
     type,
     from: oldValue,
     to: newValue,
-    assignedTo: type === "assignment" ? newValue : "",
+    assignedTo:
+      type === "assignment"
+        ? stringifyAuditValue(
+            metadata?.assignee ?? metadata?.assigned_to ?? newValueCandidate,
+          )
+        : "",
     timestamp: apiLog?.timestamp ?? "",
     date: formatAuditTimestamp(apiLog?.timestamp),
+    moduleLabel: toTitleCase(module),
+    targetTypeLabel: targetType ? toTitleCase(targetType) : "System",
   };
 };
 

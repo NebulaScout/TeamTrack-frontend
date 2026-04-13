@@ -70,8 +70,8 @@ export default function TaskModal({
     clearErrors("root");
 
     const apiPayload = mapTaskToAPI(data);
-    console.log("Task data after mapping: ", apiPayload);
-    console.log("Task id ", taskToEdit.id);
+    // console.log("Task data after mapping: ", apiPayload);
+    // console.log("Task id ", taskToEdit.id);
 
     try {
       if (isEditMode) {

@@ -8,19 +8,22 @@ import {
   FiChevronDown,
   FiEdit3,
   FiFileText,
+  FiTrash2,
+  FiUserPlus,
+  FiRefreshCw,
+  FiSettings,
+  FiLayers,
 } from "react-icons/fi";
 import adminStyles from "@/styles/admin.module.css";
 import Loader from "@/components/ui/Loader";
 import { useAdminAuditLogs } from "@/utils/queries/useAdminAuditLogs";
 
-const CHANGE_FILTER_OPTIONS = [
-  { value: "all", label: "All Changes" },
-  { value: "status", label: "Status Changes" },
-  { value: "priority", label: "Priority Changes" },
-  { value: "assigned_to", label: "Assignments" },
-  { value: "due_date", label: "Due Date Changes" },
-  { value: "title", label: "Title Changes" },
-  { value: "description", label: "Description Changes" },
+const ACTION_FILTER_OPTIONS = [
+  { value: "all", label: "All Actions" },
+  { value: "created", label: "Created" },
+  { value: "updated", label: "Updated" },
+  { value: "deleted", label: "Deleted" },
+  { value: "registered", label: "Registered" },
 ];
 
 export default function AuditLogs() {
@@ -28,7 +31,8 @@ export default function AuditLogs() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [auditProjectFilter, setAuditProjectFilter] = useState("all");
   const [auditUserFilter, setAuditUserFilter] = useState("all");
-  const [auditChangeFilter, setAuditChangeFilter] = useState("all");
+  const [auditModuleFilter, setAuditModuleFilter] = useState("all");
+  const [auditActionFilter, setAuditActionFilter] = useState("all");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -43,10 +47,17 @@ export default function AuditLogs() {
       search: debouncedSearch,
       project: auditProjectFilter,
       user: auditUserFilter,
-      change_type: auditChangeFilter,
+      module: auditModuleFilter,
+      action: auditActionFilter,
       limit: 50,
     };
-  }, [debouncedSearch, auditProjectFilter, auditUserFilter, auditChangeFilter]);
+  }, [
+    debouncedSearch,
+    auditProjectFilter,
+    auditUserFilter,
+    auditModuleFilter,
+    auditActionFilter,
+  ]);
 
   const { data, isLoading, isError, error } = useAdminAuditLogs(queryFilters);
   const logs = data?.logs ?? [];
@@ -59,7 +70,10 @@ export default function AuditLogs() {
     for (const log of logs) {
       if (!log.projectId || seen.has(log.projectId)) continue;
       seen.add(log.projectId);
-      options.push({ id: log.projectId, name: log.project });
+      options.push({
+        id: log.projectId,
+        name: log.project || `Project ${log.projectId}`,
+      });
     }
 
     return options.sort((a, b) => a.name.localeCompare(b.name));
@@ -78,23 +92,51 @@ export default function AuditLogs() {
     return options.sort((a, b) => a.name.localeCompare(b.name));
   }, [logs]);
 
-  const getAuditIcon = (type) => {
-    switch (type) {
-      case "status":
-        return <FiCheckSquare />;
-      case "priority":
-        return <FiClock />;
-      case "assignment":
-        return <FiUsers />;
-      case "duedate":
-        return <FiClock />;
-      case "title":
-        return <FiEdit3 />;
-      case "description":
-        return <FiFileText />;
-      default:
-        return <FiCheckSquare />;
+  const moduleOptions = useMemo(() => {
+    const seen = new Set();
+    const options = [];
+
+    for (const log of logs) {
+      const value = String(log.module ?? "")
+        .trim()
+        .toLowerCase();
+      if (!value || seen.has(value)) continue;
+      seen.add(value);
+      options.push({
+        value,
+        label: log.moduleLabel || value.replace(/_/g, " "),
+      });
     }
+
+    return options.sort((a, b) => a.label.localeCompare(b.label));
+  }, [logs]);
+
+  const getAuditIcon = (log) => {
+    const actionType = String(log.actionType ?? "").toLowerCase();
+    const action = String(log.action ?? "").toLowerCase();
+    const module = String(log.module ?? "").toLowerCase();
+
+    if (actionType.includes("delete") || action.includes("delete"))
+      return <FiTrash2 />;
+    if (actionType.includes("create") || action.includes("create"))
+      return <FiEdit3 />;
+    if (actionType.includes("register") || action.includes("register"))
+      return <FiUserPlus />;
+    if (actionType.includes("assign") || action.includes("assign"))
+      return <FiUsers />;
+    if (actionType.includes("update") || action.includes("update"))
+      return <FiRefreshCw />;
+    if (module === "system") return <FiSettings />;
+    if (module === "task") return <FiCheckSquare />;
+    if (module === "project") return <FiLayers />;
+
+    return <FiClock />;
+  };
+
+  const getFallbackDescription = (log) => {
+    const action = log.action || "performed action";
+    const targetLabel = log.targetLabel || "System";
+    return `${action} ${targetLabel}`;
   };
 
   if (isLoading) {
@@ -122,7 +164,7 @@ export default function AuditLogs() {
           <FiSearch className={adminStyles.searchIcon} />
           <input
             type="text"
-            placeholder="Search tasks or projects..."
+            placeholder="Search actor, module, action, or target..."
             value={auditSearch}
             onChange={(e) => setAuditSearch(e.target.value)}
             className={adminStyles.searchInput}
@@ -165,11 +207,27 @@ export default function AuditLogs() {
 
           <div className={adminStyles.filterDropdown}>
             <select
-              value={auditChangeFilter}
-              onChange={(e) => setAuditChangeFilter(e.target.value)}
+              value={auditModuleFilter}
+              onChange={(e) => setAuditModuleFilter(e.target.value)}
               className={adminStyles.filterSelect}
             >
-              {CHANGE_FILTER_OPTIONS.map((option) => (
+              <option value="all">All Modules</option>
+              {moduleOptions.map((module) => (
+                <option key={module.value} value={module.value}>
+                  {module.label}
+                </option>
+              ))}
+            </select>
+            <FiChevronDown className={adminStyles.dropdownIcon} />
+          </div>
+
+          <div className={adminStyles.filterDropdown}>
+            <select
+              value={auditActionFilter}
+              onChange={(e) => setAuditActionFilter(e.target.value)}
+              className={adminStyles.filterSelect}
+            >
+              {ACTION_FILTER_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -182,7 +240,7 @@ export default function AuditLogs() {
 
       <div className={adminStyles.auditSection}>
         <h3 className={adminStyles.sectionTitle}>
-          Task History ({totalCount})
+          System Audit Trail ({totalCount})
         </h3>
 
         <div className={adminStyles.auditList}>
@@ -200,7 +258,7 @@ export default function AuditLogs() {
             logs.map((log) => (
               <div key={log.id} className={adminStyles.auditItem}>
                 <img
-                  src={log.user?.avatar} // || "/vite.svg"
+                  src={log.user?.avatar || "/vite.svg"}
                   alt={log.user?.name || "User"}
                   className={adminStyles.auditAvatar}
                   onError={(e) => {
@@ -214,17 +272,37 @@ export default function AuditLogs() {
                       {log.user?.name || "Unknown User"}
                     </span>
                     <span className={adminStyles.auditAction}>
-                      {log.action}
+                      {log.action || "performed action"}
                     </span>
-                    <span className={adminStyles.auditTask}>{log.task}</span>
+                    <span className={adminStyles.auditTask}>
+                      {log.targetLabel || log.targetTypeLabel || "System"}
+                    </span>
                   </div>
 
                   <div className={adminStyles.auditMeta}>
                     <span className={adminStyles.auditProject}>
-                      {log.project}
+                      {log.moduleLabel || "System"}
                     </span>
                     <span className={adminStyles.auditDot}>·</span>
+                    <span className={adminStyles.auditProject}>
+                      {log.targetTypeLabel || "Target"}
+                    </span>
+                    {log.project ? (
+                      <>
+                        <span className={adminStyles.auditDot}>·</span>
+                        <span className={adminStyles.auditProject}>
+                          {log.project}
+                        </span>
+                      </>
+                    ) : null}
+                    <span className={adminStyles.auditDot}>·</span>
                     <span className={adminStyles.auditDate}>{log.date}</span>
+                  </div>
+
+                  <div className={adminStyles.auditMeta}>
+                    <span className={adminStyles.auditDate}>
+                      {log.description || getFallbackDescription(log)}
+                    </span>
                   </div>
 
                   {log.type === "assignment" && (
@@ -250,9 +328,7 @@ export default function AuditLogs() {
                     )}
                 </div>
 
-                <div className={adminStyles.auditIcon}>
-                  {getAuditIcon(log.type)}
-                </div>
+                <div className={adminStyles.auditIcon}>{getAuditIcon(log)}</div>
               </div>
             ))
           )}
