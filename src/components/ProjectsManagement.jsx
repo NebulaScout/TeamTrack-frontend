@@ -19,6 +19,7 @@ import {
 } from "@/utils/queries/useAdminProjects";
 import AdminProjectDetailsModal from "@/components/AdminProjectDetailsModal";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
+import ManageProjectMembersModal from "@/components/ManageProjectMembersModal ";
 
 export default function ProjectsManagement() {
   const [projectsSearch, setProjectsSearch] = useState("");
@@ -31,6 +32,10 @@ export default function ProjectsManagement() {
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+
+  const [isManageMembersOpen, setIsManageMembersOpen] = useState(false);
+  const [selectedProjectForMembers, setSelectedProjectForMembers] =
+    useState(null);
 
   const menuRef = useRef(null);
   const triggerRefs = useRef(new Map());
@@ -94,13 +99,16 @@ export default function ProjectsManagement() {
       console.log("Edit project:", project);
     }
 
-    if (action === "manage-members") {
-      console.log("Manage members:", project);
-    }
-
     if (action === "delete-project") {
       setSelectedProject(project);
       setShowDeleteModal(true);
+      setOpenMenuFor(null);
+      return;
+    }
+
+    if (action === "manage-members") {
+      setSelectedProjectForMembers(project);
+      setIsManageMembersOpen(true);
       setOpenMenuFor(null);
       return;
     }
@@ -319,7 +327,7 @@ export default function ProjectsManagement() {
                         View Details
                       </button>
 
-                      {/* <button
+                      <button
                         className={adminStyles.userFloatingMenuItem}
                         onClick={() =>
                           handleProjectAction("edit-project", project)
@@ -328,9 +336,9 @@ export default function ProjectsManagement() {
                       >
                         <FiEdit2 className={adminStyles.userFloatingMenuIcon} />
                         Edit Project
-                      </button> */}
+                      </button>
 
-                      {/* <button
+                      <button
                         className={adminStyles.userFloatingMenuItem}
                         onClick={() =>
                           handleProjectAction("manage-members", project)
@@ -339,7 +347,7 @@ export default function ProjectsManagement() {
                       >
                         <FiUsers className={adminStyles.userFloatingMenuIcon} />
                         Manage Members
-                      </button> */}
+                      </button>
 
                       <div className={adminStyles.userFloatingMenuSeparator} />
 
@@ -391,6 +399,18 @@ export default function ProjectsManagement() {
             itemName={selectedProject?.name}
             itemType="Project"
             isDeleting={isDeletingProject}
+          />
+        )}
+
+        {isManageMembersOpen && (
+          <ManageProjectMembersModal
+            isOpen={isManageMembersOpen}
+            onClose={() => {
+              setIsManageMembersOpen(false);
+              setSelectedProjectForMembers(null);
+            }}
+            projectId={selectedProjectForMembers?.id}
+            projectName={selectedProjectForMembers?.name}
           />
         )}
       </div>

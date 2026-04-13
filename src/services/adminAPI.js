@@ -44,6 +44,22 @@ export const adminAPI = {
     return response.data?.data ?? response.data ?? null;
   },
 
+  addProjectMember: async (projectId, payload) => {
+    const response = await api.post(
+      `/api/v1/projects/${projectId}/team/members/`,
+      payload,
+    );
+    return response.data?.data ?? response.data;
+  },
+
+  updateProjectMember: async (projectId, memberId, payload) => {
+    const response = await api.patch(
+      `/api/v1/projects/${projectId}/team/members/${memberId}/`,
+      payload,
+    );
+    return response.data?.data ?? response.data;
+  },
+
   // Remove a member from a project team
   removeTeamMember: async (projectId, memberId) => {
     const response = await api.delete(

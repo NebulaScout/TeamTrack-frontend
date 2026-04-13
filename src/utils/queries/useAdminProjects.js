@@ -72,3 +72,37 @@ export const useDeleteAdminProject = () => {
     },
   });
 };
+
+export const useAddAdminProjectMember = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ projectId, data }) =>
+      adminAPI.addProjectMember(projectId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: adminProjectsKeys.detail(variables.projectId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: adminProjectsKeys.lists(),
+      });
+    },
+  });
+};
+
+export const useUpdateAdminProjectMemberRole = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ projectId, memberId, data }) =>
+      adminAPI.updateProjectMember(projectId, memberId, data),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: adminProjectsKeys.detail(variables.projectId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: adminProjectsKeys.lists(),
+      });
+    },
+  });
+};
