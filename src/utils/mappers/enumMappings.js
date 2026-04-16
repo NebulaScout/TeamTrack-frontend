@@ -16,9 +16,10 @@ const STATUS_TO_API = {
 
 // Map API project status codes to frontend status strings
 const PROJECT_STATUS_MAP = {
-  ACTIVE: "Active",
+  ACTIVE: "Active", // or in progress
   COMPLETED: "Completed",
   ON_HOLD: "On hold",
+  // IN_PROGRESS: "in progress",
 };
 
 const PROJECT_STATUS_TO_API = {

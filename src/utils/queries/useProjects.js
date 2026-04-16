@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { projectsAPI } from "@/services/projectsAPI";
 import { mapProjectsFromAPIs } from "@/utils/mappers/projectMapper";
+import { adminProjectsKeys } from "@/utils/queries/useAdminProjects";
 
 // Query keys for better cache management
 export const projectsKeys = {
@@ -54,10 +55,19 @@ export const useUpdateProject = () => {
 
   return useMutation({
     mutationFn: ({ id, data }) => projectsAPI.update(id, data),
-    onSuccess: ({ id }) => {
-      // invalidate specific project and projects list
-      queryClient.invalidateQueries({ queryKey: projectsKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: projectsKeys.lists() });
+    onSuccess: async (_data, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: projectsKeys.detail(variables.id),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: projectsKeys.lists(),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminProjectsKeys.detail(variables.id),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminProjectsKeys.lists(),
+      });
     },
   });
 };

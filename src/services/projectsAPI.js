@@ -22,7 +22,9 @@ export const projectsAPI = {
 
   // update project
   update: async (id, projectData) => {
+    console.log("Update project data", projectData);
     const response = await api.put(`/api/v1/projects/${id}/`, projectData);
+    console.log("Project update response:", response);
     return response.data;
   },
 

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { FiX } from "react-icons/fi";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -23,7 +24,7 @@ const projectSchema = z
     description: z
       .string()
       .trim()
-      .max(500, "Description is too long")
+      .max(800, "Description is too long")
       .optional(),
     status: z.string().min(1, "Please select a status"),
     priority: z.string().min(1, "Please select a priority"),
@@ -43,6 +44,72 @@ const projectSchema = z
     },
   );
 
+const normalizeProjectStatusValue = (status) => {
+  const normalized = String(status ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/_/g, " ");
+
+  if (
+    normalized === "active" ||
+    normalized === "in progress" ||
+    normalized === "inprogress"
+  ) {
+    return "in progress";
+  }
+
+  if (normalized === "on hold" || normalized === "onhold") {
+    return "on hold";
+  }
+
+  if (normalized === "completed") {
+    return "completed";
+  }
+
+  if (normalized === "planning") {
+    return "planning";
+  }
+
+  return "";
+};
+
+const normalizeProjectPriorityValue = (priority) => {
+  const normalized = String(priority ?? "")
+    .trim()
+    .toLowerCase();
+  if (
+    normalized === "low" ||
+    normalized === "medium" ||
+    normalized === "high"
+  ) {
+    return normalized;
+  }
+  return "";
+};
+
+const normalizeDateInputValue = (value) => {
+  if (!value) return "";
+
+  const stringValue = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(stringValue)) {
+    return stringValue;
+  }
+
+  const date = new Date(stringValue);
+  return Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10);
+};
+
+const getProjectFormDefaults = (projectToEdit) => ({
+  name: projectToEdit?.name || "",
+  description: projectToEdit?.description || "",
+  status: normalizeProjectStatusValue(projectToEdit?.status),
+  priority: normalizeProjectPriorityValue(projectToEdit?.priority),
+  startDate: normalizeDateInputValue(projectToEdit?.startDate),
+  dueDate: normalizeDateInputValue(
+    projectToEdit?.dueDate || projectToEdit?.endDate,
+  ),
+});
+
 export default function ProjectModal({
   setShowModal,
   onProjectSaved,
@@ -53,18 +120,16 @@ export default function ProjectModal({
     handleSubmit,
     clearErrors,
     setError,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(projectSchema),
-    defaultValues: {
-      name: projectToEdit?.name || "",
-      description: projectToEdit?.description || "",
-      status: projectToEdit?.status || "",
-      priority: projectToEdit?.priority || "",
-      startDate: projectToEdit?.startDate || "",
-      dueDate: projectToEdit?.dueDate || "",
-    },
+    defaultValues: getProjectFormDefaults(projectToEdit),
   });
+
+  useEffect(() => {
+    reset(getProjectFormDefaults(projectToEdit));
+  }, [projectToEdit, reset]);
 
   const { mutateAsync: createProjectMutation, isPending } = useCreateProject();
 
@@ -73,6 +138,7 @@ export default function ProjectModal({
 
   // Determine whether we're in edit mode
   const isEditMode = !!projectToEdit;
+  console.log("Project Modal:", projectToEdit);
 
   const onSubmit = async (data) => {
     clearErrors("root");
@@ -153,9 +219,10 @@ export default function ProjectModal({
               <label>Status</label>
               <select aria-invalid={!!errors.status} {...register("status")}>
                 <option value="">Select</option>
-                <option value="Active">Active</option>
-                <option value="On hold">on Hold</option>
-                <option value="Completed">Completed</option>
+                {/* active or in progress */}
+                <option value="in progress">In Progress</option>{" "}
+                <option value="on hold">on Hold</option>
+                <option value="completed">Completed</option>
               </select>
               {errors.status?.message && (
                 <p className={modalStyles.fieldError}>
@@ -171,9 +238,9 @@ export default function ProjectModal({
                 {...register("priority")}
               >
                 <option value="">Select</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
               </select>
               {errors.priority?.message && (
                 <p className={modalStyles.fieldError}>
@@ -184,19 +251,21 @@ export default function ProjectModal({
           </div>
 
           <div className={modalStyles.formGroup}>
-            <label>Start Date</label>
+            <label>Start Date (mm/dd/yyyy)</label>
             <input
               type="date"
               aria-invalid={!!errors.startDate}
               {...register("startDate")}
             />
             {errors.startDate?.message && (
-              <p className={modalStyles.fieldError}>{errors.status.message}</p>
+              <p className={modalStyles.fieldError}>
+                {errors.startDate.message}
+              </p>
             )}
           </div>
 
           <div className={modalStyles.formGroup}>
-            <label>Due Date</label>
+            <label>Due Date (mm/dd/yyyy)</label>
             <input
               type="date"
               aria-invalid={!!errors.dueDate}

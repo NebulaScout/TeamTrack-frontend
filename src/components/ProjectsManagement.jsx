@@ -20,6 +20,7 @@ import {
 import AdminProjectDetailsModal from "@/components/AdminProjectDetailsModal";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import ManageProjectMembersModal from "@/components/ManageProjectMembersModal ";
+import ProjectModal from "./ProjectModal";
 
 export default function ProjectsManagement() {
   const [projectsSearch, setProjectsSearch] = useState("");
@@ -28,6 +29,7 @@ export default function ProjectsManagement() {
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
 
+  const [openEditProjectModal, setOpenEditProjectModal] = useState(false);
   const [isProjectDetailsOpen, setIsProjectDetailsOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -96,7 +98,8 @@ export default function ProjectsManagement() {
     }
 
     if (action === "edit-project") {
-      console.log("Edit project:", project);
+      setOpenEditProjectModal(true);
+      setSelectedProject(project);
     }
 
     if (action === "delete-project") {
@@ -132,6 +135,10 @@ export default function ProjectsManagement() {
   const closeProjectDetailsModal = () => {
     setIsProjectDetailsOpen(false);
     setSelectedProjectId(null);
+  };
+
+  const handleProjectSaved = () => {
+    setOpenEditProjectModal(false);
   };
 
   useEffect(() => {
@@ -411,6 +418,15 @@ export default function ProjectsManagement() {
             }}
             projectId={selectedProjectForMembers?.id}
             projectName={selectedProjectForMembers?.name}
+          />
+        )}
+
+        {openEditProjectModal && (
+          <ProjectModal
+            // ref={createModalRef}
+            setShowModal={setOpenEditProjectModal}
+            onProjectSaved={handleProjectSaved}
+            projectToEdit={selectedProject}
           />
         )}
       </div>
