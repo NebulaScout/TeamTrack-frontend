@@ -49,11 +49,7 @@ export default function ProjectDetailsModal({ project, setShowModal }) {
         {/* Status & Priority Badges */}
         <div className={modalStyles.badgesRow}>
           <span
-            className={`${projectStyles.statusBadge} ${
-              project.status === "Completed"
-                ? projectStyles.statusCompleted
-                : projectStyles.statusActive
-            }`}
+            className={`${projectStyles.statusBadge} ${project.status === "Completed" ? projectStyles.statusCompleted : project.status === "On hold" ? projectStyles.statusOnHold : projectStyles.statusActive}`}
           >
             {project.status}
           </span>

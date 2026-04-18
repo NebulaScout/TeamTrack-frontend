@@ -59,9 +59,8 @@ export function mapProjectsFromAPI(apiProject) {
     tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
 
   // Determine project status based on dates or progress
-  const isCompleted = progress === 100;
-  // eslint-disable-next-line no-unused-vars
-  const isPastDue = new Date(apiProject.end_date) < new Date();
+  // const isCompleted = progress === 100;
+  // const isPastDue = new Date(apiProject.end_date) < new Date();
 
   return {
     id: apiProject.id,
@@ -72,7 +71,8 @@ export function mapProjectsFromAPI(apiProject) {
     totalTasks: tasks.length,
     dueDate: apiProject.end_date,
     startDate: apiProject.start_date,
-    status: isCompleted ? "Completed" : "Active",
+    status: PROJECT_STATUS_MAP[apiProject.status],
+    priority: PRIORITY_MAP[apiProject.priority],
     createdBy: apiProject.created_by,
     createdAt: apiProject.created_at,
     teamMembers: (apiProject.members || []).map((member) => ({
