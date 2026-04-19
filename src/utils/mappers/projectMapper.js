@@ -58,10 +58,6 @@ export function mapProjectsFromAPI(apiProject) {
   const progress =
     tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 0;
 
-  // Determine project status based on dates or progress
-  // const isCompleted = progress === 100;
-  // const isPastDue = new Date(apiProject.end_date) < new Date();
-
   return {
     id: apiProject.id,
     name: apiProject.project_name,

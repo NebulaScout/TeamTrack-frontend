@@ -61,8 +61,8 @@ export const useUpdateTask = () => {
 
   return useMutation({
     mutationFn: ({ id, taskData }) => {
-      console.log("Task query update: ", taskData);
-      console.log("Task query id: ", id);
+      // console.log("Task query update: ", taskData);
+      // console.log("Task query id: ", id);
       tasksAPI.update(id, taskData);
     },
     onSuccess: (data, { id }) => {

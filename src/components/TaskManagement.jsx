@@ -24,6 +24,8 @@ import {
   useDeleteAdminTask,
 } from "@/utils/queries/useAdminTasks";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
+import TaskModal from "./TaskModal";
+// import { useAuth } from "@/contexts/AuthProvider";
 
 export default function TaskManagement() {
   const [tasksSearch, setTasksSearch] = useState("");
@@ -34,12 +36,21 @@ export default function TaskManagement() {
   const [selectedTask, setSelectedTask] = useState(null);
   const [showDetailsSheet, setShowDetailsSheet] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Floating menu state
   const [openMenuFor, setOpenMenuFor] = useState(null);
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
   const menuRef = useRef(null);
   const triggerRefs = useRef(new Map());
+
+  // const { user } = useAuth();
+
+  // const role = String(user?.role ?? "")
+  //   .trim()
+  //   .toUpperCase();
+  // const canAddTask = role !== "GUEST";
+  // const canManageTaskActions = role !== "GUEST";
 
   const { data, isLoading, isError, error } = useAdminTasks();
   const { mutateAsync: deleteAdminTask, isPending: isDeletingTask } =
@@ -125,7 +136,8 @@ export default function TaskManagement() {
     }
 
     if (action === "edit-task") {
-      console.log("Edit task:", task);
+      setSelectedTask(task);
+      setShowEditModal(true);
     }
 
     if (action === "view-details") {
@@ -250,9 +262,10 @@ export default function TaskManagement() {
               className={adminStyles.filterSelect}
             >
               <option value="all">All Status</option>
-              <option value="open">Open</option>
-              <option value="in_progress">In Progress</option>
-              <option value="done">Done</option>
+              <option value="To Do">To Do</option>
+              <option value="In Progress">In Progress</option>
+              <option value="In Review">In Review</option>
+              <option value="Done">Done</option>
             </select>
             <FiChevronDown className={adminStyles.dropdownIcon} />
           </div>
@@ -372,23 +385,23 @@ export default function TaskManagement() {
                         Actions
                       </div>
 
-                      {/* <button
+                      <button
                         className={adminStyles.userFloatingMenuItem}
                         onClick={() => handleTaskAction("view-details", task)}
                         role="menuitem"
                       >
                         <FiEye className={adminStyles.userFloatingMenuIcon} />
                         View Details
-                      </button> */}
+                      </button>
 
-                      {/* <button
+                      <button
                         className={adminStyles.userFloatingMenuItem}
                         onClick={() => handleTaskAction("edit-task", task)}
                         role="menuitem"
                       >
                         <FiEdit2 className={adminStyles.userFloatingMenuIcon} />
                         Edit Task
-                      </button> */}
+                      </button>
 
                       <button
                         className={adminStyles.userFloatingMenuItem}
@@ -401,7 +414,7 @@ export default function TaskManagement() {
                         Assign User
                       </button>
 
-                      {/* <button
+                      <button
                         className={adminStyles.userFloatingMenuItem}
                         onClick={() => handleTaskAction("mark-done", task)}
                         role="menuitem"
@@ -410,7 +423,7 @@ export default function TaskManagement() {
                           className={adminStyles.userFloatingMenuIcon}
                         />
                         Mark as Done
-                      </button> */}
+                      </button>
 
                       <div className={adminStyles.userFloatingMenuSeparator} />
 
@@ -442,11 +455,21 @@ export default function TaskManagement() {
               setSelectedTask(null);
             }}
             onEdit={(task) => {
-              console.log("Edit task from sheet:", task);
+              setShowDetailsSheet(false);
+              setSelectedTask(task);
+              setShowEditModal(true);
             }}
             onDelete={(task) => {
               handleTaskAction("delete-task", task);
             }}
+          />
+        )}
+
+        {showEditModal && (
+          <TaskModal
+            // ref={createModalRef}
+            setShowModal={setShowEditModal}
+            taskToEdit={selectedTask}
           />
         )}
 

@@ -11,6 +11,7 @@ import {
   useGetTask,
   useUpdateTask,
 } from "@/utils/queries/useTasks";
+import { useEffect } from "react";
 
 const taskSchema = z.object({
   title: z
@@ -29,6 +30,27 @@ const taskSchema = z.object({
   dueDate: z.string(),
 });
 
+const toDateInputValue = (value) => {
+  if (!value) return "";
+  return String(value).slice(0, 10); // handles both YYYY-MM-DD and ISO datetime
+};
+
+const toFormValues = (taskLike) => ({
+  title: taskLike?.title || "",
+  description: taskLike?.description || "",
+  project:
+    taskLike?.project?.id !== undefined && taskLike?.project?.id !== null
+      ? String(taskLike.project.id)
+      : "",
+  assignee:
+    taskLike?.assignee?.id !== undefined && taskLike?.assignee?.id !== null
+      ? String(taskLike.assignee.id)
+      : "",
+  status: taskLike?.status || "",
+  priority: taskLike?.priority || "",
+  dueDate: toDateInputValue(taskLike?.dueDate),
+});
+
 export default function TaskModal({
   setShowModal,
   taskToEdit = null,
@@ -37,46 +59,51 @@ export default function TaskModal({
 }) {
   const { data: projects = [], isPending: isFetchingProjects } = useProjects();
   const { data: users = [], isPending: isFetchingUsers } = useGetUsers();
-  const { data: task } = useGetTask(taskId);
+  // const { data: task } = useGetTask(taskId);
+
+  // If caller doesn't pass taskId, derive it from taskToEdit
+  const editTaskId = taskId ?? taskToEdit?.id ?? null;
+  const { data: fetchedTask } = useGetTask(editTaskId);
+
+  const sourceTask = fetchedTask ?? taskToEdit;
+  const isEditMode = !!sourceTask || !!editTaskId;
 
   const {
     register,
     handleSubmit,
     clearErrors,
     setError,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(taskSchema),
-    defaultValues: {
-      title: task?.title || taskToEdit?.title || "",
-      description: task?.description || taskToEdit?.description || "",
-      project:
-        task?.project?.projectName || taskToEdit?.project?.projectName || "",
-      assignee: task?.assignee?.name || taskToEdit?.assignee?.name || "",
-      status: task?.status || taskToEdit?.status || "",
-      priority: task?.priority || taskToEdit?.priority || "",
-      dueDate: task?.dueDate || taskToEdit?.dueDate || "",
-    },
+    defaultValues: toFormValues(taskToEdit),
   });
+
+  useEffect(() => {
+    if (isEditMode) {
+      reset(toFormValues(sourceTask));
+    } else {
+      reset(toFormValues(null));
+    }
+  }, [isEditMode, sourceTask, reset]);
 
   // console.log("Users retrived: ", users);
 
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: updateTask } = useUpdateTask();
 
-  const isEditMode = !!taskToEdit || !!taskId;
+  // const isEditMode = !!taskToEdit || !!taskId;
 
   const onSubmit = async (data) => {
     clearErrors("root");
-
     const apiPayload = mapTaskToAPI(data);
-    // console.log("Task data after mapping: ", apiPayload);
-    // console.log("Task id ", taskToEdit.id);
 
     try {
       if (isEditMode) {
+        const idToUpdate = sourceTask?.id ?? editTaskId;
         await updateTask({
-          id: taskToEdit.id,
+          id: idToUpdate,
           taskData: apiPayload,
         });
       } else {
@@ -85,7 +112,6 @@ export default function TaskModal({
           taskData: apiPayload,
         });
       }
-      // onProjectSaved();
 
       setShowModal(false);
     } catch (error) {
@@ -108,7 +134,7 @@ export default function TaskModal({
             className={modalStyles.btnClose}
             onClick={() => {
               setShowModal(false);
-              onClose();
+              onClose?.();
             }}
           >
             <FiX />
@@ -150,22 +176,20 @@ export default function TaskModal({
             )}
           </div>
 
-          {/* TODO: Add API endpoints for this */}
           <div className={modalStyles.formRow}>
             <div className={modalStyles.formGroup}>
               <label>Project</label>
               <select
-                ria-invalid={!!errors.project}
+                aria-invalid={!!errors.project}
                 {...register("project")}
                 disabled={isSubmitting || isFetchingProjects}
               >
-                {/* TODO: Add loading state for this */}
                 <option value="">
-                  {isFetchingProjects ? "Loading Projects" : "Select projects"}
+                  {isFetchingProjects ? "Loading Projects" : "Select project"}
                 </option>
                 {projects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
+                  <option key={project.id} value={String(project.id)}>
+                    {project.projectName ?? project.name}
                   </option>
                 ))}
               </select>
@@ -183,19 +207,20 @@ export default function TaskModal({
                 {...register("assignee")}
                 disabled={isSubmitting || isFetchingUsers}
               >
-                {/* TODO: Add loading state */}
                 <option value="">
                   {isFetchingUsers ? "Loading users" : "Select assignee"}
                 </option>
-                {users.map(
-                  (user) =>
-                    (user.role === "Project Manager" ||
-                      user.role === "Developer") && (
-                      <option key={user.id} value={user.id}>
-                        {user.firstName} {user.lastName}
-                      </option>
-                    ),
-                )}
+                {users
+                  .filter(
+                    (user) =>
+                      user.role === "Project Manager" ||
+                      user.role === "Developer",
+                  )
+                  .map((user) => (
+                    <option key={user.id} value={String(user.id)}>
+                      {user.firstName} {user.lastName}
+                    </option>
+                  ))}
               </select>
               {errors.assignee?.message && (
                 <p className={modalStyles.fieldError}>

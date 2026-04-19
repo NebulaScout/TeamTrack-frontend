@@ -70,10 +70,10 @@ const ROLE_TO_API = {
 };
 
 const ADMIN_TASK_STATUS_MAP = {
-  TO_DO: "open",
-  IN_PROGRESS: "in_progress",
-  IN_REVIEW: "in_progress",
-  DONE: "done",
+  TO_DO: "To Do",
+  IN_PROGRESS: "In Progress",
+  IN_REVIEW: "In Review",
+  DONE: "Done",
 };
 
 const ADMIN_TASK_PRIORITY_MAP = {

@@ -140,6 +140,7 @@ const ADMIN_PROJECT_STATUS_MAP = {
   PLANNED: "planning",
 };
 
+// Project's tab
 const normalizeAdminProjectStatus = (status) => {
   const normalized = String(status ?? "")
     .trim()
@@ -355,12 +356,13 @@ export const mapAdminProjectDetailsFromAPI = (apiProject) => {
   };
 };
 
+// Tasks tab
 const normalizeAdminTaskStatus = (status) => {
   const normalized = String(status ?? "")
     .trim()
     .toUpperCase();
 
-  return ADMIN_TASK_STATUS_MAP[normalized] || "open";
+  return ADMIN_TASK_STATUS_MAP[normalized] || "To Do";
 };
 
 const normalizeAdminTaskPriority = (priority) => {
