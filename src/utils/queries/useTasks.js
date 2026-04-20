@@ -50,8 +50,8 @@ export const useCreateTask = () => {
   return useMutation({
     mutationFn: ({ projectId, taskData }) =>
       tasksAPI.create(projectId, taskData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: tasksKeys.lists() }); // refetch tasks
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: tasksKeys.lists() }); // refetch tasks
     },
   });
 };
@@ -60,15 +60,17 @@ export const useUpdateTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, taskData }) => {
-      // console.log("Task query update: ", taskData);
-      // console.log("Task query id: ", id);
-      tasksAPI.update(id, taskData);
-    },
-    onSuccess: (data, { id }) => {
+    mutationFn: ({ id, taskData }) => tasksAPI.update(id, taskData),
+    onSuccess: async (updatedTask, { id }) => {
+      // immediate cache update for task details
+      queryClient.setQueryData(
+        tasksKeys.detail(id),
+        mapTaskDetailsFromAPI(updatedTask),
+      );
+
       // refetch specific task and tasks list
-      queryClient.invalidateQueries({ queryKey: tasksKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: tasksKeys.lists() });
+      await queryClient.invalidateQueries({ queryKey: tasksKeys.detail(id) });
+      await queryClient.invalidateQueries({ queryKey: tasksKeys.lists() });
 
       // Also refresh admin task list (TaskModal is used from admin screen too)
       queryClient.invalidateQueries({ queryKey: ["adminTasks"] });
@@ -81,9 +83,9 @@ export const usePatchTask = () => {
 
   return useMutation({
     mutationFn: ({ id, taskData }) => tasksAPI.patch(id, taskData),
-    onSuccess: (data, { id }) => {
-      queryClient.invalidateQueries({ queryKey: tasksKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: tasksKeys.lists() });
+    onSuccess: async (data, { id }) => {
+      await queryClient.invalidateQueries({ queryKey: tasksKeys.detail(id) });
+      await queryClient.invalidateQueries({ queryKey: tasksKeys.lists() });
     },
   });
 };
@@ -93,9 +95,9 @@ export const useDeleteTask = () => {
 
   return useMutation({
     mutationFn: (id) => tasksAPI.delete(id),
-    onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ queryKey: tasksKeys.lists() });
-      queryClient.removeQueries({ queryKey: tasksKeys.detail(id) });
+    onSuccess: async (_, id) => {
+      await queryClient.invalidateQueries({ queryKey: tasksKeys.lists() });
+      await queryClient.removeQueries({ queryKey: tasksKeys.detail(id) });
     },
   });
 };
@@ -127,12 +129,12 @@ export const useCreateComment = () => {
   return useMutation({
     mutationFn: ({ taskId, content }) =>
       tasksAPI.createComment(taskId, { content }),
-    onSuccess: (data, { taskId }) => {
+    onSuccess: async (data, { taskId }) => {
       // invalidate comments query to refetch
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         queryKey: [...tasksKeys.detail(taskId), "comments"],
       });
-      queryClient.invalidateQueries({
+      await queryClient.invalidateQueries({
         // refetch task details
         queryKey: [...tasksKeys.detail(taskId)],
       });

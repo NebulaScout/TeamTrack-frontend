@@ -43,7 +43,6 @@ export default function Tasks() {
 
   const { data: tasks = [], isLoading, isError, refetch } = useGetTasks();
 
-  // console.log("Tasks: ", tasks);
   const {
     mutateAsync: deleteTask,
     isPending: isDeleting,

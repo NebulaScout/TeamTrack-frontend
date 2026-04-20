@@ -6,6 +6,32 @@ import {
   PRIORITY_TO_API,
 } from "./enumMappings";
 
+const mapTaskUser = (apiUser) => {
+  if (!apiUser) return null;
+
+  // Some endpoints return only an ID instead of a full object
+  if (typeof apiUser !== "object") {
+    return {
+      id: apiUser,
+      name: "",
+      avatar: null,
+      role: null,
+    };
+  }
+
+  const fullName =
+    `${apiUser.first_name ?? ""} ${apiUser.last_name ?? ""}`.trim() ||
+    apiUser.username ||
+    "";
+
+  return {
+    id: apiUser.id,
+    name: fullName,
+    avatar: apiUser.avatar ?? null,
+    role: apiUser.role ?? null,
+  };
+};
+
 export const mapTaskFromAPI = (apiTask) => ({
   id: apiTask.id,
   title: apiTask.title,
@@ -17,9 +43,12 @@ export const mapTaskFromAPI = (apiTask) => ({
         projectName: apiTask.project?.project_name,
       }
     : null,
-  // status: STATUS_MAP[apiTask.status] || "To Do",
   priority: PRIORITY_MAP[apiTask.priority] || "Low",
   dueDate: apiTask.due_date || "",
+
+  // Added for user-level visibility filtering on Tasks page
+  assignee: mapTaskUser(apiTask.assigned_to),
+  createdBy: mapTaskUser(apiTask.created_by),
 });
 
 // Transform API task response to frontend format
@@ -39,25 +68,8 @@ export const mapTaskDetailsFromAPI = (apiTask) => ({
       }
     : null,
 
-  // map assignee data
-  assignee: apiTask.assigned_to
-    ? {
-        id: apiTask.assigned_to.id,
-        name: apiTask.assigned_to.username,
-        avatar: apiTask.assigned_to.avatar,
-        role: apiTask.assigned_to.role,
-      }
-    : null,
-
-  // map creaed by user
-  createdBy: apiTask.created_by
-    ? {
-        id: apiTask.created_by.id,
-        name: apiTask.created_by.username,
-        avatar: apiTask.created_by.avatar,
-        role: apiTask.created_by.role,
-      }
-    : null,
+  assignee: mapTaskUser(apiTask.assigned_to),
+  createdBy: mapTaskUser(apiTask.created_by),
 
   // comments:
   //   apiTask.comments.length > 1
