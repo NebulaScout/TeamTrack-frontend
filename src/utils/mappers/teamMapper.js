@@ -1,3 +1,5 @@
+import { resolveAssetUrl } from "../assetUrl";
+
 // Map team stats from API format to frontend format
 export const mapTeamStatsFromAPI = (apiStats) => ({
   totalMembers: apiStats.total_members,
@@ -13,7 +15,7 @@ export const mapTeamMemberFromAPI = (apiMember) => ({
   email: apiMember.email,
   firstName: apiMember.first_name,
   lastName: apiMember.last_name,
-  avatar: apiMember.avatar,
+  avatar: resolveAssetUrl(apiMember.avatar),
   role: apiMember.role,
   isOnline: apiMember.is_online,
   taskCount: apiMember.task_count,
@@ -32,7 +34,7 @@ export const mapTeamInviteToAPI = (inviteData) => ({
 export const mapAdminProjectMemberFromAPI = (apiMember) => ({
   id: apiMember.id,
   username: apiMember.username,
-  avatar: apiMember.avatar,
+  avatar: resolveAssetUrl(apiMember.avatar),
   role: apiMember.role,
 });
 

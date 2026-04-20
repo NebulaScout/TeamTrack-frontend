@@ -5,6 +5,7 @@ import {
   PRIORITY_MAP,
   PRIORITY_TO_API,
 } from "./enumMappings";
+import { resolveAssetUrl } from "../assetUrl";
 
 const mapTaskUser = (apiUser) => {
   if (!apiUser) return null;
@@ -27,7 +28,7 @@ const mapTaskUser = (apiUser) => {
   return {
     id: apiUser.id,
     name: fullName,
-    avatar: apiUser.avatar ?? null,
+    avatar: resolveAssetUrl(apiUser.avatar),
     role: apiUser.role ?? null,
   };
 };

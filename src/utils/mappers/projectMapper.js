@@ -4,6 +4,7 @@ import {
   PROJECT_STATUS_MAP,
   PROJECT_STATUS_TO_API,
 } from "./enumMappings";
+import { resolveAssetUrl } from "../assetUrl";
 
 const normalizeProjectStatusForAPI = (status) => {
   const normalized = String(status ?? "")
@@ -75,7 +76,7 @@ export function mapProjectsFromAPI(apiProject) {
       id: member.id,
       role: member.role,
       username: member.username,
-      avatar: member.avatar || null,
+      avatar: resolveAssetUrl(member.avatar),
     })),
     tasks: tasks,
   };

@@ -1,4 +1,5 @@
 import { PRIORITY_MAP } from "./enumMappings";
+import { resolveAssetUrl } from "../assetUrl";
 
 // Map stats data to StatCard format
 export const mapStatsFromAPI = (apiStats) => {
@@ -98,7 +99,7 @@ export const mapRecentActivityFromAPI = (apiActivities) => {
     task: activity.target_name,
     time: formatTimeAgo(activity.timestamp),
     type: activityTypeMap[activity.action_type] || "updated",
-    avatar: activity.actor.avatar || null,
+    avatar: resolveAssetUrl(activity.actor.avatar),
   }));
 };
 
@@ -112,7 +113,7 @@ export const mapUpcomingDeadlinesFromAPI = (apiDeadlines) => {
     priority: PRIORITY_MAP[deadline.priority] || deadline.priority,
     date: formatDeadlineDate(deadline.due_date),
     dueDate: deadline.due_date, // Keep original for sorting/comparison
-    avatar: deadline.assigned_to?.avatar || null,
+    avatar: resolveAssetUrl(deadline.assigned_to?.avatar),
     assignedTo: deadline.assigned_to
       ? {
           id: deadline.assigned_to.id,

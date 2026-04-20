@@ -5,27 +5,39 @@ import {
   AUDIT_ACTION_LABELS,
 } from "./enumMappings";
 import { formatDate } from "../formatDate";
+import { resolveAssetUrl } from "../assetUrl";
 
 // Map overdue tasks from API
 export const mapOverdueTasksFromAPI = (apiTasks) => {
-  return apiTasks?.map((task) => ({
-    id: task.id,
-    title: task.title,
-    project: task.project_name,
-    dueDate: formatDate(task.due_date),
-    assigee: task.assigned_to
+  return apiTasks?.map((task) => {
+    const assignee = task.assigned_to
       ? {
           name:
-            `${task.assigned_to.first_name} ${task.assigned_to.last_name}`.trim() ||
-            task.assigned_to.username,
-          avatar: task.assigned_to.avatar,
+            (
+              (task.assigned_to.first_name || "") +
+              " " +
+              (task.assigned_to.last_name || "")
+            ).trim() || task.assigned_to.username,
+          avatar: resolveAssetUrl(task.assigned_to.avatar),
           id: task.assigned_to.id,
           username: task.assigned_to.username,
         }
-      : null,
-  }));
-};
+      : null;
 
+    return {
+      id: task.id,
+      title: task.title,
+      project: task.project_name,
+      dueDate: formatDate(task.due_date),
+
+      // canonical key
+      assignee,
+
+      // temporary backward-compat key; remove once UI is updated everywhere
+      assigee: assignee,
+    };
+  });
+};
 // Map unassigned tasks from API
 export const mapUnassignedTasksFromAPI = (apiTasks) => {
   return apiTasks?.map((task) => ({
@@ -62,7 +74,7 @@ const getActionText = (actionType, description) => {
     task_completed: "Task completed by",
     task_created: "Task created by",
     project_created: "Project created by",
-    user_invited: "User invited by",
+    user_invited: "User invited by", // TODO: Correct this to user added
     comment_added: "Comment added by",
     task_updated: "Task updated by",
   };
@@ -103,7 +115,7 @@ export const mapAdminUserDetailsFromAPI = (apiUser) => ({
   firstName: apiUser.first_name ?? "",
   lastName: apiUser.last_name ?? "",
   email: apiUser.email ?? "",
-  avatar: apiUser.avatar || "",
+  avatar: resolveAssetUrl(apiUser.avatar, ""),
   role: (apiUser.role ?? "user").toLowerCase(),
   status: (apiUser.status ?? "inactive").toLowerCase(),
   registeredOn: apiUser.registered_on ?? "",
@@ -119,7 +131,7 @@ export const mapAdminUserFromAPI = (apiUser) => ({
   firstName: apiUser.first_name ?? "",
   lastName: apiUser.last_name ?? "",
   email: apiUser.email ?? "",
-  avatar: apiUser.avatar || "",
+  avatar: resolveAssetUrl(apiUser.avatar, ""),
   role: (apiUser.role ?? "user").toLowerCase(),
   status: (apiUser.status ?? "inactive").toLowerCase(),
   registered: formatDate(apiUser.registered_on),
@@ -215,7 +227,7 @@ export const mapAdminProjectFromAPI = (apiProject) => {
       id: owner?.id,
       username: owner?.username ?? "",
       name: owner?.full_name || owner?.username || "Unknown Owner",
-      avatar: owner?.avatar || "/vite.svg",
+      avatar: resolveAssetUrl(owner?.avatar),
     },
     members: mapAdminProjectMembersToAvatars(
       apiProject?.members,
@@ -277,7 +289,7 @@ const mapMemberObject = (member, index) => {
     username,
     name: displayName,
     role: normalizeMemberRole(member?.role),
-    avatar: member?.avatar || member?.profile_picture || "",
+    avatar: resolveAssetUrl(member?.avatar || member?.profile_picture, ""),
   };
 };
 
@@ -403,7 +415,7 @@ const mapAdminTaskAssignee = (assignee) => {
   return {
     id: assignee?.id,
     name: fullName,
-    avatar: assignee?.avatar || "/vite.svg",
+    avatar: resolveAssetUrl(assignee?.avatar),
   };
 };
 
@@ -528,7 +540,7 @@ const mapAuditActor = (actor) => {
     id: safeActor.id ?? null,
     username: safeActor.username ?? "",
     name: fullName || safeActor.username || "Unknown User",
-    avatar: safeActor.avatar || "/vite.svg",
+    avatar: resolveAssetUrl(safeActor.avatar),
   };
 };
 

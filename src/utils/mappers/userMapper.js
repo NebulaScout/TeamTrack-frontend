@@ -1,10 +1,12 @@
+import { resolveAssetUrl } from "../assetUrl";
+
 export const mapUserFromAPI = (apiUser) => ({
   id: apiUser.id,
   username: apiUser.username,
   firstName: apiUser.first_name,
   lastName: apiUser.last_name,
   email: apiUser.email,
-  avatar: apiUser.avatar,
+  avatar: resolveAssetUrl(apiUser.avatar),
   role: apiUser.role,
   status: apiUser.is_active ? "active" : "inactive",
   registered: apiUser.date_joined

@@ -172,32 +172,39 @@ export default function QuickActionsTab() {
           </div>
           <div className={adminStyles.taskList}>
             {overdueTasks?.length > 0 ? (
-              overdueTasks.map((task) => (
-                <div key={task.id} className={adminStyles.taskItem}>
-                  <div className={adminStyles.taskInfo}>
-                    <h4 className={adminStyles.taskTitle}>{task.title}</h4>
-                    <p className={adminStyles.taskMeta}>
-                      {task.project} ·{" "}
-                      <span className={adminStyles.dueDate}>
-                        Due: {task.dueDate}
-                      </span>
-                    </p>
+              overdueTasks.map((task) => {
+                const taskAssignee = task.assignee || task.assigee;
+
+                return (
+                  <div key={task.id} className={adminStyles.taskItem}>
+                    <div className={adminStyles.taskInfo}>
+                      <h4 className={adminStyles.taskTitle}>{task.title}</h4>
+                      <p className={adminStyles.taskMeta}>
+                        {task.project} ·{" "}
+                        <span className={adminStyles.dueDate}>
+                          Due: {task.dueDate}
+                        </span>
+                      </p>
+                    </div>
+                    <div className={adminStyles.taskActions}>
+                      {taskAssignee ? (
+                        <img
+                          src={taskAssignee.avatar || "/vite.svg"}
+                          alt={taskAssignee.name || "Assignee"}
+                          className={adminStyles.assigneeAvatar}
+                          onError={(e) => {
+                            e.currentTarget.src = "/vite.svg";
+                          }}
+                        />
+                      ) : (
+                        <span className={adminStyles.unassignedLabel}>
+                          Unassigned
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <div className={adminStyles.taskActions}>
-                    {task.assigee ? (
-                      <img
-                        src={task.assigee.avatar}
-                        alt={task.assigee.name}
-                        className={adminStyles.assigneeAvatar}
-                      />
-                    ) : (
-                      <span className={adminStyles.unassignedLabel}>
-                        Unassigned
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <p className={adminStyles.emptyState}>No overdue tasks</p>
             )}

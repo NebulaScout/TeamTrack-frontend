@@ -1,4 +1,5 @@
 import { formatDate } from "../formatDate";
+import { resolveAssetUrl } from "../assetUrl";
 
 // format relative time
 export const formatRelativeTime = (dateString) => {
@@ -30,7 +31,7 @@ export const mapCommentFromAPI = (apiComment) => ({
     ? {
         id: apiComment.author.id,
         name: apiComment.author.username,
-        avatar: apiComment.author.avatar,
+        avatar: resolveAssetUrl(apiComment.author.avatar),
         role: apiComment.author.role,
       }
     : null,
