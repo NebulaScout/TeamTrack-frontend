@@ -22,6 +22,7 @@ import TaskDetailsSheet from "@/components/TaskDetailsSheet";
 import {
   useAdminTasks,
   useDeleteAdminTask,
+  usePatchAdminTask,
 } from "@/utils/queries/useAdminTasks";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import TaskModal from "./TaskModal";
@@ -44,17 +45,23 @@ export default function TaskManagement() {
   const menuRef = useRef(null);
   const triggerRefs = useRef(new Map());
 
-  // const { user } = useAuth();
-
-  // const role = String(user?.role ?? "")
-  //   .trim()
-  //   .toUpperCase();
-  // const canAddTask = role !== "GUEST";
-  // const canManageTaskActions = role !== "GUEST";
-
   const { data, isLoading, isError, error } = useAdminTasks();
   const { mutateAsync: deleteAdminTask, isPending: isDeletingTask } =
     useDeleteAdminTask();
+  const { mutateAsync: patchAdminTask, isPending: isPatchingTask } =
+    usePatchAdminTask();
+
+  // helper to keep API payload valid
+  const toApiPriority = (priority) => {
+    const normalized = String(priority ?? "")
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, "_");
+
+    if (normalized === "HIGH") return "HIGH";
+    if (normalized === "MEDIUM") return "MEDIUM";
+    return "LOW";
+  };
 
   const tasks = data?.tasks ?? [];
   const stats = data?.stats ?? { overdueCount: 0, unassignedCount: 0 };
@@ -148,7 +155,27 @@ export default function TaskManagement() {
     }
 
     if (action === "mark-done") {
-      console.log("Mark as done:", task);
+      if (!task?.id || task.status === "Done") {
+        setOpenMenuFor(null);
+        return;
+      }
+
+      try {
+        await patchAdminTask({
+          id: task.id,
+          data: {
+            status: "DONE",
+            priority: toApiPriority(task.priority),
+            assigned_to: task.assignee?.id ?? 0,
+          },
+        });
+      } catch (err) {
+        console.error("Failed to mark task as done:", err);
+      } finally {
+        setOpenMenuFor(null);
+      }
+
+      return;
     }
 
     if (action === "delete-task") {
@@ -414,16 +441,20 @@ export default function TaskManagement() {
                         Assign User
                       </button>
 
-                      <button
-                        className={adminStyles.userFloatingMenuItem}
-                        onClick={() => handleTaskAction("mark-done", task)}
-                        role="menuitem"
-                      >
-                        <FiCheckCircle
-                          className={adminStyles.userFloatingMenuIcon}
-                        />
-                        Mark as Done
-                      </button>
+                      {task.status != "Done" && (
+                        <button
+                          className={adminStyles.userFloatingMenuItem}
+                          onClick={() => handleTaskAction("mark-done", task)}
+                          role="menuitem"
+                        >
+                          <FiCheckCircle
+                            className={adminStyles.userFloatingMenuIcon}
+                          />
+                          {isPatchingTask && openMenuFor === task.id
+                            ? "Marking..."
+                            : "Mark as Done"}
+                        </button>
+                      )}
 
                       <div className={adminStyles.userFloatingMenuSeparator} />
 

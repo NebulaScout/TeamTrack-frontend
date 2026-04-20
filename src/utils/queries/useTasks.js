@@ -69,6 +69,9 @@ export const useUpdateTask = () => {
       // refetch specific task and tasks list
       queryClient.invalidateQueries({ queryKey: tasksKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: tasksKeys.lists() });
+
+      // Also refresh admin task list (TaskModal is used from admin screen too)
+      queryClient.invalidateQueries({ queryKey: ["adminTasks"] });
     },
   });
 };
