@@ -11,7 +11,7 @@ export const teamAPI = {
     const response = await api.get(
       `/api/v1/projects/${projectId}/team/members/`,
     );
-    return response.data.data;
+    return response.data?.data ?? response.data ?? [];
   },
 
   inviteTeamMember: async (projectId, inviteData) => {

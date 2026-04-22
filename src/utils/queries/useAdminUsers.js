@@ -44,12 +44,17 @@ export const usePatchAdminUser = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }) => {
+    mutationFn: async ({ id, data }) => {
       console.log("Patch admin data:", data);
-      adminAPI.patchUser(id, data);
+      // Important: return/await so mutateAsync resolves after the network request completes
+      return await adminAPI.patchUser(id, data);
     },
-    onSuccess: () => {
+    onSuccess: (_updatedUser, { id }) => {
+      // Refresh users table
       queryClient.invalidateQueries({ queryKey: adminUsersKeys.lists() });
+
+      // Refresh details modal if open for same user
+      queryClient.invalidateQueries({ queryKey: adminUsersKeys.detail(id) });
     },
   });
 };

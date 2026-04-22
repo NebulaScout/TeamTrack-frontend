@@ -4,6 +4,7 @@ import {
   mapAdminProjectDetailsFromAPI,
   mapAdminProjectsFromAPI,
 } from "@/utils/mappers/adminMapper";
+import { teamKeys, projectMemberKeys } from "@/utils/queries/useTeam";
 
 export const adminProjectsKeys = {
   all: ["adminProjects"],
@@ -40,19 +41,46 @@ export const useAdminProject = (id, options = {}) => {
   });
 };
 
+export const useUpdateAdminProject = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }) => adminAPI.updateProject(id, data),
+    onSuccess: async (_data, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: adminProjectsKeys.detail(variables.id),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: adminProjectsKeys.lists(),
+      });
+    },
+  });
+};
+
 export const useRemoveAdminProjectMember = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ projectId, memberId }) =>
       adminAPI.removeTeamMember(projectId, memberId),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: adminProjectsKeys.detail(variables.projectId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: adminProjectsKeys.lists(),
-      });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: adminProjectsKeys.detail(variables.projectId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: adminProjectsKeys.lists(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: teamKeys.members(variables.projectId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: teamKeys.stats(variables.projectId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: projectMemberKeys.project(variables.projectId),
+        }),
+      ]);
     },
   });
 };
@@ -79,13 +107,24 @@ export const useAddAdminProjectMember = () => {
   return useMutation({
     mutationFn: ({ projectId, data }) =>
       adminAPI.addProjectMember(projectId, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: adminProjectsKeys.detail(variables.projectId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: adminProjectsKeys.lists(),
-      });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: adminProjectsKeys.detail(variables.projectId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: adminProjectsKeys.lists(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: teamKeys.members(variables.projectId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: teamKeys.stats(variables.projectId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: projectMemberKeys.project(variables.projectId),
+        }),
+      ]);
     },
   });
 };
@@ -96,13 +135,24 @@ export const useUpdateAdminProjectMemberRole = () => {
   return useMutation({
     mutationFn: ({ projectId, memberId, data }) =>
       adminAPI.updateProjectMember(projectId, memberId, data),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: adminProjectsKeys.detail(variables.projectId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: adminProjectsKeys.lists(),
-      });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: adminProjectsKeys.detail(variables.projectId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: adminProjectsKeys.lists(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: teamKeys.members(variables.projectId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: teamKeys.stats(variables.projectId),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: projectMemberKeys.project(variables.projectId),
+        }),
+      ]);
     },
   });
 };

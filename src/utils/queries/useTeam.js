@@ -1,10 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { teamAPI } from "@/services/teamAPI";
-import { adminAPI } from "@/services/adminAPI";
 import {
   mapTeamStatsFromAPI,
   mapTeamMembersFromAPI,
-  mapAdminProjectMembersFromAPI,
 } from "../mappers/teamMapper";
 
 // Query keys for caching and invalidation
@@ -55,10 +53,32 @@ export const useInviteTeamMember = () => {
   return useMutation({
     mutationFn: ({ projectId, inviteData }) =>
       teamAPI.inviteTeamMember(projectId, inviteData),
-    onSuccess: (_, { projectId }) => {
-      // Invalidate team members and stats to refetch updated data
-      queryClient.invalidateQueries({ queryKey: teamKeys.members(projectId) });
-      queryClient.invalidateQueries({ queryKey: teamKeys.stats(projectId) });
+    onSuccess: async (_, { projectId }) => {
+      const normalizedProjectId = Number(projectId);
+      const hasNumericProjectId = Number.isFinite(normalizedProjectId);
+
+      // Invalidate with the original id and normalized numeric id
+      // because form selects can provide string ids.
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: teamKeys.members(projectId),
+        }),
+        queryClient.invalidateQueries({ queryKey: teamKeys.stats(projectId) }),
+        ...(hasNumericProjectId
+          ? [
+              queryClient.invalidateQueries({
+                queryKey: teamKeys.members(normalizedProjectId),
+              }),
+              queryClient.invalidateQueries({
+                queryKey: teamKeys.stats(normalizedProjectId),
+              }),
+              queryClient.invalidateQueries({
+                queryKey: projectMemberKeys.project(normalizedProjectId),
+              }),
+            ]
+          : []),
+        queryClient.invalidateQueries({ queryKey: teamKeys.all }),
+      ]);
     },
   });
 };
@@ -67,8 +87,8 @@ export const useGetProjectMembers = (projectId, options = {}) => {
   return useQuery({
     queryKey: projectMemberKeys.project(projectId),
     queryFn: async () => {
-      const data = await adminAPI.getProjectMembers(projectId);
-      return mapAdminProjectMembersFromAPI(data);
+      const data = await teamAPI.getMembers(projectId);
+      return mapTeamMembersFromAPI(data);
     },
     enabled: !!projectId,
     staleTime: 5 * 60 * 1000, // 5 minutes

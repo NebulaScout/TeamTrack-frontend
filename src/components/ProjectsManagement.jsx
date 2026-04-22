@@ -16,6 +16,7 @@ import Loader from "@/components/ui/Loader";
 import {
   useAdminProjects,
   useDeleteAdminProject,
+  useUpdateAdminProject,
 } from "@/utils/queries/useAdminProjects";
 import AdminProjectDetailsModal from "@/components/AdminProjectDetailsModal";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
@@ -43,6 +44,8 @@ export default function ProjectsManagement() {
   const triggerRefs = useRef(new Map());
 
   const { data: projects = [], isLoading, isError, error } = useAdminProjects();
+  const { mutateAsync: updateAdminProject, isPending: isUpdatingProject } =
+    useUpdateAdminProject();
   const { mutateAsync: deleteAdminProject, isPending: isDeletingProject } =
     useDeleteAdminProject();
 
@@ -427,6 +430,7 @@ export default function ProjectsManagement() {
             setShowModal={setOpenEditProjectModal}
             onProjectSaved={handleProjectSaved}
             projectToEdit={selectedProject}
+            onUpdateProject={(id, data) => updateAdminProject({ id, data })}
           />
         )}
       </div>

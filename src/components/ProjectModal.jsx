@@ -114,6 +114,7 @@ export default function ProjectModal({
   setShowModal,
   onProjectSaved,
   projectToEdit = null,
+  onUpdateProject,
 }) {
   const {
     register,
@@ -145,16 +146,30 @@ export default function ProjectModal({
 
     try {
       if (isEditMode) {
-        await updateProjectMutation({
-          id: projectToEdit.id,
-          data: mapProjectToAPI({
-            ...data,
-            projectProgress: projectToEdit?.progress,
-          }),
+        const projectId =
+          projectToEdit?.id ?? projectToEdit?.projectId ?? projectToEdit?._id;
+
+        if (!projectId) {
+          throw new Error("Missing project ID for update");
+        }
+
+        const payload = mapProjectToAPI({
+          ...data,
+          projectProgress: projectToEdit?.progress,
         });
+
+        if (typeof onUpdateProject === "function") {
+          await onUpdateProject(projectId, payload);
+        } else {
+          await updateProjectMutation({
+            id: projectId,
+            data: payload,
+          });
+        }
       } else {
         await createProjectMutation(mapProjectToAPI(data));
       }
+
       onProjectSaved();
       setShowModal(false);
     } catch (error) {

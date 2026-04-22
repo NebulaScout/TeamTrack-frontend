@@ -19,9 +19,9 @@ import UserManagement from "@/components/UserManagement";
 import ProjectsManagement from "@/components/ProjectsManagement";
 import TaskManagement from "@/components/TaskManagement";
 import AuditLogs from "@/components/AuditLogs";
-import Analytics from "@/components/Analytcis";
-import CommentsModeration from "@/components/CommentsModeration";
-import RoleManagement from "@/components/RoleManagement";
+// import Analytics from "@/components/Analytcis";
+// import CommentsModeration from "@/components/CommentsModeration";
+// import RoleManagement from "@/components/RoleManagement";
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("quickActions");
@@ -35,10 +35,10 @@ export default function Admin() {
     { id: "users", label: "Users", icon: FiUsers },
     { id: "projects", label: "Projects", icon: FiFolder },
     { id: "tasks", label: "Tasks", icon: FiCheckSquare },
-    { id: "analytics", label: "Analytics", icon: FiBarChart2 },
+    // { id: "analytics", label: "Analytics", icon: FiBarChart2 },
     { id: "auditLogs", label: "Audit Logs", icon: FiClock },
-    { id: "comments", label: "Comments", icon: FiMessageSquare },
-    { id: "roles", label: "Roles", icon: FiShield },
+    // { id: "comments", label: "Comments", icon: FiMessageSquare },
+    // { id: "roles", label: "Roles", icon: FiShield },
   ];
 
   const renderActiveTab = () => {
@@ -51,14 +51,14 @@ export default function Admin() {
         return <ProjectsManagement />;
       case "tasks":
         return <TaskManagement />;
-      case "analytics":
-        return <Analytics />;
+      // case "analytics":
+      //   return <Analytics />;
       case "auditLogs":
         return <AuditLogs />;
-      case "comments":
-        return <CommentsModeration />;
-      case "roles":
-        return <RoleManagement />;
+      // case "comments":
+      //   return <CommentsModeration />;
+      // case "roles":
+      //   return <RoleManagement />;
       default:
         return <QuickActionsTab />;
     }

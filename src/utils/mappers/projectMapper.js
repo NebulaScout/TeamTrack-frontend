@@ -110,7 +110,7 @@ export function mapProjectsFromAPI(apiProject) {
         : completedTasksFromList;
 
   return {
-    id: apiProject?.id,
+    id: apiProject?.id ?? apiProject?.project_id ?? apiProject?._id,
     name: apiProject?.name ?? apiProject?.project_name ?? "",
     description: apiProject?.description ?? "",
     progress: normalizeProjectProgress(

@@ -214,7 +214,7 @@ export const mapAdminProjectFromAPI = (apiProject) => {
   const owner = apiProject?.owner ?? {};
 
   return {
-    id: apiProject?.id,
+    id: apiProject?.id ?? apiProject?.project_id ?? apiProject?._id,
     name: apiProject?.project_name ?? "",
     description: apiProject?.description ?? "",
     status: normalizeAdminProjectStatus(apiProject?.status),
@@ -344,7 +344,7 @@ export const mapAdminProjectDetailsFromAPI = (apiProject) => {
     tasksTotal > 0 ? Math.round((tasksCompleted / tasksTotal) * 100) : 0;
 
   return {
-    id: apiProject?.id,
+    id: apiProject?.id ?? apiProject?.project_id ?? apiProject?._id,
     name: apiProject?.project_name ?? "",
     description: apiProject?.description ?? "",
     status: normalizeAdminProjectStatus(apiProject?.status),

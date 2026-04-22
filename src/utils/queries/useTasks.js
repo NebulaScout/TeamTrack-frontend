@@ -86,6 +86,8 @@ export const usePatchTask = () => {
     onSuccess: async (data, { id }) => {
       await queryClient.invalidateQueries({ queryKey: tasksKeys.detail(id) });
       await queryClient.invalidateQueries({ queryKey: tasksKeys.lists() });
+
+      queryClient.invalidateQueries({ queryKey: ["adminTasks"] });
     },
   });
 };
@@ -98,6 +100,8 @@ export const useDeleteTask = () => {
     onSuccess: async (_, id) => {
       await queryClient.invalidateQueries({ queryKey: tasksKeys.lists() });
       await queryClient.removeQueries({ queryKey: tasksKeys.detail(id) });
+
+      queryClient.invalidateQueries({ queryKey: ["adminTasks"] });
     },
   });
 };

@@ -1,17 +1,17 @@
 import { FiX } from "react-icons/fi";
 import { mapTaskToAPI } from "@/utils/mappers/taskMapper";
 import modalStyles from "@/styles/modals.module.css";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useProjects } from "@/utils/queries/useProjects";
-import { useGetUsers } from "@/utils/queries/useManageUsers";
+import { useGetProjectMembers } from "@/utils/queries/useTeam";
 import {
   useCreateTask,
   useGetTask,
   useUpdateTask,
 } from "@/utils/queries/useTasks";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 const taskSchema = z.object({
   title: z
@@ -51,6 +51,20 @@ const toFormValues = (taskLike) => ({
   dueDate: toDateInputValue(taskLike?.dueDate),
 });
 
+const ASSIGNABLE_ROLES = new Set(["ADMIN", "PROJECT_MANAGER", "DEVELOPER"]);
+
+const normalizeRole = (role) =>
+  String(role ?? "")
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g, "_");
+
+const getMemberDisplayName = (member) => {
+  const fullName =
+    `${member?.firstName ?? ""} ${member?.lastName ?? ""}`.trim();
+  return fullName || member?.username || member?.email || "Unknown User";
+};
+
 export default function TaskModal({
   setShowModal,
   taskToEdit = null,
@@ -58,7 +72,6 @@ export default function TaskModal({
   onClose,
 }) {
   const { data: projects = [], isPending: isFetchingProjects } = useProjects();
-  const { data: users = [], isPending: isFetchingUsers } = useGetUsers();
   // const { data: task } = useGetTask(taskId);
 
   // If caller doesn't pass taskId, derive it from taskToEdit
@@ -69,6 +82,7 @@ export default function TaskModal({
   const isEditMode = !!sourceTask || !!editTaskId;
 
   const {
+    control,
     register,
     handleSubmit,
     clearErrors,
@@ -80,6 +94,19 @@ export default function TaskModal({
     defaultValues: toFormValues(taskToEdit),
   });
 
+  const selectedProjectId = useWatch({ control, name: "project" });
+
+  const { data: projectMembers = [], isPending: isFetchingProjectMembers } =
+    useGetProjectMembers(selectedProjectId);
+
+  const assigneeOptions = useMemo(
+    () =>
+      projectMembers.filter((member) =>
+        ASSIGNABLE_ROLES.has(normalizeRole(member.role)),
+      ),
+    [projectMembers],
+  );
+
   useEffect(() => {
     if (isEditMode) {
       reset(toFormValues(sourceTask));
@@ -88,7 +115,7 @@ export default function TaskModal({
     }
   }, [isEditMode, sourceTask, reset]);
 
-  // console.log("Users retrived: ", users);
+  // console.log("Project members retrieved: ", projectMembers);
 
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: updateTask } = useUpdateTask();
@@ -205,22 +232,22 @@ export default function TaskModal({
               <select
                 aria-invalid={!!errors.assignee}
                 {...register("assignee")}
-                disabled={isSubmitting || isFetchingUsers}
+                disabled={
+                  isSubmitting || !selectedProjectId || isFetchingProjectMembers
+                }
               >
                 <option value="">
-                  {isFetchingUsers ? "Loading users" : "Select assignee"}
+                  {!selectedProjectId
+                    ? "Select a project first"
+                    : isFetchingProjectMembers
+                      ? "Loading project members"
+                      : "Select assignee"}
                 </option>
-                {users
-                  .filter(
-                    (user) =>
-                      user.role === "Project Manager" ||
-                      user.role === "Developer",
-                  )
-                  .map((user) => (
-                    <option key={user.id} value={String(user.id)}>
-                      {user.firstName} {user.lastName}
-                    </option>
-                  ))}
+                {assigneeOptions.map((member) => (
+                  <option key={member.id} value={String(member.id)}>
+                    {getMemberDisplayName(member)}
+                  </option>
+                ))}
               </select>
               {errors.assignee?.message && (
                 <p className={modalStyles.fieldError}>

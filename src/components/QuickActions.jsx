@@ -59,7 +59,7 @@ export default function QuickActionsTab() {
 
   const quickActionCards = [
     { id: "newProject", label: "New Project", icon: FiFolder },
-    { id: "inviteUser", label: "Invite User", icon: FiUserPlus },
+    { id: "inviteUser", label: "Add Team Member", icon: FiUserPlus },
     {
       id: "overdueTasks",
       label: "Overdue Tasks",

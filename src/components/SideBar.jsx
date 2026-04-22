@@ -71,7 +71,7 @@ export default function SideBar() {
       </nav>
 
       <div className={styles.sidebarFooter}>
-        <Link
+        {/* <Link
           to="/settings"
           className={`${styles.navItem} ${location.pathname === "/settings" ? styles.navItemActive : ""}`}
         >
@@ -79,7 +79,7 @@ export default function SideBar() {
             <IoSettingsOutline />
           </span>
           Settings
-        </Link>
+        </Link> */}
 
         <div className={styles.userProfile}>
           <div className={styles.userAvatar}>

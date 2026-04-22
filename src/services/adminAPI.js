@@ -18,6 +18,14 @@ export const adminAPI = {
     return response.data?.data ?? response.data;
   },
 
+  updateProject: async (id, payload) => {
+    const response = await api.patch(
+      `/api/v1/dashboard/admin/projects/${id}/`,
+      payload,
+    );
+    return response.data?.data ?? response.data;
+  },
+
   // Patch admin user (role / active status)
   patchUser: async (id, userData) => {
     const response = await api.patch(

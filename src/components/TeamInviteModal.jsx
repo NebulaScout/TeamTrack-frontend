@@ -70,10 +70,11 @@ export default function TeamInviteModal({ setShowInviteModal }) {
     clearErrors("root");
 
     const apiPayload = mapTeamInviteToAPI(data);
+    const projectId = Number(data.project);
 
     try {
       await inviteTeamMember({
-        projectId: data.project,
+        projectId,
         inviteData: apiPayload,
       });
       setShowInviteModal(false);
@@ -98,9 +99,9 @@ export default function TeamInviteModal({ setShowInviteModal }) {
           <div className={modalStyles.modalTitleWrapper}>
             <FiUsers className={modalStyles.modalTitleIcon} />
             <div>
-              <h2>Invite Team Member</h2>
+              <h2>Add Team Member</h2>
               <p className={modalStyles.modalSubtitle}>
-                Send an invitation to collaborate on your projects.
+                Add a user to collaborate on your projects.
               </p>
             </div>
           </div>
