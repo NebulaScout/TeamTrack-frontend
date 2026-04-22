@@ -93,14 +93,22 @@ export default function Projects() {
   //   return () => document.removeEventListener("click", handleClickOutside);
   // }, []);
 
+  console.log("Projects", projects);
+
   // Filter projects based on the active tab or the searched item
   const filteredProjects = projects.filter((project) => {
+    const normalizedStatus = String(project?.status ?? "")
+      .trim()
+      .toLowerCase();
+
     const selectedTab =
       activeTab === "all" ||
-      (activeTab === "active" && project.status === "Active") ||
-      (activeTab === "completed" && project.status === "Completed");
+      (activeTab === "active" &&
+        (normalizedStatus === "active" ||
+          normalizedStatus === "in progress")) ||
+      (activeTab === "completed" && normalizedStatus === "completed");
 
-    const searchedProject = project.name
+    const searchedProject = String(project?.name ?? "")
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
 
@@ -253,7 +261,7 @@ export default function Projects() {
 
                     <div className={projectStyles.progressBar}>
                       <div
-                        className={`{projectStyles.progressFill} ${
+                        className={`${projectStyles.progressFill} ${
                           project.status === "Completed"
                             ? projectStyles.progressGreen
                             : projectStyles.progressBlue
@@ -281,19 +289,26 @@ export default function Projects() {
 
                   <div className={projectStyles.projectFooter}>
                     <div className={projectStyles.teamAvatars}>
-                      {project.teamMembers.slice(0, 3).map((member, index) => (
-                        <div
-                          key={index}
-                          className={projectStyles.avatar}
-                          style={{ zIndex: 3 - index }}
-                        >
-                          <img src={member.avatar} alt={member.name} />
-                        </div>
-                      ))}
+                      {(project.teamMembers ?? [])
+                        .slice(0, 3)
+                        .map((member, index) => (
+                          <div
+                            key={index}
+                            className={projectStyles.avatar}
+                            style={{ zIndex: 3 - index }}
+                          >
+                            <img
+                              src={member.avatar}
+                              alt={
+                                member.name || member.username || "Team Memeber"
+                              }
+                            />
+                          </div>
+                        ))}
 
-                      {project.teamMembers.length > 3 && (
+                      {(project.teamMembers ?? []).length > 3 && (
                         <div className={projectStyles.moreAvatars}>
-                          +{project.teamMembers.length - 3}
+                          +{(project.teamMembers ?? []).length - 3}
                         </div>
                       )}
                     </div>

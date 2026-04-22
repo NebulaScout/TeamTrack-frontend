@@ -147,7 +147,10 @@ export default function ProjectModal({
       if (isEditMode) {
         await updateProjectMutation({
           id: projectToEdit.id,
-          data: mapProjectToAPI(data),
+          data: mapProjectToAPI({
+            ...data,
+            projectProgress: projectToEdit?.progress,
+          }),
         });
       } else {
         await createProjectMutation(mapProjectToAPI(data));
