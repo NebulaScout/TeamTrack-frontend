@@ -20,6 +20,10 @@ import {
   useGetComments,
   useCreateComment,
 } from "@/utils/queries/useTasks";
+import {
+  useGetAdminTask,
+  useGetAdminTaskComments,
+} from "@/utils/queries/useAdminTasks";
 
 // TODO: Figure a way to fetch comments without having to reopen the sheet
 export default function TaskDetailsSheet({
@@ -29,10 +33,32 @@ export default function TaskDetailsSheet({
   onEdit,
   onDelete,
   canManageTaskActions = true,
+  apiMode = "default",
 }) {
   // console.log("Task id in Sheet: ", taskId);
-  const { data: task } = useGetTask(taskId);
-  const { data: comments, isLoading: commentsLoading } = useGetComments(taskId);
+  const isAdminMode = apiMode === "admin";
+  const { data: userTask } = useGetTask(taskId, {
+    enabled: !!taskId && !isAdminMode,
+  });
+  const { data: adminTask } = useGetAdminTask(taskId, {
+    enabled: !!taskId && isAdminMode,
+  });
+  const task = isAdminMode ? adminTask : userTask;
+
+  const { data: userComments = [], isLoading: isLoadingUserComments } =
+    useGetComments(taskId, {
+      enabled: !!taskId && !isAdminMode,
+    });
+  const { data: adminComments = [], isLoading: isLoadingAdminComments } =
+    useGetAdminTaskComments(taskId, {
+      enabled: !!taskId && isAdminMode,
+    });
+
+  const comments = isAdminMode ? adminComments : userComments;
+  const commentsLoading = isAdminMode
+    ? isLoadingAdminComments
+    : isLoadingUserComments;
+
   console.log("Comments: ", comments);
   const createCommentMutation = useCreateComment();
 
@@ -64,6 +90,7 @@ export default function TaskDetailsSheet({
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
+    if (isAdminMode) return;
     if (!comment.trim() || !taskId) return;
 
     try {
@@ -222,7 +249,6 @@ export default function TaskDetailsSheet({
             </div>
           )}
 
-          {/* Discussion Section */}
           <div className={styles.discussionSection}>
             <div className={styles.discussionHeader}>
               <FiMessageSquare />
@@ -262,36 +288,43 @@ export default function TaskDetailsSheet({
                   </div>
                 ))
               ) : (
-                <p className={styles.emptyText}>
-                  No comments yet. Start the discussion!
-                </p>
+                <p className={styles.emptyText}>No comments yet.</p>
               )}
             </div>
 
-            {/* Comment Input */}
-            <form className={styles.commentForm} onSubmit={handleSubmitComment}>
-              <input
-                ref={inputRef}
-                type="text"
-                placeholder="Add a comment... Use @name to mention"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                className={styles.commentInput}
-              />
-              <button
-                type="submit"
-                className={styles.btnSendComment}
-                disabled={!comment.trim() || createCommentMutation.isPending}
-              >
-                <FiSend />
-              </button>
-            </form>
+            {!isAdminMode && (
+              <>
+                {/* Comment Input */}
+                <form
+                  className={styles.commentForm}
+                  onSubmit={handleSubmitComment}
+                >
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    placeholder="Add a comment... Use @name to mention"
+                    value={comment}
+                    onChange={(e) => setComment(e.target.value)}
+                    className={styles.commentInput}
+                  />
+                  <button
+                    type="submit"
+                    className={styles.btnSendComment}
+                    disabled={
+                      !comment.trim() || createCommentMutation.isPending
+                    }
+                  >
+                    <FiSend />
+                  </button>
+                </form>
 
-            <span className={styles.mentionHint}>
-              {createCommentMutation.isPending
-                ? "Sending..."
-                : "@ Mention with @name"}
-            </span>
+                <span className={styles.mentionHint}>
+                  {createCommentMutation.isPending
+                    ? "Sending..."
+                    : "@ Mention with @name"}
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>

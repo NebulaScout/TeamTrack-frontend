@@ -12,6 +12,14 @@ import {
   useUpdateTask,
 } from "@/utils/queries/useTasks";
 import { useEffect, useMemo } from "react";
+import {
+  useGetAdminTask,
+  useUpdateAdminTask,
+} from "@/utils/queries/useAdminTasks";
+import {
+  useAdminProjectMembers,
+  useAdminProjects,
+} from "@/utils/queries/useAdminProjects";
 
 const taskSchema = z.object({
   title: z
@@ -70,15 +78,30 @@ export default function TaskModal({
   taskToEdit = null,
   taskId = null,
   onClose,
+  apiMode = "default",
 }) {
-  const { data: projects = [], isPending: isFetchingProjects } = useProjects();
-  // const { data: task } = useGetTask(taskId);
+  const isAdminMode = apiMode === "admin";
+
+  const { data: userProjects = [], isPending: isFetchingUserProjects } =
+    useProjects({
+      enabled: !isAdminMode,
+    });
+  const { data: adminProjects = [], isLoading: isFetchingAdminProjects } =
+    useAdminProjects({
+      enabled: isAdminMode,
+    });
 
   // If caller doesn't pass taskId, derive it from taskToEdit
   const editTaskId = taskId ?? taskToEdit?.id ?? null;
-  const { data: fetchedTask } = useGetTask(editTaskId);
+  const { data: fetchedTask } = useGetTask(editTaskId, {
+    enabled: !!editTaskId && !isAdminMode,
+  });
+  const { data: fetchedAdminTask } = useGetAdminTask(editTaskId, {
+    enabled: !!editTaskId && isAdminMode,
+  });
 
-  const sourceTask = fetchedTask ?? taskToEdit;
+  const sourceTask =
+    (isAdminMode ? fetchedAdminTask : fetchedTask) ?? taskToEdit;
   const isEditMode = !!sourceTask || !!editTaskId;
 
   const {
@@ -96,8 +119,28 @@ export default function TaskModal({
 
   const selectedProjectId = useWatch({ control, name: "project" });
 
-  const { data: projectMembers = [], isPending: isFetchingProjectMembers } =
-    useGetProjectMembers(selectedProjectId);
+  const {
+    data: userProjectMembers = [],
+    isPending: isFetchingUserProjectMembers,
+  } = useGetProjectMembers(selectedProjectId, {
+    enabled: !!selectedProjectId && !isAdminMode,
+  });
+  const {
+    data: adminProjectMembers = [],
+    isLoading: isFetchingAdminProjectMembers,
+  } = useAdminProjectMembers(selectedProjectId, {
+    enabled: !!selectedProjectId && isAdminMode,
+  });
+
+  const projects = isAdminMode ? adminProjects : userProjects;
+  const isFetchingProjects = isAdminMode
+    ? isFetchingAdminProjects
+    : isFetchingUserProjects;
+
+  const projectMembers = isAdminMode ? adminProjectMembers : userProjectMembers;
+  const isFetchingProjectMembers = isAdminMode
+    ? isFetchingAdminProjectMembers
+    : isFetchingUserProjectMembers;
 
   const assigneeOptions = useMemo(
     () =>
@@ -119,6 +162,7 @@ export default function TaskModal({
 
   const { mutateAsync: createTask } = useCreateTask();
   const { mutateAsync: updateTask } = useUpdateTask();
+  const { mutateAsync: updateAdminTask } = useUpdateAdminTask();
 
   // const isEditMode = !!taskToEdit || !!taskId;
 
@@ -129,7 +173,8 @@ export default function TaskModal({
     try {
       if (isEditMode) {
         const idToUpdate = sourceTask?.id ?? editTaskId;
-        await updateTask({
+        const updateMutation = isAdminMode ? updateAdminTask : updateTask;
+        await updateMutation({
           id: idToUpdate,
           taskData: apiPayload,
         });

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { FiSearch, FiX } from "react-icons/fi";
 import modalStyles from "@/styles/modals.module.css";
-import { useGetProjectMembers } from "@/utils/queries/useTeam";
+import { useAdminProjectMembers } from "@/utils/queries/useAdminProjects";
 import { usePatchAdminTask } from "@/utils/queries/useAdminTasks";
 import { STATUS_TO_API, PRIORITY_TO_API } from "@/utils/mappers/enumMappings";
 
@@ -38,7 +38,7 @@ export default function AssignTaskUserModal({ isOpen, onClose, task }) {
   const projectId = task?.projectId ?? null;
 
   const { data: projectMembers = [], isLoading: isLoadingMembers } =
-    useGetProjectMembers(projectId);
+    useAdminProjectMembers(projectId);
 
   const { mutateAsync: patchAdminTask, isPending: isAssigning } =
     usePatchAdminTask();

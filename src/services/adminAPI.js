@@ -52,13 +52,13 @@ export const adminAPI = {
     return response.data?.data ?? response.data ?? null;
   },
 
-  addProjectMember: async (projectId, payload) => {
-    const response = await api.post(
-      `/api/v1/projects/${projectId}/team/members/`,
-      payload,
-    );
-    return response.data?.data ?? response.data;
-  },
+   addProjectMember: async (projectId, payload) => {
+     const response = await api.post(
+       `/api/v1/dashboard/admin/projects/${projectId}/team/members/`,
+       payload,
+     );
+     return response.data?.data ?? response.data;
+   },
 
   updateProjectMember: async (projectId, memberId, payload) => {
     const response = await api.patch(
@@ -80,6 +80,26 @@ export const adminAPI = {
   getTasks: async () => {
     const response = await api.get("/api/v1/dashboard/admin/tasks/");
     return response.data?.data ?? response.data ?? { stats: {}, tasks: [] };
+  },
+
+  getTaskById: async (id) => {
+    const response = await api.get(`/api/v1/dashboard/admin/tasks/${id}/`);
+    return response.data?.data ?? response.data;
+  },
+
+  getTaskComments: async (taskId) => {
+    const response = await api.get(
+      `/api/v1/dashboard/admin/tasks/${taskId}/comments/`,
+    );
+    return response.data?.data ?? response.data ?? [];
+  },
+
+  updateTask: async (id, taskData) => {
+    const response = await api.put(
+      `/api/v1/dashboard/admin/tasks/${id}/`,
+      taskData,
+    );
+    return response.data?.data ?? response.data;
   },
 
   patchTask: async (id, taskData) => {

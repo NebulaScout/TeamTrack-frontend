@@ -4,6 +4,7 @@ import {
   mapAdminProjectDetailsFromAPI,
   mapAdminProjectsFromAPI,
 } from "@/utils/mappers/adminMapper";
+import { mapTeamMembersFromAPI } from "@/utils/mappers/teamMapper";
 import { teamKeys, projectMemberKeys } from "@/utils/queries/useTeam";
 
 export const adminProjectsKeys = {
@@ -37,6 +38,21 @@ export const useAdminProject = (id, options = {}) => {
     },
     enabled: !!id && (options.enabled ?? true),
     staleTime: 5 * 60 * 1000,
+    ...options,
+  });
+};
+
+export const useAdminProjectMembers = (projectId, options = {}) => {
+  return useQuery({
+    queryKey: ["adminProjectMembers", projectId],
+    queryFn: async () => {
+      const data = await adminAPI.getProjectMembers(projectId);
+      return mapTeamMembersFromAPI(data);
+    },
+    enabled: !!projectId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+    refetchOnWindowFocus: false,
     ...options,
   });
 };

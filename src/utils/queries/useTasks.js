@@ -32,7 +32,7 @@ export const useGetTasks = (options = {}) => {
   });
 };
 
-export const useGetTask = (id) => {
+export const useGetTask = (id, options = {}) => {
   return useQuery({
     queryKey: tasksKeys.detail(id),
     queryFn: async () => {
@@ -41,6 +41,7 @@ export const useGetTask = (id) => {
     },
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
+    ...options,
   });
 };
 
@@ -107,22 +108,22 @@ export const useDeleteTask = () => {
 };
 
 // Get comments for a specific task
-export const useGetComments = (taskId) => {
+export const useGetComments = (taskId, options = {}) => {
   console.log("Calling comments query");
   return useQuery({
     queryKey: [...tasksKeys.detail(taskId), "comments"],
     queryFn: async () => {
       const data = await tasksAPI.getComments(taskId);
       console.log("Comments in task query: ", data);
-      if (data.length < 2) {
-        return mapCommentFromAPI(data);
-      }
-      return mapCommentsFromAPI(data);
+      if (Array.isArray(data)) return mapCommentsFromAPI(data);
+      if (data && typeof data === "object") return [mapCommentFromAPI(data)];
+      return [];
     },
     enabled: !!taskId,
     staleTime: 2 * 60 * 1000, // 2 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes cache retention
     refetchOnWindowFocus: false,
+    ...options,
   });
 };
 

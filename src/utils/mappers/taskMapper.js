@@ -67,9 +67,14 @@ export const mapTaskDetailsFromAPI = (apiTask) => ({
         id: apiTask.project.id,
         projectName: apiTask.project.project_name,
       }
-    : null,
+    : apiTask.project_name
+      ? {
+          id: apiTask.project_id ?? null,
+          projectName: apiTask.project_name,
+        }
+      : null,
 
-  assignee: mapTaskUser(apiTask.assigned_to),
+  assignee: mapTaskUser(apiTask.assigned_to ?? apiTask.assignee),
   createdBy: mapTaskUser(apiTask.created_by),
 
   // comments:

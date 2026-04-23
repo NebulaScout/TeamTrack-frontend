@@ -481,6 +481,7 @@ export default function TaskManagement() {
           <TaskDetailsSheet
             taskId={selectedTask?.id}
             isOpen={showDetailsSheet}
+            apiMode="admin"
             onClose={() => {
               setShowDetailsSheet(false);
               setSelectedTask(null);
@@ -501,6 +502,7 @@ export default function TaskManagement() {
             // ref={createModalRef}
             setShowModal={setShowEditModal}
             taskToEdit={selectedTask}
+            apiMode="admin"
           />
         )}
 
