@@ -35,8 +35,9 @@ export default function Tasks() {
   const role = String(user?.role ?? "")
     .trim()
     .toUpperCase();
-  const canAddTask = role !== "GUEST";
-  const canManageTaskActions = role !== "GUEST";
+  const canAddTask = role !== "GUEST" && role !== "DEVELOPER";
+  const canManageTaskActions = role !== "GUEST" && role !== "DEVELOPER";
+  const canViewTaskDetails = role !== "GUEST";
   // const TaskDetailsSheetRef = useRef(null);
 
   // const dropdownTriggerRef = useRef(null);
@@ -91,7 +92,7 @@ export default function Tasks() {
   };
 
   const handleTaskClick = (task) => {
-    if (!canManageTaskActions) return;
+    if (!canViewTaskDetails) return;
     // console.log("Task on click: ", task);
     setSelectedTask(task);
     // console.log("Selected task id: ", selectedTask?.id);
@@ -408,7 +409,7 @@ export default function Tasks() {
           />
         )}
 
-        {showDetailsSheet && canManageTaskActions && (
+        {showDetailsSheet && canViewTaskDetails && (
           <TaskDetailsSheet
             // ref={TaskDetailsSheetRef}
             taskId={selectedTask?.id}

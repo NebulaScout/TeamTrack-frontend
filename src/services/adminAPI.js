@@ -52,17 +52,17 @@ export const adminAPI = {
     return response.data?.data ?? response.data ?? null;
   },
 
-   addProjectMember: async (projectId, payload) => {
-     const response = await api.post(
-       `/api/v1/dashboard/admin/projects/${projectId}/team/members/`,
-       payload,
-     );
-     return response.data?.data ?? response.data;
-   },
+  addProjectMember: async (projectId, payload) => {
+    const response = await api.post(
+      `/api/v1/dashboard/admin/projects/${projectId}/team/members/`,
+      payload,
+    );
+    return response.data?.data ?? response.data;
+  },
 
   updateProjectMember: async (projectId, memberId, payload) => {
     const response = await api.patch(
-      `/api/v1/projects/${projectId}/team/members/${memberId}/`,
+      `/api/v1/dashboard/admin/projects/${projectId}/team/members/${memberId}/`,
       payload,
     );
     return response.data?.data ?? response.data;
@@ -71,7 +71,7 @@ export const adminAPI = {
   // Remove a member from a project team
   removeTeamMember: async (projectId, memberId) => {
     const response = await api.delete(
-      `/api/v1/projects/${projectId}/team/members/${memberId}/`,
+      `/api/v1/dashboard/admin/projects/${projectId}/team/members/${memberId}/`,
     );
     return response.data?.data ?? response.data;
   },
@@ -120,6 +120,11 @@ export const adminAPI = {
       `/api/v1/dashboard/admin/projects/${projectId}/members/`,
     );
     return response.data?.data ?? response.data ?? null;
+  },
+
+  getAnalytics: async () => {
+    const response = await api.get("/api/v1/dashboard/admin/analytics/");
+    return response.data?.data ?? response.data ?? {};
   },
 
   getAuditLogs: async (params = {}) => {

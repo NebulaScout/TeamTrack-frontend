@@ -101,6 +101,18 @@ const AUDIT_ACTION_LABELS = {
   description_changed: "changed description",
 };
 
+const STATUS_COLORS = {
+  open: "#6b7280",
+  "in progress": "#3b82f6",
+  done: "#22c55e",
+};
+
+const PRIORITY_COLORS = {
+  low: "#6b7280",
+  medium: "#f59e0b",
+  high: "#ef4444",
+};
+
 export {
   STATUS_MAP,
   STATUS_TO_API,
@@ -115,4 +127,6 @@ export {
   ADMIN_TASK_STATUS_MAP,
   ADMIN_TASK_PRIORITY_MAP,
   AUDIT_ACTION_LABELS,
+  PRIORITY_COLORS,
+  STATUS_COLORS,
 };

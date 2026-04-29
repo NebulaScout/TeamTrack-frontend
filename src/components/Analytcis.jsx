@@ -13,17 +13,40 @@ import {
   Legend,
 } from "recharts";
 import adminStyles from "@/styles/admin.module.css";
-import {
-  analyticsStats,
-  tasksByStatus,
-  tasksByPriority,
-  weeklyTaskProgress,
-  mostActiveUsers,
-  usersWithMostAssignments,
-  projectsByTeamSize,
-} from "@/utils/mockData";
+import Loader from "@/components/ui/Loader";
+import { useAdminAnalytics } from "@/utils/queries/useAdminAnalytics";
 
 export default function Analytics() {
+  const { data, isLoading, isError } = useAdminAnalytics();
+
+  const {
+    analyticsStats = [],
+    tasksByStatus = [],
+    tasksByPriority = [],
+    weeklyTaskProgress = [],
+    mostActiveUsers = [],
+    usersWithMostAssignments = [],
+    projectsByTeamSize = [],
+  } = data ?? {};
+
+  if (isLoading) {
+    return (
+      <div className={adminStyles.analyticsContent}>
+        <Loader />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className={adminStyles.analyticsContent}>
+        <div className={adminStyles.errorMessage}>
+          Failed to load analytics data. Please try again.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={adminStyles.analyticsContent}>
       {/* Stats Cards */}
@@ -159,6 +182,9 @@ export default function Analytics() {
                   src={user.avatar}
                   alt={user.name}
                   className={adminStyles.userListAvatar}
+                  onError={(e) => {
+                    e.currentTarget.src = "/vite.svg";
+                  }}
                 />
                 <div className={adminStyles.userListInfo}>
                   <span className={adminStyles.userListName}>{user.name}</span>
@@ -190,6 +216,9 @@ export default function Analytics() {
                   src={user.avatar}
                   alt={user.name}
                   className={adminStyles.userListAvatar}
+                  onError={(e) => {
+                    e.currentTarget.src = "/vite.svg";
+                  }}
                 />
                 <div className={adminStyles.userListInfo}>
                   <span className={adminStyles.userListName}>{user.name}</span>

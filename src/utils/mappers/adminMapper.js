@@ -3,6 +3,8 @@ import {
   ADMIN_TASK_STATUS_MAP,
   ADMIN_TASK_PRIORITY_MAP,
   AUDIT_ACTION_LABELS,
+  STATUS_COLORS,
+  PRIORITY_COLORS,
 } from "./enumMappings";
 import { formatDate } from "../formatDate";
 import { resolveAssetUrl } from "../assetUrl";
@@ -619,5 +621,86 @@ export const mapAdminAuditLogsFromAPI = (apiData) => {
   return {
     logs: logs.map(mapAdminAuditLogFromAPI),
     totalCount: Number(apiData?.total_count ?? logs.length),
+  };
+};
+
+// Anaylics mapping
+const normalizeLabel = (value) =>
+  String(value ?? "")
+    .trim()
+    .toLowerCase();
+
+const mapDonutBucket = (item, colorMap) => {
+  const name = String(item?.name ?? "").trim();
+  const key = normalizeLabel(name);
+  return {
+    name,
+    value: Number(item?.value ?? 0),
+    color: item?.color ?? colorMap[key] ?? "#6b7280",
+  };
+};
+
+export const mapAdminAnalyticsFromAPI = (apiData = {}) => {
+  const analyticsStats = Array.isArray(apiData?.analytics_stats)
+    ? apiData.analytics_stats
+    : [];
+
+  const tasksByStatus = Array.isArray(apiData?.tasks_by_status)
+    ? apiData.tasks_by_status.map((item) => mapDonutBucket(item, STATUS_COLORS))
+    : [];
+
+  const tasksByPriority = Array.isArray(apiData?.tasks_by_priority)
+    ? apiData.tasks_by_priority.map((item) =>
+        mapDonutBucket(item, PRIORITY_COLORS),
+      )
+    : [];
+
+  const weeklyTaskProgress = Array.isArray(apiData?.weekly_task_progress)
+    ? apiData.weekly_task_progress.map((item) => ({
+        week: String(item?.week ?? ""),
+        completed: Number(item?.completed ?? 0),
+        pending: Number(item?.pending ?? 0),
+      }))
+    : [];
+
+  const mostActiveUsers = Array.isArray(apiData?.most_active_users)
+    ? apiData.most_active_users.map((user) => ({
+        id: user?.id ?? null,
+        name: String(user?.name ?? ""),
+        created: Number(user?.created ?? 0),
+        completed: Number(user?.completed ?? 0),
+        avatar: resolveAssetUrl(user?.avatar, "/vite.svg"),
+      }))
+    : [];
+
+  const usersWithMostAssignments = Array.isArray(
+    apiData?.users_with_most_assignments,
+  )
+    ? apiData.users_with_most_assignments.map((user) => ({
+        id: user?.id ?? null,
+        name: String(user?.name ?? ""),
+        tasks: Number(user?.tasks ?? 0),
+        avatar: resolveAssetUrl(user?.avatar, "/vite.svg"),
+      }))
+    : [];
+
+  const rawProjectsByTeamSize =
+    apiData?.projects_by_team_size ?? apiData?.projects_by_team_size ?? [];
+
+  const projectsByTeamSize = Array.isArray(rawProjectsByTeamSize)
+    ? rawProjectsByTeamSize.map((project) => ({
+        name: String(project?.name ?? ""),
+        members: Number(project?.members ?? 0),
+      }))
+    : [];
+
+  return {
+    analyticsStats,
+    tasksByStatus,
+    tasksByPriority,
+    weeklyTaskProgress,
+    mostActiveUsers,
+    usersWithMostAssignments,
+    projectsByTeamSize,
   };
 };
