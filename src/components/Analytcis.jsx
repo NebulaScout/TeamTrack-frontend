@@ -16,6 +16,38 @@ import adminStyles from "@/styles/admin.module.css";
 import Loader from "@/components/ui/Loader";
 import { useAdminAnalytics } from "@/utils/queries/useAdminAnalytics";
 
+const wrapLabel = (value, max = 18) => {
+  const words = String(value).split(" ");
+  const lines = [];
+  let line = "";
+
+  words.forEach((word) => {
+    const next = line ? `${line} ${word}` : word;
+    if (next.length > max) {
+      if (line) lines.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
+  });
+
+  if (line) lines.push(line);
+  return lines;
+};
+
+const ProjectNameTick = ({ x, y, payload }) => {
+  const lines = wrapLabel(payload.value, 18);
+  return (
+    <text x={x} y={y} textAnchor="end" fill="#6b7280" fontSize={12}>
+      {lines.map((line, index) => (
+        <tspan key={line + index} x={x} dy={index === 0 ? 4 : 14}>
+          {line}
+        </tspan>
+      ))}
+    </text>
+  );
+};
+
 export default function Analytics() {
   const { data, isLoading, isError } = useAdminAnalytics();
 
@@ -243,7 +275,11 @@ export default function Analytics() {
       <div className={adminStyles.analyticsChartCardFull}>
         <h3 className={adminStyles.chartTitle}>Projects by Team Size</h3>
         <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={projectsByTeamSize} layout="vertical">
+          <BarChart
+            data={projectsByTeamSize}
+            layout="vertical"
+            margin={{ top: 0, right: 24, left: 40, bottom: 0 }}
+          >
             <CartesianGrid strokeDasharray="3 3" horizontal={false} />
             <XAxis type="number" axisLine={false} tickLine={false} />
             <YAxis
@@ -251,7 +287,9 @@ export default function Analytics() {
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              width={80}
+              width={170}
+              interval={0}
+              tick={<ProjectNameTick />}
             />
             <Tooltip />
             <Bar dataKey="members" fill="#3b82f6" radius={[0, 4, 4, 0]} />
