@@ -8,7 +8,9 @@ const getFallbackOrigin = () => {
 };
 
 export const getApiOrigin = () => {
-  const apiBase = import.meta.env.TEAM_TRACK_API_BASE_URL || "";
+  const apiBase =
+    import.meta.env.VITE_TEAM_TRACK_API_BASE_URL ||
+    import.meta.env.VITE_API_BASE_URL;
   const fallbackOrigin = getFallbackOrigin();
 
   if (!apiBase) return fallbackOrigin;
