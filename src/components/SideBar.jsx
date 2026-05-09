@@ -9,11 +9,17 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { FiLogOut } from "react-icons/fi";
 import { useAuth } from "@/contexts/AuthProvider";
 import styles from "@/styles/dashboard.module.css";
+import { IoNotificationsOutline } from "react-icons/io5";
 
 const baseNavItems = [
   { path: "/dashboard", label: "Dashboard", icon: <LuLayoutDashboard /> },
   { path: "/projects", label: "Projects", icon: <LuFolderKanban /> },
   { path: "/tasks", label: "My Tasks", icon: <FiCheckSquare /> },
+  {
+    path: "/notifications",
+    label: "Notifications",
+    icon: <IoNotificationsOutline />,
+  },
 ];
 
 const teamNavItem = { path: "/team", label: "Team", icon: <RiTeamLine /> };

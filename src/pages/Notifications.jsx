@@ -1,34 +1,43 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { IoNotificationsOutline } from "react-icons/io5";
-import { FiCheck, FiSearch } from "react-icons/fi";
+import { FiCheck } from "react-icons/fi";
 import SideBar from "@/components/SideBar";
-import { mockNotificationsData } from "@/utils/mockData";
 import Header from "@/components/Header";
 import styles from "@/styles/dashboard.module.css";
 import notificationStyles from "@/styles/notifications.module.css";
+import { useGetNotifications } from "@/utils/queries/useNotifications";
 
 export default function Notifications() {
   const [activeTab, setActiveTab] = useState("all");
-  const [notifications, setNotifications] = useState(mockNotificationsData);
+  const [notifications, setNotifications] = useState([]);
 
-  // Count unread notifications
-  const unreadCount = Object.values(notifications).filter(
+  const {
+    data: apiNotifications = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useGetNotifications();
+
+  useEffect(() => {
+    setNotifications(apiNotifications);
+  }, [apiNotifications]);
+
+  const unreadCount = notifications.filter(
     (notification) => !notification.isRead,
   ).length;
 
-  // Show unread notifications when a user filters the page, otherwise show all
-  let filteredNotifications =
+  const filteredNotifications =
     activeTab === "unread"
-      ? Object.values(notifications).filter(
-          (notification) => !notification.isRead,
-        )
+      ? notifications.filter((notification) => !notification.isRead)
       : notifications;
 
   const markAllAsRead = () => {
-    setNotifications((notification) => ({
-      ...notification,
-      isRead: true,
-    }));
+    setNotifications((prev) =>
+      prev.map((notification) => ({
+        ...notification,
+        isRead: true,
+      })),
+    );
   };
 
   return (
@@ -41,9 +50,7 @@ export default function Notifications() {
           unreadNotifications={unreadCount}
         />
 
-        {/* Notifications Content */}
         <div className={notificationStyles.notificationsContainer}>
-          {/* Tabs & Actions */}
           <div className={notificationStyles.notificationsHeader}>
             <div className={notificationStyles.tabs}>
               <button
@@ -68,9 +75,21 @@ export default function Notifications() {
             </button>
           </div>
 
-          {/* Notifications List */}
           <div className={notificationStyles.notificationsList}>
-            {filteredNotifications.length === 0 ? (
+            {isLoading && (
+              <div className={notificationStyles.emptyState}>
+                <p>Loading notifications...</p>
+              </div>
+            )}
+
+            {isError && (
+              <div className={notificationStyles.emptyState}>
+                <p>Failed to load notifications.</p>
+                <button onClick={() => refetch()}>Retry</button>
+              </div>
+            )}
+
+            {!isLoading && !isError && filteredNotifications.length === 0 ? (
               <div className={notificationStyles.emptyState}>
                 <div className={notificationStyles.emptyStateIcon}>
                   <IoNotificationsOutline />
@@ -79,7 +98,7 @@ export default function Notifications() {
                 <p>You're all caught up!</p>
               </div>
             ) : (
-              Object.values(filteredNotifications).map((notification) => (
+              filteredNotifications.map((notification) => (
                 <div
                   key={notification.id}
                   className={`${notificationStyles.notificationsItem} ${!notification.isRead && notificationStyles.unread}`}
