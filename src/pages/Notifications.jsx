@@ -5,7 +5,10 @@ import SideBar from "@/components/SideBar";
 import Header from "@/components/Header";
 import styles from "@/styles/dashboard.module.css";
 import notificationStyles from "@/styles/notifications.module.css";
-import { useGetNotifications } from "@/utils/queries/useNotifications";
+import {
+  useGetNotifications,
+  useReadAllNotifications,
+} from "@/utils/queries/useNotifications";
 
 export default function Notifications() {
   const [activeTab, setActiveTab] = useState("all");
@@ -17,6 +20,9 @@ export default function Notifications() {
     isError,
     refetch,
   } = useGetNotifications();
+
+  const { mutateAsync: readAllNotifications, isPending: isReadingAll } =
+    useReadAllNotifications();
 
   useEffect(() => {
     setNotifications(apiNotifications);
@@ -31,13 +37,18 @@ export default function Notifications() {
       ? notifications.filter((notification) => !notification.isRead)
       : notifications;
 
-  const markAllAsRead = () => {
-    setNotifications((prev) =>
-      prev.map((notification) => ({
-        ...notification,
-        isRead: true,
-      })),
-    );
+  const markAllAsRead = async () => {
+    try {
+      await readAllNotifications(true);
+      setNotifications((prev) =>
+        prev.map((notification) => ({
+          ...notification,
+          isRead: true,
+        })),
+      );
+    } catch (error) {
+      console.error("Failed to mark notifications as read", error);
+    }
   };
 
   return (
@@ -69,6 +80,7 @@ export default function Notifications() {
             <button
               className={notificationStyles.btnMarkAllRead}
               onClick={markAllAsRead}
+              disabled={isReadingAll}
             >
               <FiCheck />
               Mark all as read

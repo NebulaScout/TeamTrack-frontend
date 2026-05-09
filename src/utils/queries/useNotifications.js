@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notificationsAPI } from "@/services/notificationsAPI";
 import { mapNotificationsFromAPI } from "@/utils/mappers/notificationMapper";
 
@@ -19,5 +19,16 @@ export const useGetNotifications = (filters = {}, options = {}) => {
     gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
     ...options,
+  });
+};
+
+export const useReadAllNotifications = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (isRead = true) => notificationsAPI.readAll(isRead),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
+    },
   });
 };
