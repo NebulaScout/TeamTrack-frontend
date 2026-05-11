@@ -4,6 +4,7 @@ import {
   mapAdminUserDetailsFromAPI,
   mapAdminUsersFromAPI,
 } from "@/utils/mappers/adminMapper";
+import { notificationsKeys } from "@/utils/queries/useNotifications";
 
 export const adminUsersKeys = {
   all: ["adminUsers"],
@@ -55,6 +56,7 @@ export const usePatchAdminUser = () => {
 
       // Refresh details modal if open for same user
       queryClient.invalidateQueries({ queryKey: adminUsersKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };

@@ -6,6 +6,7 @@ import {
 } from "@/utils/mappers/adminMapper";
 import { mapTeamMembersFromAPI } from "@/utils/mappers/teamMapper";
 import { teamKeys, projectMemberKeys } from "@/utils/queries/useTeam";
+import { notificationsKeys } from "@/utils/queries/useNotifications";
 
 export const adminProjectsKeys = {
   all: ["adminProjects"],
@@ -69,6 +70,7 @@ export const useUpdateAdminProject = () => {
       await queryClient.invalidateQueries({
         queryKey: adminProjectsKeys.lists(),
       });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -97,6 +99,7 @@ export const useRemoveAdminProjectMember = () => {
           queryKey: projectMemberKeys.project(variables.projectId),
         }),
       ]);
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -113,6 +116,7 @@ export const useDeleteAdminProject = () => {
       queryClient.removeQueries({
         queryKey: adminProjectsKeys.detail(id),
       });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -141,6 +145,7 @@ export const useAddAdminProjectMember = () => {
           queryKey: projectMemberKeys.project(variables.projectId),
         }),
       ]);
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -169,6 +174,7 @@ export const useUpdateAdminProjectMemberRole = () => {
           queryKey: projectMemberKeys.project(variables.projectId),
         }),
       ]);
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };

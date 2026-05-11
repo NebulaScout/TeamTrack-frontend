@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { usersAPI } from "@/services/usersAPI";
 import { mapUsersFromAPI, mapUserFromAPI } from "@/utils/mappers/userMapper";
+import { notificationsKeys } from "@/utils/queries/useNotifications";
 
 // query keys
 export const usersKeys = {
@@ -45,6 +46,7 @@ export const useUpdateUser = () => {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: usersKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -58,6 +60,7 @@ export const usePatchUser = () => {
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: usersKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -70,6 +73,7 @@ export const useDeleteUser = () => {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: usersKeys.lists() });
       queryClient.removeQueries({ queryKey: usersKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };

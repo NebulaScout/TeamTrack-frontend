@@ -6,6 +6,7 @@ import {
   mapCommentFromAPI,
   mapCommentsFromAPI,
 } from "@/utils/mappers/commentsMapper";
+import { notificationsKeys } from "@/utils/queries/useNotifications";
 
 export const adminTasksKeys = {
   all: ["adminTasks"],
@@ -38,6 +39,7 @@ export const usePatchAdminTask = () => {
       queryClient.invalidateQueries({ queryKey: adminTasksKeys.lists() });
       queryClient.invalidateQueries({ queryKey: adminTasksKeys.list() });
       queryClient.invalidateQueries({ queryKey: adminTasksKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -76,7 +78,7 @@ export const useUpdateAdminTask = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, taskData }) => adminAPI.updateTask(id, taskData),
+    mutationFn: ({ id, taskData }) => adminAPI.patchTask(id, taskData),
     onSuccess: async (updatedTask, { id }) => {
       queryClient.setQueryData(
         adminTasksKeys.detail(id),
@@ -89,6 +91,7 @@ export const useUpdateAdminTask = () => {
       await queryClient.invalidateQueries({ queryKey: adminTasksKeys.lists() });
       await queryClient.invalidateQueries({ queryKey: adminTasksKeys.list() });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -102,6 +105,7 @@ export const useDeleteAdminTask = () => {
       queryClient.invalidateQueries({ queryKey: adminTasksKeys.lists() });
       queryClient.invalidateQueries({ queryKey: adminTasksKeys.list() });
       queryClient.removeQueries({ queryKey: adminTasksKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };

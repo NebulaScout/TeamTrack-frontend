@@ -15,7 +15,7 @@ const loginSchema = z.object({
     .string()
     .trim()
     .min(3, "Username must be atleast 3 characters long")
-    .max(20, "Username is too long")
+    .max(30, "Username is too long")
     .refine((val) => !/^\d+$/.test(val), {
       message: "Username cannot consist of only numbers",
     }),

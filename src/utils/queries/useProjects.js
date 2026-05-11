@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { projectsAPI } from "@/services/projectsAPI";
 import { mapProjectsFromAPIs } from "@/utils/mappers/projectMapper";
 import { adminProjectsKeys } from "@/utils/queries/useAdminProjects";
+import { notificationsKeys } from "@/utils/queries/useNotifications";
 
 // Query keys for better cache management
 export const projectsKeys = {
@@ -45,6 +46,7 @@ export const useCreateProject = () => {
     mutationFn: projectsAPI.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: projectsKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -68,6 +70,7 @@ export const useUpdateProject = () => {
       await queryClient.invalidateQueries({
         queryKey: adminProjectsKeys.lists(),
       });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -82,6 +85,7 @@ export const useDeleteProject = () => {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: projectsKeys.lists() });
       queryClient.removeQueries({ queryKey: projectsKeys.detail(id) });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };

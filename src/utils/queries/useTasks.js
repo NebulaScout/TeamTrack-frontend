@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { tasksAPI } from "@/services/tasksAPI";
+import { notificationsKeys } from "@/utils/queries/useNotifications";
 import {
   mapTaskDetailsFromAPI,
   mapTasksFromAPI,
@@ -53,6 +54,7 @@ export const useCreateTask = () => {
       tasksAPI.create(projectId, taskData),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: tasksKeys.lists() }); // refetch tasks
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -75,6 +77,7 @@ export const useUpdateTask = () => {
 
       // Also refresh admin task list (TaskModal is used from admin screen too)
       queryClient.invalidateQueries({ queryKey: ["adminTasks"] });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -89,6 +92,7 @@ export const usePatchTask = () => {
       await queryClient.invalidateQueries({ queryKey: tasksKeys.lists() });
 
       queryClient.invalidateQueries({ queryKey: ["adminTasks"] });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -103,6 +107,7 @@ export const useDeleteTask = () => {
       await queryClient.removeQueries({ queryKey: tasksKeys.detail(id) });
 
       queryClient.invalidateQueries({ queryKey: ["adminTasks"] });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
@@ -143,6 +148,7 @@ export const useCreateComment = () => {
         // refetch task details
         queryKey: [...tasksKeys.detail(taskId)],
       });
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };

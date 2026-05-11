@@ -4,6 +4,7 @@ import {
   mapTeamStatsFromAPI,
   mapTeamMembersFromAPI,
 } from "../mappers/teamMapper";
+import { notificationsKeys } from "@/utils/queries/useNotifications";
 
 // Query keys for caching and invalidation
 export const teamKeys = {
@@ -79,6 +80,7 @@ export const useInviteTeamMember = () => {
           : []),
         queryClient.invalidateQueries({ queryKey: teamKeys.all }),
       ]);
+      queryClient.invalidateQueries({ queryKey: notificationsKeys.lists() });
     },
   });
 };
