@@ -7,15 +7,16 @@ import {
 
 export const notificationsKeys = {
   all: ["notifications"],
-  lists: () => notificationsKeys.all.concat("list"),
-  list: (filters = {}) => notificationsKeys.lists().concat(filters),
+  lists: (userId) => notificationsKeys.all.concat("list", userId ?? "anon"),
+  list: (userId, filters = {}) =>
+    notificationsKeys.lists(userId).concat(filters),
   details: () => notificationsKeys.all.concat("detail"),
   detail: (id) => notificationsKeys.details().concat(id),
 };
 
-export const useGetNotifications = (filters = {}, options = {}) => {
+export const useGetNotifications = (userId, filters = {}, options = {}) => {
   return useQuery({
-    queryKey: notificationsKeys.list(filters),
+    queryKey: notificationsKeys.list(userId, filters),
     queryFn: async () => {
       const data = await notificationsAPI.getAll();
       return mapNotificationsFromAPI(data);

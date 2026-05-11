@@ -96,9 +96,26 @@
 
 .notificationsItem {
   display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
   padding: 16px 20px;
   border-bottom: 1px solid #e5e7eb;
   transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.notificationsContent {
+  flex: 1;
+}
+
+.unreadDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background-color: #3b82f6;
+  margin-top: 6px;
+  flex-shrink: 0;
 }
 
 .notificationsItem:hover {

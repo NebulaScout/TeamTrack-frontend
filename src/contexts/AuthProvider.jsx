@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { authAPI } from "@/services/authAPI";
 import { mapUserFromAPI } from "@/utils/mappers/userMapper";
 
@@ -15,6 +16,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -52,6 +54,9 @@ export function AuthProvider({ children }) {
     const userData = await authAPI.getCurrentUser();
     const mappedData = mapUserFromAPI(userData);
 
+    // Clear stale cache from prior user before switching
+    queryClient.clear();
+
     setUser(mappedData);
     setIsAuthenticated(true);
 
@@ -69,6 +74,10 @@ export function AuthProvider({ children }) {
       setUser(null);
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
+
+      // Clear cached queries so next login starts fresh
+      queryClient.clear();
+
       navigate("/login", { replace: true });
     }
   };

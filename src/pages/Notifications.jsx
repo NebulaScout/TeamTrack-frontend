@@ -8,6 +8,7 @@ import notificationStyles from "@/styles/notifications.module.css";
 import {
   useGetNotifications,
   useReadAllNotifications,
+  useReadNotification,
 } from "@/utils/queries/useNotifications";
 
 export default function Notifications() {
@@ -23,6 +24,8 @@ export default function Notifications() {
 
   const { mutateAsync: readAllNotifications, isPending: isReadingAll } =
     useReadAllNotifications();
+
+  const { mutateAsync: readNotification } = useReadNotification();
 
   useEffect(() => {
     setNotifications(apiNotifications);
@@ -48,6 +51,25 @@ export default function Notifications() {
       );
     } catch (error) {
       console.error("Failed to mark notifications as read", error);
+    }
+  };
+
+  const markNotificationAsRead = async (notification) => {
+    if (notification.isRead) return;
+
+    setNotifications((prev) =>
+      prev.map((item) =>
+        item.id === notification.id
+          ? { ...item, isRead: true, readAt: new Date().toISOString() }
+          : item,
+      ),
+    );
+
+    try {
+      await readNotification({ id: notification.id, isRead: true });
+    } catch (error) {
+      console.error("Failed to mark notification as read", error);
+      refetch();
     }
   };
 
@@ -114,6 +136,14 @@ export default function Notifications() {
                 <div
                   key={notification.id}
                   className={`${notificationStyles.notificationsItem} ${!notification.isRead && notificationStyles.unread}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => markNotificationAsRead(notification)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      markNotificationAsRead(notification);
+                    }
+                  }}
                 >
                   <div className={notificationStyles.notificationsContent}>
                     <h4>{notification.title}</h4>
@@ -122,6 +152,12 @@ export default function Notifications() {
                       {notification.time}
                     </span>
                   </div>
+                  {!notification.isRead && (
+                    <span
+                      className={notificationStyles.unreadDot}
+                      aria-hidden="true"
+                    />
+                  )}
                 </div>
               ))
             )}
