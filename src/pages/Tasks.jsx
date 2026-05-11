@@ -38,6 +38,8 @@ export default function Tasks() {
   const canAddTask = role !== "GUEST" && role !== "DEVELOPER";
   const canManageTaskActions = role !== "GUEST" && role !== "DEVELOPER";
   const canViewTaskDetails = role !== "GUEST";
+  const isBlockedTaskActions = !canManageTaskActions;
+  const isBlockedTaskAdd = !canAddTask;
   // const TaskDetailsSheetRef = useRef(null);
 
   // const dropdownTriggerRef = useRef(null);
@@ -161,14 +163,14 @@ export default function Tasks() {
               </button>
 
               <button
-                className={taskStyles.btnAddTask}
+                className={`${taskStyles.btnAddTask} ${isBlockedTaskAdd ? taskStyles.btnDisabled : ""}`}
                 onClick={() => {
                   if (!canAddTask) return;
                   setSelectedTask(null);
                   setShowModal(true);
                 }}
-                disabled={!canAddTask}
-                aria-disabled={!canAddTask}
+                disabled={isBlockedTaskAdd}
+                aria-disabled={isBlockedTaskAdd}
               >
                 <FiPlus />
                 Add Task
@@ -360,24 +362,28 @@ export default function Tasks() {
                       <>
                         <button
                           onMouseDown={(e) => e.stopPropagation()}
-                          className={taskStyles.btnMore}
+                          className={`${taskStyles.btnMore} ${isBlockedTaskActions ? taskStyles.btnDisabled : ""}`}
                           onClick={(e) => {
+                            if (isBlockedTaskActions) return;
                             toggleDropdown(e, task.id);
                           }}
+                          disabled={isBlockedTaskActions}
+                          aria-disabled={isBlockedTaskActions}
                         >
                           <FiMoreHorizontal />
                         </button>
-                        {activeDropdown === task.id && (
-                          <DropdownMenu
-                            ref={dropdownModalRef}
-                            item={task}
-                            onEdit={handleEdit}
-                            onDelete={(task) => {
-                              setSelectedTask(task);
-                              setShowDeleteModal(true);
-                            }}
-                          />
-                        )}
+                        {!isBlockedTaskActions &&
+                          activeDropdown === task.id && (
+                            <DropdownMenu
+                              ref={dropdownModalRef}
+                              item={task}
+                              onEdit={handleEdit}
+                              onDelete={(task) => {
+                                setSelectedTask(task);
+                                setShowDeleteModal(true);
+                              }}
+                            />
+                          )}
                       </>
                     )}
                   </div>

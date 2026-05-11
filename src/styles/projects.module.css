@@ -95,6 +95,26 @@
   transition: background-color 0.2s ease;
 }
 
+.btnNewProject:disabled,
+.btnNewProject[aria-disabled="true"],
+.btnMore:disabled,
+.btnMore[aria-disabled="true"] {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btnMore:disabled,
+.btnMore[aria-disabled="true"] {
+  background: none;
+}
+
+.btnDisabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
 .btnNewProject:hover {
   background-color: #1d4ed8;
 }

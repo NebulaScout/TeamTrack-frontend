@@ -114,6 +114,26 @@
   transition: background-color 0.2s ease;
 }
 
+.btnAddTask:disabled,
+.btnAddTask[aria-disabled="true"],
+.btnMore:disabled,
+.btnMore[aria-disabled="true"] {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.btnMore:disabled,
+.btnMore[aria-disabled="true"] {
+  background: none;
+}
+
+.btnDisabled {
+  background-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
 .btnAddTask:hover {
   background-color: #1d4ed8;
 }
@@ -195,6 +215,11 @@
   gap: 12px;
   cursor: pointer;
   transition: box-shadow 0.2s ease;
+}
+
+.cardBlocked {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .taskCard:hover {

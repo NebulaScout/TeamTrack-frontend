@@ -34,6 +34,7 @@ export default function Projects() {
     .trim()
     .toUpperCase();
   const canManageProjects = !["DEVELOPER", "GUEST"].includes(normalizedRole);
+  const isBlockedProjectActions = !canManageProjects;
 
   const {
     data: projects = [],
@@ -169,14 +170,14 @@ export default function Projects() {
                 </button>
               </div>
               <button
-                className={projectStyles.btnNewProject}
+                className={`${projectStyles.btnNewProject} ${isBlockedProjectActions ? projectStyles.btnDisabled : ""}`}
                 onClick={() => {
                   if (!canManageProjects) return;
                   setSelectedProject(null);
                   setShowModal(true);
                 }}
-                disabled={!canManageProjects}
-                aria-disabled={!canManageProjects}
+                disabled={isBlockedProjectActions}
+                aria-disabled={isBlockedProjectActions}
               >
                 <FiPlus />
                 New Project
@@ -223,24 +224,30 @@ export default function Projects() {
                     {canManageProjects && (
                       <div className="dropdownContainer">
                         <button
-                          className={projectStyles.btnMore}
+                          className={`${projectStyles.btnMore} ${isBlockedProjectActions ? projectStyles.btnDisabled : ""}`}
                           onMouseDown={(e) => e.stopPropagation()}
-                          onClick={(e) => toggleDropdown(e, project.id)}
+                          onClick={(e) => {
+                            if (isBlockedProjectActions) return;
+                            toggleDropdown(e, project.id);
+                          }}
+                          disabled={isBlockedProjectActions}
+                          aria-disabled={isBlockedProjectActions}
                         >
                           <FiMoreHorizontal />
                         </button>
 
-                        {activeDropdown === project.id && (
-                          <DropdownMenu
-                            ref={dropdownModalRef}
-                            item={project}
-                            onEdit={handleEdit}
-                            onDelete={(project) => {
-                              setSelectedProject(project);
-                              setShowDeleteModal(true);
-                            }}
-                          />
-                        )}
+                        {!isBlockedProjectActions &&
+                          activeDropdown === project.id && (
+                            <DropdownMenu
+                              ref={dropdownModalRef}
+                              item={project}
+                              onEdit={handleEdit}
+                              onDelete={(project) => {
+                                setSelectedProject(project);
+                                setShowDeleteModal(true);
+                              }}
+                            />
+                          )}
                       </div>
                     )}
                   </div>
