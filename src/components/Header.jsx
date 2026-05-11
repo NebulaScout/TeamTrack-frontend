@@ -2,8 +2,14 @@ import React from "react";
 import styles from "@/styles/dashboard.module.css";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { FiSearch } from "react-icons/fi";
+import { useUnreadNotificationsCount } from "@/utils/queries/useNotifications";
 
 export default function Header({ title, pageIntro, unreadNotifications }) {
+  const { unreadCount } = useUnreadNotificationsCount();
+
+  const badgeCount =
+    typeof unreadNotifications === "number" ? unreadNotifications : unreadCount;
+
   return (
     <header className={styles.header}>
       <div className={styles.headerTitle}>
@@ -19,10 +25,8 @@ export default function Header({ title, pageIntro, unreadNotifications }) {
         </div>
         <button className={styles.btnNotifications}>
           <IoNotificationsOutline />
-          {unreadNotifications > 0 && (
-            <span className={styles.notificationsBadge}>
-              {unreadNotifications}
-            </span>
+          {badgeCount > 0 && (
+            <span className={styles.notificationsBadge}>{badgeCount}</span>
           )}
         </button>
       </div>

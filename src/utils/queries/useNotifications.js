@@ -116,3 +116,22 @@ export const useReadNotification = () => {
     },
   });
 };
+
+export const useUnreadNotificationsCount = (
+  userId,
+  filters = {},
+  options = {},
+) => {
+  const { data: notifications = [], ...query } = useGetNotifications(
+    userId,
+    filters,
+    options,
+  );
+
+  const unreadCount = notifications.reduce(
+    (count, notification) => count + (!notification.isRead ? 1 : 0),
+    0,
+  );
+
+  return { unreadCount, notifications, ...query };
+};

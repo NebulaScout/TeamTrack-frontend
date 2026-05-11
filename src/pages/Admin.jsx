@@ -71,7 +71,6 @@ export default function Admin() {
         <Header
           title="Admin Dashboard"
           pageIntro="Manage users, projects, tasks and system settings"
-          unreadNotifications={3}
         />
 
         <div className={adminStyles.adminContainer}>
