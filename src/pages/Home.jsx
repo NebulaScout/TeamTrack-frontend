@@ -13,7 +13,7 @@ import {
   FiUsers,
 } from "react-icons/fi";
 import { useAuth } from "@/contexts/AuthProvider";
-import styles from "./Home.module.css";
+import styles from "@/styles/home.module.css";
 
 const features = [
   {
@@ -137,12 +137,12 @@ export default function Home() {
             </Link>
 
             <nav className={styles.navLinks} aria-label="Primary">
-              <a className={styles.navLinkActive} href="/">
+              <Link className={styles.navLinkActive} to="/">
                 Home
-              </a>
-              <a className={styles.navLink} href="#about">
+              </Link>
+              <Link className={styles.navLink} to="/about">
                 About
-              </a>
+              </Link>
             </nav>
 
             <div className={styles.navActions}>

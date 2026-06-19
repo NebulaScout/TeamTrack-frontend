@@ -9,6 +9,7 @@ import Tasks from "./pages/Tasks";
 import Calendar from "./pages/Calendar";
 import Settings from "./pages/Settings";
 import Home from "./pages/Home";
+import About from "./pages/About";
 import Team from "./pages/Team";
 import Reports from "./pages/Reports";
 import Notifications from "./pages/Notifications";
@@ -33,6 +34,7 @@ export default function App() {
     <AuthProvider>
       <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/about" element={<About />} />
 
         {/* <Route
           path="/"
