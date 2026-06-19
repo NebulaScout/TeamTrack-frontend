@@ -11,6 +11,8 @@ import {
 import { HiSparkles } from "react-icons/hi2";
 import { useAuth } from "@/contexts/AuthProvider";
 import styles from "@/styles/about.module.css";
+import LandingPageFooter from "@/components/LandingPageFooter";
+import LandingPageHeader from "@/components/LandingPageHeader";
 
 const stats = [
   { value: "10k+", label: "Teams onboard" },
@@ -68,36 +70,7 @@ export default function About() {
 
   return (
     <div className={styles.page}>
-      <header className={styles.navBar}>
-        <div className={styles.shell}>
-          <div className={styles.navInner}>
-            <Link to="/" className={styles.brand}>
-              <span className={styles.brandMark} aria-hidden="true">
-                <span className={styles.brandDot} />
-              </span>
-              <span>TeamTrack</span>
-            </Link>
-
-            <nav className={styles.navLinks} aria-label="Primary">
-              <Link className={styles.navLink} to="/">
-                Home
-              </Link>
-              <Link className={styles.navLinkActive} to="/about">
-                About
-              </Link>
-            </nav>
-
-            <div className={styles.navActions}>
-              <Link className={styles.navGhostButton} to="/login">
-                Sign in
-              </Link>
-              <Link className={styles.navPrimaryButton} to="/register">
-                Get started
-              </Link>
-            </div>
-          </div>
-        </div>
-      </header>
+      <LandingPageHeader />
 
       <main>
         <section className={styles.hero}>
@@ -239,41 +212,7 @@ export default function About() {
         </section>
       </main>
 
-      <footer className={styles.footer}>
-        <div className={styles.shell}>
-          <div className={styles.footerGrid}>
-            <div>
-              <Link to="/" className={styles.footerBrand}>
-                <span className={styles.brandMark} aria-hidden="true">
-                  <span className={styles.brandDot} />
-                </span>
-                <span>TeamTrack</span>
-              </Link>
-              <p>
-                The collaborative workspace where teams plan projects, track
-                tasks, and ship work together.
-              </p>
-            </div>
-
-            <div>
-              <h3>Product</h3>
-              <Link to="/">Home</Link>
-              <Link to="/about">About</Link>
-              <Link to="/register">Get started</Link>
-            </div>
-
-            <div>
-              <h3>Account</h3>
-              <Link to="/login">Sign in</Link>
-              <Link to="/register">Create account</Link>
-            </div>
-          </div>
-
-          <div className={styles.footerBottom}>
-            <p>© 2026 TeamTrack. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <LandingPageFooter />
     </div>
   );
 }
