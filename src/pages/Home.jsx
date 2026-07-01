@@ -9,9 +9,9 @@ import {
   FiGrid,
   FiMessageSquare,
   FiShield,
-  FiStar,
   FiUsers,
 } from "react-icons/fi";
+import { GoDotFill } from "react-icons/go";
 import { useAuth } from "@/contexts/AuthProvider";
 import styles from "@/styles/home.module.css";
 import LandingPageHeader from "@/components/LandingPageHeader";
@@ -134,7 +134,7 @@ export default function Home() {
         <section className={styles.hero}>
           <div className={styles.shell}>
             <div className={styles.heroBadge}>
-              <FiStar />
+              <GoDotFill />
               <span>Built for modern teams</span>
             </div>
 

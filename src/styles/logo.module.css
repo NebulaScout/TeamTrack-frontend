@@ -1,0 +1,25 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.logoMark {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.6rem;
+  background: linear-gradient(135deg, #1d4ed8, #2563eb);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+  flex: 0 0 auto;
+}
+
+.logoIcon {
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #ffffff;
+}
